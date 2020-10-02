@@ -1,7 +1,7 @@
 version: "3.4"
 
 services:
-  web:
+  web: &web
     build:
       context: .
       dockerfile: ./Dockerfile
@@ -10,3 +10,8 @@ services:
     volumes:
       - .:/app
     stdin_open: true
+
+  build:
+    <<: *web
+    ports: []
+    command: yarn run build
