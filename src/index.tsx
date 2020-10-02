@@ -61,12 +61,12 @@ const lightTheme = {
 
 if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
   loadTheme(darkTheme);
+  document.documentElement.style.background = darkTheme.palette.white;
 }
 else {
   loadTheme(lightTheme);
+  document.documentElement.style.background = lightTheme.palette.white;
 }
-document.documentElement.style.background = darkTheme.palette.white;
-
 
 ReactDOM.render(
   <Fabric>
