@@ -2,6 +2,9 @@ version: "3.4"
 
 services:
   web:
-    volumes:
-      - .:/app/boundlexx-ui
-    command: "yarn run start:local"
+    # if you want to customize the volumne mount
+    # volumes:
+    #   - .:/app/boundlexx-ui
+
+    # Run against local-boundlexx.wl.mort.is
+    # command: "yarn run start:local"
