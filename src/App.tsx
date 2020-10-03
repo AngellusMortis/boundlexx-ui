@@ -1,40 +1,27 @@
 import React from 'react';
 import './App.css';
-import { Stack, Text, Link, FontWeights } from '@fluentui/react';
+import { Stack, Text, Link, FontWeights, IStackTokens } from '@fluentui/react';
+import { OpenAPIProvider } from 'react-openapi-client';
+import Colors from './components/Color';
 
 const boldStyle = { root: { fontWeight: FontWeights.semibold } };
+const containerStackTokens: IStackTokens = { childrenGap: 15 };
 
 function App() {
   return (
-    <Stack
-      horizontalAlign="center"
-      verticalAlign="center"
-      verticalFill
-      gap={15}
-    >
-      <img src="/logo.svg" className="App-logo" alt="logo" />
-      <Text variant="xxLarge" styles={boldStyle}>
-        Welcome to Your UI Fabric App
-      </Text>
-      <Text variant="large">For a guide on how to customize this project, check out the UI Fabric documentation.</Text>
-      <Text variant="large" styles={boldStyle}>
-        Essential Links
-      </Text>
-      <Stack horizontal gap={15} horizontalAlign="center">
-        <Link href="https://developer.microsoft.com/en-us/fabric">Docs</Link>
-        <Link href="https://stackoverflow.com/questions/tagged/office-ui-fabric">Stack Overflow</Link>
-        <Link href="https://github.com/officeDev/office-ui-fabric-react/">Github</Link>
-        <Link href="https://twitter.com/officeuifabric">Twitter</Link>
+    <OpenAPIProvider definition="https://api.boundlexx.app/api/v1/schema/?format=openapi-json">
+      <Stack
+        horizontalAlign="center"
+        verticalAlign="center"
+        verticalFill
+        tokens={containerStackTokens}
+      >
+        <img src="/logo.svg" className="App-logo" alt="logo" />
+        <Text variant="xxLarge" styles={boldStyle}>Boundlexx</Text>
+        <Text variant="large"><Link href="https://api.boundlexx.app/api/v1/">API Documentation</Link></Text>
+        <Colors />
       </Stack>
-      <Text variant="large" styles={boldStyle}>
-        Design System
-      </Text>
-      <Stack horizontal gap={15} horizontalAlign="center">
-        <Link href="https://developer.microsoft.com/en-us/fabric#/styles/icons">Icons</Link>
-        <Link href="https://developer.microsoft.com/en-us/fabric#/styles/typography">Typography</Link>
-        <Link href="https://developer.microsoft.com/en-us/fabric#/styles/themegenerator">Theme</Link>
-      </Stack>
-    </Stack>
+    </OpenAPIProvider>
   );
 }
 
