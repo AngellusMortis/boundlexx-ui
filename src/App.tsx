@@ -22,7 +22,7 @@ function App() {
           verticalFill
           tokens={containerStackTokens}
         >
-          <Image src="/logo.svg" height={"40vmin"} alt="logo" />
+          <Image src="https://cdn.boundlexx.app/logos/logo.svg" height={"40vmin"} alt="logo" />
           <h1>{t("Boundlexx")}</h1>
           <Text variant="large"><Link href="https://api.boundlexx.app/api/v1/">{t("API Documentation")}</Link></Text>
 
