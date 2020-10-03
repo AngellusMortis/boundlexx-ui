@@ -1,22 +1,20 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
+import './i18n';
 import App from './App';
-import { setTheme } from './themes';
 import * as serviceWorker from './serviceWorker';
-import { Fabric } from '@fluentui/react';
+import { Fabric, initializeIcons } from '@fluentui/react';
 
-setTheme(window.matchMedia("(prefers-color-scheme: dark)").matches);
+initializeIcons();
 
-const darkModeMediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-darkModeMediaQuery.addEventListener("change", (e) => {
-  setTheme(e.matches);
-});
 
 ReactDOM.render(
-  <Fabric>
-    <App />
-  </Fabric>,
+  <React.Suspense fallback="loading">
+    <Fabric>
+      <App />
+    </Fabric>
+  </React.Suspense>,
   document.getElementById('root')
 );
 

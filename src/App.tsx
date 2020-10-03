@@ -1,27 +1,36 @@
 import React from 'react';
 import './App.css';
-import { Stack, Text, Link, FontWeights, IStackTokens } from '@fluentui/react';
+import { Stack, Text, Link, IStackTokens } from '@fluentui/react';
 import { OpenAPIProvider } from 'react-openapi-client';
-import Colors from './components/Color';
+import Colors from './components/Colors';
+import ThemeSelector from './components/ThemeSelector';
+import LanguageSelector from './components/LanguageSelector';
+import { UserPreferencesProvider } from './UserPreferences';
+import { useTranslation } from 'react-i18next';
 
-const boldStyle = { root: { fontWeight: FontWeights.semibold } };
 const containerStackTokens: IStackTokens = { childrenGap: 15 };
 
 function App() {
+  const { t, i18n } = useTranslation();
   return (
-    <OpenAPIProvider definition="https://api.boundlexx.app/api/v1/schema/?format=openapi-json">
-      <Stack
-        horizontalAlign="center"
-        verticalAlign="center"
-        verticalFill
-        tokens={containerStackTokens}
-      >
-        <img src="/logo.svg" className="App-logo" alt="logo" />
-        <Text variant="xxLarge" styles={boldStyle}>Boundlexx</Text>
-        <Text variant="large"><Link href="https://api.boundlexx.app/api/v1/">API Documentation</Link></Text>
-        <Colors />
-      </Stack>
-    </OpenAPIProvider>
+    <UserPreferencesProvider>
+      <OpenAPIProvider definition="https://api.boundlexx.app/api/v1/schema/?format=openapi-json">
+        <Stack
+          horizontalAlign="center"
+          verticalAlign="center"
+          verticalFill
+          tokens={containerStackTokens}
+        >
+          <img src="/logo.svg" className="App-logo" alt="logo" />
+          <h1>{t("Boundlexx")}</h1>
+          <Text variant="large"><Link href="https://api.boundlexx.app/api/v1/">{t("API Documentation")}</Link></Text>
+
+          <ThemeSelector />
+          <LanguageSelector />
+          <Colors locale={i18n.language} loading={true} />
+        </Stack>
+      </OpenAPIProvider>
+    </UserPreferencesProvider>
   );
 }
 
