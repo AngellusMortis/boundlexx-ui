@@ -1,0 +1,19 @@
+.color-color {
+    width: 57px;
+    height: 57px;
+}
+
+.ms-List-page {
+    display: flex;
+}
+
+
+.ms-List-page .ms-List-cell {
+    width: 300px;
+    display: flex;
+    margin: 0 auto;
+}
+
+.color-color .ms-Shimmer-shimmerWrapper {
+    height: 100%;
+}

@@ -12,7 +12,7 @@ export interface UserPreferences {
 
 export const UserPreferencesContext = React.createContext<UserPreferences>({
     theme: "",
-    language: "",
+    language: "english",
     setTheme: null,
     setLanguage: null,
 });
@@ -46,7 +46,11 @@ class UserPreferencesProviderBase extends Component<WithTranslation, UserPrefere
         super(props);
 
         const { i18n } = this.props;
-        this.detectedLanuage = i18n.language;
+        this.detectedLanuage = i18n.language.substring(0, 2);
+
+        if (!LangToBoundlessMap.hasOwnProperty(this.detectedLanuage)) {
+            this.detectedLanuage = "en";
+        }
 
         this.setTheme = this.setTheme.bind(this);
         this.setLanguage = this.setLanguage.bind(this);
@@ -55,6 +59,9 @@ class UserPreferencesProviderBase extends Component<WithTranslation, UserPrefere
 
         if (localStoragePrefs !== null) {
             this.state = JSON.parse(localStoragePrefs);
+        }
+        else {
+            this.state.language = LangToBoundlessMap[this.detectedLanuage];
         }
         this.updateLanguage();
 
@@ -81,7 +88,6 @@ class UserPreferencesProviderBase extends Component<WithTranslation, UserPrefere
 
         if (i18n.language !== langToSet) {
             i18n.changeLanguage(langToSet);
-            this.forceUpdate();
         }
     }
 

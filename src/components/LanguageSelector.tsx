@@ -1,15 +1,14 @@
 import { IDropdownOption, Dropdown, IDropdownStyles } from '@fluentui/react';
 import React from 'react';
 import { UserPreferencesContext } from '../UserPreferences';
-import { withTranslation, WithTranslation } from 'react-i18next';
 
 const styles: Partial<IDropdownStyles> = {
     dropdown: { width: 300 },
 }
 
-class LanguageSelector extends React.Component<WithTranslation> {
+class LanguageSelector extends React.Component {
     static contextType = UserPreferencesContext;
-    constructor(props: WithTranslation) {
+    constructor(props: any) {
         super(props);
         this.handleChange.bind(this);
     }
@@ -21,14 +20,12 @@ class LanguageSelector extends React.Component<WithTranslation> {
     }
 
     render() {
-        const { t } = this.props;
         const langOptions: IDropdownOption[] = [
-            { key: "", text: t("Auto-Detect") },
             { key: "english", text: "English" },
-            { key: "french", text: "French" },
-            { key: "german", text: "German" },
-            { key: "italian", text: "Italian" },
-            { key: "spanish", text: "Spanish" },
+            { key: "french", text: "Français" },
+            { key: "german", text: "Deutsch" },
+            { key: "italian", text: "Italiano" },
+            { key: "spanish", text: "Español" },
         ];
 
         return (
@@ -43,4 +40,4 @@ class LanguageSelector extends React.Component<WithTranslation> {
     }
 }
 
-export default withTranslation()(LanguageSelector);
+export default LanguageSelector;

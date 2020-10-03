@@ -1,17 +1,17 @@
 import React from 'react';
 import './App.css';
-import { Stack, Text, Link, IStackTokens } from '@fluentui/react';
+import { Stack, Text, Link, Image, IStackTokens } from '@fluentui/react';
 import { OpenAPIProvider } from 'react-openapi-client';
 import Colors from './components/Colors';
 import ThemeSelector from './components/ThemeSelector';
 import LanguageSelector from './components/LanguageSelector';
-import { UserPreferencesProvider } from './UserPreferences';
+import { UserPreferencesProvider, UserPreferencesContext } from './UserPreferences';
 import { useTranslation } from 'react-i18next';
 
 const containerStackTokens: IStackTokens = { childrenGap: 15 };
 
 function App() {
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
   return (
     <UserPreferencesProvider>
       <OpenAPIProvider definition="https://api.boundlexx.app/api/v1/schema/?format=openapi-json">
@@ -21,13 +21,15 @@ function App() {
           verticalFill
           tokens={containerStackTokens}
         >
-          <img src="/logo.svg" className="App-logo" alt="logo" />
+          <Image src="/logo.svg" height={"40vmin"} alt="logo" />
           <h1>{t("Boundlexx")}</h1>
           <Text variant="large"><Link href="https://api.boundlexx.app/api/v1/">{t("API Documentation")}</Link></Text>
 
           <ThemeSelector />
           <LanguageSelector />
-          <Colors locale={i18n.language} loading={true} results={[]} />
+          <UserPreferencesContext.Consumer>
+            {value => <Colors locale={value.language} />}
+          </UserPreferencesContext.Consumer>
         </Stack>
       </OpenAPIProvider>
     </UserPreferencesProvider>
