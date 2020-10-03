@@ -27,7 +27,7 @@ function App() {
 
           <ThemeSelector />
           <LanguageSelector />
-          <Colors locale={i18n.language} loading={true} />
+          <Colors locale={i18n.language} loading={true} results={[]} />
         </Stack>
       </OpenAPIProvider>
     </UserPreferencesProvider>

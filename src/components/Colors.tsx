@@ -1,15 +1,14 @@
-import { useOperation } from 'react-openapi-client';
 import React from 'react';
-import { DetailsList, IColumn } from '@fluentui/react';
-import { useTranslation } from 'react-i18next';
+import { DetailsList, IColumn, ShimmeredDetailsList } from '@fluentui/react';
 import { LangToBoundlessMap } from '../UserPreferences';
 import { withTranslation, WithTranslation } from 'react-i18next';
 import { OpenAPIContext } from 'react-openapi-client';
 
 interface ColorsState extends WithTranslation {
     locale: string,
-    loading: boolean,
-    data?: any,
+    loading?: boolean,
+    response?: any,
+    results?: any[],
     error?: Error,
 }
 
@@ -28,7 +27,7 @@ class Colors extends React.Component<ColorsState> {
         try {
             const client = await this.context.api.getClient();
             const response = await client.listColors([{ "name": "limit", value: 255, in: "query" }, { "name": "lang", value: LangToBoundlessMap[this.props.locale], in: "query" }]);
-            this.setState({ data: response.data });
+            this.setState({ results: response.data.results });
         }
         catch (err) {
             this.setState({ error: err });
@@ -76,16 +75,14 @@ class Colors extends React.Component<ColorsState> {
             },
         ];
 
-        if (this.state.loading) {
-            return <div>{t("Loading...")}</div>;
-        }
-
         if (this.state.error) {
             return <div>{t("Error:")} {this.state.error}</div>;
         }
 
+        const items = this.state.results || [];
+
         return (
-            <DetailsList items={this.state.data.results} columns={columns} checkboxVisibility={2} />
+            <ShimmeredDetailsList columns={columns} enableShimmer={items.length === 0} items={items} checkboxVisibility={2} />
         )
     }
 };
