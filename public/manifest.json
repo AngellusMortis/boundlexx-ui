@@ -1,14 +1,23 @@
 {
-  "short_name": "React App",
-  "name": "Create React App Sample",
+  "short_name": "Boundlexx",
+  "name": "Boundlexx - A Boundless Lexicon",
   "icons": [
     {
-      "src": "logo.svg",
+      "src": "https://cdn.boundlexx.app/logos/logo.svg",
       "type": "image/svg+xml"
+    },
+    {
+      "src": "https://cdn.boundlexx.app/logos/logo.png",
+      "type": "image/png",
+      "sizes": "512x512",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "https://cdn.boundlexx.app/logos/logo.ico"
     }
   ],
   "start_url": ".",
   "display": "standalone",
-  "theme_color": "#000000",
-  "background_color": "#ffffff"
+  "theme_color": "#ec375e",
+  "background_color": "#18181a"
 }

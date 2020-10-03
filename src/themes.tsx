@@ -1,6 +1,6 @@
 import { loadTheme } from '@fluentui/react';
 
-const darkTheme = {
+export const darkTheme = {
     palette: {
         themePrimary: '#ec375e',
         themeLighterAlt: '#090204',
@@ -28,7 +28,7 @@ const darkTheme = {
 };
 
 
-const lightTheme = {
+export const lightTheme = {
     palette: {
         themePrimary: '#ec375e',
         themeLighterAlt: '#090204',

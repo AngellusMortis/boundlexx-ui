@@ -5,13 +5,13 @@
 
 .ms-List-page {
     display: flex;
+    justify-content: center;
 }
 
 
 .ms-List-page .ms-List-cell {
     width: 300px;
     display: flex;
-    margin: 0 auto;
 }
 
 .color-color .ms-Shimmer-shimmerWrapper {

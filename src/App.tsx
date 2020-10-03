@@ -1,6 +1,6 @@
 import React from 'react';
 import './App.css';
-import { Stack, Text, Link, Image, IStackTokens } from '@fluentui/react';
+import { Stack, Text, Link, Image, IStackTokens, initializeIcons } from '@fluentui/react';
 import { OpenAPIProvider } from 'react-openapi-client';
 import Colors from './components/Colors';
 import ThemeSelector from './components/ThemeSelector';
@@ -13,6 +13,9 @@ const containerStackTokens: IStackTokens = { childrenGap: 15 };
 
 function App() {
   const { t } = useTranslation();
+
+  initializeIcons();
+
   return (
     <UserPreferencesProvider>
       <OpenAPIProvider definition={`${api.apiBase}/schema/?format=openapi-json`} withServer={api.server}>
@@ -22,7 +25,7 @@ function App() {
           verticalFill
           tokens={containerStackTokens}
         >
-          <Image src="https://cdn.boundlexx.app/logos/logo.svg" height={"40vmin"} alt="logo" />
+          <img src="https://cdn.boundlexx.app/logos/logo.svg" alt="logo" width="300" height="300" className="logo" />
           <h1>{t("Boundlexx")}</h1>
           <Text variant="large"><Link href="https://api.boundlexx.app/api/v1/">{t("API Documentation")}</Link></Text>
 
