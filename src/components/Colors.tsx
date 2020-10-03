@@ -1,5 +1,5 @@
 import React from 'react';
-import { List, FocusZone, Stack, Text, IRectangle, Shimmer, IPage } from '@fluentui/react';
+import { List, TextField, Stack, Text, IRectangle, Shimmer, IPage, ScrollbarVisibility, ScrollablePane } from '@fluentui/react';
 import { Card } from '@uifabric/react-cards';
 import { withTranslation, WithTranslation } from 'react-i18next';
 import { OpenAPIContext } from 'react-openapi-client';
@@ -14,6 +14,7 @@ interface ColorsState {
     count: number,
     results: any[],
     nextUrl: string | null,
+    search: string | null,
     error?: Error,
 }
 
@@ -23,16 +24,19 @@ class Colors extends React.Component<ColorsProps> {
     static contextType = OpenAPIContext;
 
     client: any | null;
+    searchTimer: NodeJS.Timeout | null;
     state: ColorsState = {
         loading: false,
         count: PAGE_SIZE,
         results: new Array(PAGE_SIZE),
         nextUrl: null,
+        search: null,
     }
     constructor(props: ColorsProps) {
         super(props);
 
         this.client = null;
+        this.searchTimer = null;
         this.onRenderCell.bind(this);
     }
 
@@ -53,12 +57,14 @@ class Colors extends React.Component<ColorsProps> {
 
             // initial request, or lang change
             if (forceUpdate || this.state.nextUrl === null) {
-                // do not wipe out results from previous lang
-                if (this.state.results.length === 0) {
-                    this.setState({ results: new Array(PAGE_SIZE) })
-                }
+                this.setState({ results: new Array(PAGE_SIZE) });
 
-                response = await this.client.listColors([{ "name": "limit", value: PAGE_SIZE, in: "query" }, { "name": "lang", value: this.props.locale, in: "query" }]);
+                const params = [{ "name": "limit", value: PAGE_SIZE, in: "query" }, { "name": "lang", value: this.props.locale, in: "query" }];
+
+                if (this.state.search !== null) {
+                    params.push({ "name": "search", value: this.state.search, in: "query" });
+                }
+                response = await this.client.listColors(params);
             }
             else {
                 response = await this.client.get(this.state.nextUrl);
@@ -100,6 +106,7 @@ class Colors extends React.Component<ColorsProps> {
                 </Card>
             )
         }
+
         return (
             <Card data-is-focusable horizontal tokens={{ childrenMargin: 5 }} style={{ position: "relative", float: "left", padding: 2 }}>
                 <Card.Item fill>
@@ -109,6 +116,24 @@ class Colors extends React.Component<ColorsProps> {
         )
     }
 
+    onSearchChange(event: React.FormEvent<HTMLInputElement | HTMLTextAreaElement>, newValue?: string) {
+
+        if (this.searchTimer !== null) {
+            window.clearTimeout(this.searchTimer);
+            this.searchTimer = null;
+        }
+
+        this.searchTimer = setTimeout(() => {
+            let newSearch: string | null = null;
+            if (newValue !== undefined && newValue.trim().length > 0) {
+                newSearch = newValue;
+            }
+
+            this.setState({ search: newSearch });
+            this.getColors(true);
+        }, 500);
+    }
+
     render() {
         const { t } = this.props;
 
@@ -116,7 +141,7 @@ class Colors extends React.Component<ColorsProps> {
             return (
                 <Stack horizontalAlign={"center"}>
                     <h3>{t("Colors")}</h3>
-                    <div>{t("Error:")} {this.state.error}</div>
+                    <div>{t("Error:")} {this.state.error.message}</div>
                 </Stack>
             )
         }
@@ -137,17 +162,23 @@ class Colors extends React.Component<ColorsProps> {
             }
 
             if (page.items !== undefined && page.items[0] === undefined) {
-                // debugger;
                 this.getColors();
             }
         }
 
         return (
             <Stack horizontalAlign={"center"} styles={{ root: { width: "100%", marginBottom: 20 } }}>
-                <h2>{t("Colors")}</h2>
-                <FocusZone style={{ width: "90vw" }}>
-                    <List items={this.state.results} onRenderCell={this.onRenderCell} style={{ position: "relative" }} getItemCountForPage={getItemCountForPage} getPageHeight={() => { return 65 }} usePageCache={true} renderCount={this.state.count} onPageAdded={onPageAdded} />
-                </FocusZone>
+                <div style={{ display: "flex", justifyContent: "space-between", width: "100%" }}>
+                    <h2 style={{ display: "inline-flex", margin: "0 20px" }}>{t("Colors")}</h2>
+                    <div style={{ display: "inline-flex", margin: "0 20px" }} >
+                        <TextField label="Search:" onChange={this.onSearchChange.bind(this)} />
+                    </div>
+                </div>
+                <div style={{ position: "relative", height: "calc(100vh - 50px)", width: "100%" }}>
+                    <ScrollablePane scrollbarVisibility={ScrollbarVisibility.auto}>
+                        <List items={this.state.results} onRenderCell={this.onRenderCell} style={{ position: "relative" }} getItemCountForPage={getItemCountForPage} getPageHeight={() => { return 65 }} usePageCache={true} renderCount={this.state.count} onPageAdded={onPageAdded} />
+                    </ScrollablePane>
+                </div>
             </Stack>
         )
     }
