@@ -3,5 +3,5 @@ version: "3.4"
 services:
   web:
     volumes:
-      - .:/app
+      - .:/app/boundlexx-ui
     command: "yarn run start:local"

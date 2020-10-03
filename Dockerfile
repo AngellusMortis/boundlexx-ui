@@ -8,3 +8,4 @@ ENV DISABLE_OPENCOLLECTIVE=true
 
 COPY package.json yarn.lock /app/
 RUN yarn install && rm /app/package.json /app/yarn.lock
+WORKDIR /app/boundlexx-ui
