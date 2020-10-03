@@ -7,6 +7,7 @@ import ThemeSelector from './components/ThemeSelector';
 import LanguageSelector from './components/LanguageSelector';
 import { UserPreferencesProvider, UserPreferencesContext } from './UserPreferences';
 import { useTranslation } from 'react-i18next';
+import api from './api';
 
 const containerStackTokens: IStackTokens = { childrenGap: 15 };
 
@@ -14,7 +15,7 @@ function App() {
   const { t } = useTranslation();
   return (
     <UserPreferencesProvider>
-      <OpenAPIProvider definition="https://api.boundlexx.app/api/v1/schema/?format=openapi-json">
+      <OpenAPIProvider definition={`${api.apiBase}/schema/?format=openapi-json`} withServer={api.server}>
         <Stack
           horizontalAlign="center"
           verticalAlign="center"

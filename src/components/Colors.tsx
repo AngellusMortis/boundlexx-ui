@@ -1,5 +1,5 @@
 import React from 'react';
-import { List, TextField, Stack, Text, IRectangle, Shimmer, IPage, ScrollbarVisibility, ScrollablePane } from '@fluentui/react';
+import { List, TextField, Stack, Text, IRectangle, Shimmer, IPage, ScrollbarVisibility, ScrollablePane, DefaultButton } from '@fluentui/react';
 import { Card } from '@uifabric/react-cards';
 import { withTranslation, WithTranslation } from 'react-i18next';
 import { OpenAPIContext } from 'react-openapi-client';
@@ -51,7 +51,7 @@ class Colors extends React.Component<ColorsProps> {
             return;
         }
 
-        this.setState({ loading: true });
+        this.setState({ loading: true, error: null });
         try {
             let response = null;
 
@@ -82,8 +82,13 @@ class Colors extends React.Component<ColorsProps> {
     }
 
     async componentDidMount() {
-        this.client = await this.context.api.getClient();
-        await this.getColors()
+        try {
+            this.client = await this.context.api.getClient();
+        }
+        catch (err) {
+            this.setState({ error: err });
+        }
+        await this.getColors(true);
     }
 
     async componentDidUpdate(prevProps: ColorsProps) {
@@ -134,14 +139,19 @@ class Colors extends React.Component<ColorsProps> {
         }, 500);
     }
 
+    async onRetryClick() {
+        await this.componentDidMount();
+    }
+
     render() {
         const { t } = this.props;
 
         if (this.state.error) {
             return (
                 <Stack horizontalAlign={"center"}>
-                    <h3>{t("Colors")}</h3>
-                    <div>{t("Error:")} {this.state.error.message}</div>
+                    <h2>{t("Colors")}</h2>
+                    <Text>{t("Error:")} {this.state.error.message}</Text>
+                    <DefaultButton text="Retry" onClick={this.onRetryClick.bind(this)} />
                 </Stack>
             )
         }
