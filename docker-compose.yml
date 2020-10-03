@@ -10,8 +10,9 @@ services:
     volumes:
       - .:/app
     stdin_open: true
+    command: yarn run start:prod
 
   build:
     <<: *web
     ports: []
-    command: yarn run build
+    command: yarn run build:prod
