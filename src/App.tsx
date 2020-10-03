@@ -1,6 +1,6 @@
 import React from 'react';
 import './App.css';
-import { Stack, Text, Link, Image, IStackTokens, initializeIcons } from '@fluentui/react';
+import { Stack, Text, Link, IStackTokens, initializeIcons } from '@fluentui/react';
 import { OpenAPIProvider } from 'react-openapi-client';
 import Colors from './components/Colors';
 import ThemeSelector from './components/ThemeSelector';
