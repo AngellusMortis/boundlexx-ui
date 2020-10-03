@@ -15,20 +15,20 @@ const Colors: React.FunctionComponent<Props> = (props) => {
             minWidth: 50,
         },
         {
-            key: "name",
-            name: "Name",
-            onRender: (item: any) => {
-                return item.localization[0].name;
-            },
-            minWidth: 100,
-        },
-        {
             key: "color",
             name: "Color",
             onRender: (item: any) => {
                 return <div style={{
                     width: "25px", backgroundColor: item.base_color, height: "25px"
                 }} />;
+            },
+            minWidth: 100,
+        },
+        {
+            key: "name",
+            name: "Name",
+            onRender: (item: any) => {
+                return item.localization[0].name;
             },
             minWidth: 100,
         },
