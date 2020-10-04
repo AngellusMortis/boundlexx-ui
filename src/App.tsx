@@ -8,6 +8,7 @@ import LanguageSelector from './components/LanguageSelector';
 import { UserPreferencesProvider, UserPreferencesContext } from './UserPreferences';
 import { useTranslation } from 'react-i18next';
 import api from './api';
+import Headers from './components/header/Headers'
 
 const containerStackTokens: IStackTokens = { childrenGap: 15 };
 
@@ -19,6 +20,7 @@ function App() {
   return (
     <UserPreferencesProvider>
       <OpenAPIProvider definition={`${api.apiBase}/schema/?format=openapi-json`} withServer={api.server}>
+        <Headers />
         <Stack
           horizontalAlign="center"
           verticalAlign="center"
