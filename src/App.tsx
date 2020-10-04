@@ -2,7 +2,7 @@ import React from 'react';
 import './App.css';
 import { Stack, Text, Link, IStackTokens } from '@fluentui/react';
 import { OpenAPIProvider } from 'react-openapi-client';
-import Colors from './components/Colors';
+import Worlds from './components/api/Worlds';
 import ThemeSelector from './components/ThemeSelector';
 import LanguageSelector from './components/LanguageSelector';
 import { useTranslation } from 'react-i18next';
@@ -30,7 +30,7 @@ function App() {
 
           <ThemeSelector />
           <LanguageSelector />
-          <Colors />
+          <Worlds />
         </Stack>
       </OpenAPIProvider>
       }

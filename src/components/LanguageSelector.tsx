@@ -4,6 +4,7 @@ import { RootState } from '../store';
 import { connect, ConnectedProps } from 'react-redux';
 import { changeLanuage } from '../prefs/actions';
 import { withTranslation, WithTranslation } from 'react-i18next';
+import { StringDict } from '../types'
 
 const mapState = (state: RootState) => ({
     locale: state.prefs.language
@@ -15,20 +16,20 @@ const connector = connect(mapState, mapDispatchToProps);
 
 type Props = WithTranslation & ConnectedProps<typeof connector>;
 
-const LangToBoundlessMap: any = {
-    en: "english",
-    fr: "french",
-    de: "german",
-    it: "italian",
-    es: "spanish",
+const LangToBoundlessMap: StringDict<string> = {
+    "en": "english",
+    "fr": "french",
+    "de": "german",
+    "it": "italian",
+    "es": "spanish",
 };
 
-const BoundlessToLangMap: any = {
-    english: "en",
-    french: "fr",
-    german: "de",
-    italian: "it",
-    spanish: "es",
+const BoundlessToLangMap: StringDict<string> = {
+    "english": "en",
+    "french": "fr",
+    "german": "de",
+    "italian": "it",
+    "spanish": "es",
 }
 
 class LanguageSelector extends React.Component<Props> {

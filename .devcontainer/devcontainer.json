@@ -13,7 +13,7 @@
   "service": "web",
   // The optional 'workspaceFolder' property is the path VS Code should open by default when
   // connected. This is typically a file mount in .devcontainer/docker-compose.yml
-  "workspaceFolder": "/app",
+  "workspaceFolder": "/app/boundlexx-ui",
   // Set *default* container specific settings.json values on container create.
   "settings": {
     "terminal.integrated.shell.linux": "/bin/bash",
@@ -52,7 +52,8 @@
   "extensions": [
     "dbaeumer.vscode-eslint",
     "esbenp.prettier-vscode",
-    "ms-vscode.vscode-typescript-tslint-plugin"
+    "ms-vscode.vscode-typescript-tslint-plugin",
+    "msjsdiag.debugger-for-chrome"
   ],
   // Uncomment the next line if you want start specific services in your Docker Compose config.
   "runServices": ["web"],

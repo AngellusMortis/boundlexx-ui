@@ -1,0 +1,36 @@
+.ms-List-page {
+  display: flex;
+  justify-content: center;
+}
+
+.ms-List-page .ms-List-cell {
+  width: 300px;
+  display: flex;
+}
+
+.ms-List-cell .css-124 > :not(:first-child) {
+  margin-top: 0;
+}
+
+.ms-CardItem {
+  width: 60px;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ms-CardItem .card-preview {
+  width: 57px;
+  height: 57px;
+  display: inline-flex;
+}
+
+.ms-CardItem .card-preview .ms-Shimmer-shimmerWrapper {
+  height: 100%;
+}
+
+.ms-List-cell .emoji {
+  width: 12px;
+  height: 12px;
+}
