@@ -1,21 +1,70 @@
-import { IDropdownOption, Dropdown, IDropdownStyles } from '@fluentui/react';
+import { IDropdownOption, Dropdown } from '@fluentui/react';
 import React from 'react';
-import { UserPreferencesContext } from '../UserPreferences';
+import { RootState } from '../store';
+import { connect, ConnectedProps } from 'react-redux';
+import { changeLanuage } from '../prefs/actions';
+import { withTranslation, WithTranslation } from 'react-i18next';
 
-const styles: Partial<IDropdownStyles> = {
-    dropdown: { width: 300 },
+const mapState = (state: RootState) => ({
+    locale: state.prefs.language
+});
+
+const mapDispatchToProps = { changeLanuage };
+
+const connector = connect(mapState, mapDispatchToProps);
+
+type Props = WithTranslation & ConnectedProps<typeof connector>;
+
+const LangToBoundlessMap: any = {
+    en: "english",
+    fr: "french",
+    de: "german",
+    it: "italian",
+    es: "spanish",
+};
+
+const BoundlessToLangMap: any = {
+    english: "en",
+    french: "fr",
+    german: "de",
+    italian: "it",
+    spanish: "es",
 }
 
-class LanguageSelector extends React.Component {
-    static contextType = UserPreferencesContext;
-    constructor(props: any) {
+class LanguageSelector extends React.Component<Props> {
+    constructor(props: Props) {
         super(props);
         this.handleChange.bind(this);
+        this.updateLanguage.bind(this);
+        this.updateLanguageFromI18n.bind(this);
+
+        this.updateLanguageFromI18n(this.props.i18n.language);
+        this.props.i18n.on("languageChanged", lang => {
+            this.updateLanguageFromI18n(lang);
+        });
+    }
+
+    updateLanguageFromI18n = (lang: string) => {
+        lang = lang.substring(0, 2);
+        lang = LangToBoundlessMap[lang] || "english";
+
+        this.updateLanguage(lang);
+    }
+
+    updateLanguage = (lang: string) => {
+        if (this.props.locale !== lang) {
+            this.props.changeLanuage(lang);
+        }
+
+        const i18nLang = BoundlessToLangMap[lang] || "en";
+        if (this.props.i18n.language !== i18nLang) {
+            this.props.i18n.changeLanguage(i18nLang);
+        }
     }
 
     handleChange = (event: React.FormEvent<HTMLDivElement>, option?: IDropdownOption) => {
         if (option !== undefined) {
-            this.context.setLanguage(option.key);
+            this.updateLanguage(option.key.toString());
         }
     }
 
@@ -31,13 +80,13 @@ class LanguageSelector extends React.Component {
         return (
             <Dropdown
                 label="Language"
-                defaultSelectedKey={this.context.language}
+                defaultSelectedKey={this.props.locale}
                 options={langOptions}
                 onChange={this.handleChange}
-                styles={styles}
+                styles={{dropdown: { width: 300} }}
             />
         );
     }
 }
 
-export default LanguageSelector;
+export default connector(withTranslation()(LanguageSelector));

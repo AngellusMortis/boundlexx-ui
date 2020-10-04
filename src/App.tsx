@@ -1,24 +1,23 @@
 import React from 'react';
 import './App.css';
-import { Stack, Text, Link, IStackTokens, initializeIcons } from '@fluentui/react';
+import { Stack, Text, Link, IStackTokens } from '@fluentui/react';
 import { OpenAPIProvider } from 'react-openapi-client';
 import Colors from './components/Colors';
 import ThemeSelector from './components/ThemeSelector';
 import LanguageSelector from './components/LanguageSelector';
-import { UserPreferencesProvider, UserPreferencesContext } from './UserPreferences';
 import { useTranslation } from 'react-i18next';
-import api from './api';
+import { apiConfig, getDefinition } from './api/config';
+import { ReactReduxContext } from 'react-redux'
 
 const containerStackTokens: IStackTokens = { childrenGap: 15 };
 
 function App() {
   const { t } = useTranslation();
 
-  initializeIcons();
-
   return (
-    <UserPreferencesProvider>
-      <OpenAPIProvider definition={`${api.apiBase}/schema/?format=openapi-json`} withServer={api.server}>
+    <ReactReduxContext.Consumer>
+      { store =>
+        <OpenAPIProvider definition={getDefinition(store.store.getState())} withServer={apiConfig.server}>
         <Stack
           horizontalAlign="center"
           verticalAlign="center"
@@ -31,12 +30,11 @@ function App() {
 
           <ThemeSelector />
           <LanguageSelector />
-          <UserPreferencesContext.Consumer>
-            {value => <Colors locale={value.language} />}
-          </UserPreferencesContext.Consumer>
+          <Colors />
         </Stack>
       </OpenAPIProvider>
-    </UserPreferencesProvider>
+      }
+    </ReactReduxContext.Consumer>
   );
 }
 

@@ -3,8 +3,11 @@ import ReactDOM from 'react-dom';
 import './index.css';
 import './i18n';
 import * as serviceWorker from './serviceWorker';
-import { Fabric } from '@fluentui/react';
+import { Fabric, initializeIcons } from '@fluentui/react';
 import { darkTheme } from './themes';
+import { store, persistor } from './store';
+import { Provider } from 'react-redux';
+import { PersistGate } from 'redux-persist/integration/react'
 
 const App = React.lazy(() => import('./App'));
 
@@ -15,12 +18,18 @@ const renderLoader = () => (
   </div>
 )
 
+initializeIcons();
+
 document.documentElement.style.background = darkTheme.palette.white;
 ReactDOM.render(
   <React.Suspense fallback={renderLoader()}>
+    <Provider store={store}>
+    <PersistGate loading={renderLoader()} persistor={persistor}>
     <Fabric>
       <App />
     </Fabric>
+    </PersistGate>
+    </Provider>
   </React.Suspense>,
   document.getElementById('root')
 );

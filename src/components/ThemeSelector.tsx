@@ -1,43 +1,72 @@
 import { IDropdownOption, Dropdown, IDropdownStyles } from '@fluentui/react';
 import React from 'react';
-import { UserPreferencesContext } from '../UserPreferences'
+import { RootState } from '../store';
+import { connect, ConnectedProps } from 'react-redux';
+import { changeTheme } from '../prefs/actions';
 import { withTranslation, WithTranslation } from 'react-i18next';
+import { setTheme } from '../themes';
 
-const styles: Partial<IDropdownStyles> = {
-    dropdown: { width: 300 },
-}
+const mapState = (state: RootState) => ({
+    theme: state.prefs.theme
+});
 
-class ThemeSelector extends React.Component<WithTranslation> {
-    static contextType = UserPreferencesContext;
-    constructor(props: WithTranslation) {
+const mapDispatchToProps = { changeTheme };
+
+const connector = connect(mapState, mapDispatchToProps);
+
+type Props = WithTranslation & ConnectedProps<typeof connector>;
+
+class ThemeSelector extends React.Component<Props> {
+    constructor(props: Props) {
         super(props);
         this.handleChange.bind(this);
+        this.updateTheme.bind(this);
+
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener("change", () => {
+            this.updateTheme();
+        });
     }
 
     handleChange = (event: React.FormEvent<HTMLDivElement>, option?: IDropdownOption) => {
         if (option !== undefined) {
-            this.context.setTheme(option.key);
+            this.updateTheme(option.key.toString());
+        }
+    }
+
+    updateTheme = (theme?: string) => {
+        if (theme !== undefined) {
+            this.props.changeTheme(theme);
+        }
+
+        if (this.props.theme === "") {
+            setTheme(window.matchMedia("(prefers-color-scheme: dark)").matches);
+        }
+        else {
+            setTheme(this.props.theme === "dark");
         }
     }
 
     render() {
-        const { t } = this.props;
+        setTimeout(() => {
+            this.updateTheme();
+        }, 10);
+
         const themeOptions: IDropdownOption[] = [
-            { key: "", text: t("Browser Selected") },
-            { key: "light", text: t("Light") },
-            { key: "dark", text: t("Dark") }
+            { key: "", text: this.props.t("Browser Selected") },
+            { key: "light", text: this.props.t("Light") },
+            { key: "dark", text: this.props.t("Dark") }
         ];
 
         return (
             <Dropdown
                 label="Theme"
-                defaultSelectedKey={this.context.theme}
+                defaultSelectedKey={this.props.theme}
                 options={themeOptions}
                 onChange={this.handleChange}
-                styles={styles}
+                styles={{dropdown: {width: 300}}}
             />
         );
     }
 }
 
-export default withTranslation()(ThemeSelector);
+export default connector(withTranslation()(ThemeSelector));

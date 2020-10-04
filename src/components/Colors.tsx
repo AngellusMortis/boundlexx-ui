@@ -1,13 +1,13 @@
 import React from 'react';
 import { List, TextField, Stack, Text, IRectangle, Shimmer, IPage, ScrollbarVisibility, ScrollablePane, DefaultButton } from '@fluentui/react';
 import { Card } from '@uifabric/react-cards';
-import { withTranslation, WithTranslation } from 'react-i18next';
 import { OpenAPIContext } from 'react-openapi-client';
 import "./Colors.css"
-
-interface ColorsProps extends WithTranslation {
-    locale: string,
-}
+import { RootState } from '../store';
+import { connect, ConnectedProps } from 'react-redux'
+import { withTranslation, WithTranslation } from 'react-i18next';
+import { getClient } from '../api/config';
+import { changeAPIDefinition } from '../api/actions'
 
 interface ColorsState {
     loading: boolean,
@@ -16,11 +16,23 @@ interface ColorsState {
     nextUrl: string | null,
     search: string | null,
     error?: Error,
-}
+};
+
+const mapState = (state: RootState) => ({
+    locale: state.prefs.language
+});
+
+const mapDispatchToProps = { changeAPIDefinition };
+
+const connector = connect(mapState, mapDispatchToProps);
+
+type PropsFromRedux = ConnectedProps<typeof connector>;
+
+type Props = WithTranslation & PropsFromRedux;
 
 const PAGE_SIZE = 100;
 
-class Colors extends React.Component<ColorsProps> {
+class Colors extends React.Component<Props> {
     static contextType = OpenAPIContext;
 
     client: any | null;
@@ -32,7 +44,7 @@ class Colors extends React.Component<ColorsProps> {
         nextUrl: null,
         search: null,
     }
-    constructor(props: ColorsProps) {
+    constructor(props: Props) {
         super(props);
 
         this.client = null;
@@ -83,7 +95,7 @@ class Colors extends React.Component<ColorsProps> {
 
     async componentDidMount() {
         try {
-            this.client = await this.context.api.getClient();
+            this.client = await getClient(this.context.api, this.props.changeAPIDefinition);
         }
         catch (err) {
             this.setState({ error: err });
@@ -91,7 +103,7 @@ class Colors extends React.Component<ColorsProps> {
         await this.getColors(true);
     }
 
-    async componentDidUpdate(prevProps: ColorsProps) {
+    async componentDidUpdate(prevProps: Props) {
         if (this.props.locale !== prevProps.locale) {
             this.getColors(true);
         }
@@ -194,4 +206,4 @@ class Colors extends React.Component<ColorsProps> {
     }
 };
 
-export default withTranslation()(Colors);
+export default connector(withTranslation()(Colors));
