@@ -8,7 +8,7 @@
   display: flex;
 }
 
-.api-display .ms-List-cell span > :not(:first-child) {
+.api-display .ms-List-cell .ms-CardSection > :not(:first-child) {
   margin-top: 0;
 }
 
