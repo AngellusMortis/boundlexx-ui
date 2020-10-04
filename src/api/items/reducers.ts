@@ -13,6 +13,7 @@ export function itemsReducer(state = initialState, action: UpdateItemsAction): I
             if (action.payload.count !== undefined && action.payload.nextUrl !== undefined) {
                 return {...newState, count: action.payload.count, nextUrl: action.payload.nextUrl};
             }
+            return newState;
         default:
             return state;
     }

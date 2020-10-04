@@ -13,6 +13,7 @@ export function emojisReducer(state = initialState, action: UpdateEmojisAction):
             if (action.payload.count !== undefined && action.payload.nextUrl !== undefined) {
                 return {...newState, count: action.payload.count, nextUrl: action.payload.nextUrl};
             }
+            return newState;
         default:
             return state;
     }

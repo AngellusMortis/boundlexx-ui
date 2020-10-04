@@ -6,7 +6,6 @@ import { connect, ConnectedProps } from 'react-redux'
 import { withTranslation } from 'react-i18next';
 import { changeAPIDefinition } from '../../api/actions'
 import { APIDisplay, APIDisplayProps, mapNumericStoreToItems }  from './APIDisplay'
-import { Components } from '../../api/client'
 import { updateWorlds } from '../../api/worlds/actions'
 
 

@@ -33,6 +33,10 @@ interface BaseProps {
 }
 
 export const mapNumericStoreToItems = (store: NumericAPIItems) => {
+    if (store.items === undefined) {
+        return
+    }
+
     const items: Items = {
         count: store.count || apiConfig.pageSize,
         nextUrl: store.nextUrl,
@@ -66,6 +70,10 @@ export const mapNumericStoreToItems = (store: NumericAPIItems) => {
 }
 
 export const mapStringStoreToItems = (store: StringAPIItems) => {
+    if (store.items === undefined) {
+        return
+    }
+
     const items: Items = {
         count: store.count || apiConfig.pageSize,
         nextUrl: store.nextUrl,
@@ -320,7 +328,7 @@ export class APIDisplay<T extends APIDisplayProps> extends React.Component<T, {}
         }
 
         return (
-            <Stack horizontalAlign={"center"} styles={{ root: { width: "100%", marginBottom: 20 } }}>
+            <Stack horizontalAlign={"center"} styles={{ root: { width: "100%", marginBottom: 20 } }} className="api-display">
                 <div style={{ display: "flex", justifyContent: "space-between", width: "100%" }}>
                     <h2 style={{ display: "inline-flex", margin: "0 20px" }}>{this.getName()}</h2>
                     <div style={{ display: "inline-flex", margin: "0 20px" }} >
