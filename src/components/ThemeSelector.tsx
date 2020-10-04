@@ -1,4 +1,4 @@
-import { IDropdownOption, Dropdown, IDropdownStyles } from '@fluentui/react';
+import { IDropdownOption, Dropdown } from '@fluentui/react';
 import React from 'react';
 import { RootState } from '../store';
 import { connect, ConnectedProps } from 'react-redux';
