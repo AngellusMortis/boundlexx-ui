@@ -8,6 +8,7 @@ import LanguageSelector from './components/LanguageSelector';
 import { useTranslation } from 'react-i18next';
 import { apiConfig, getDefinition } from './api/config';
 import { ReactReduxContext } from 'react-redux'
+import Headers from './components/header/Headers'
 
 const containerStackTokens: IStackTokens = { childrenGap: 15 };
 
@@ -18,21 +19,22 @@ function App() {
     <ReactReduxContext.Consumer>
       { store =>
         <OpenAPIProvider definition={getDefinition(store.store.getState())} withServer={apiConfig.server}>
-        <Stack
-          horizontalAlign="center"
-          verticalAlign="center"
-          verticalFill
-          tokens={containerStackTokens}
-        >
-          <img src="https://cdn.boundlexx.app/logos/logo.svg" alt="logo" width="300" height="300" className="logo" />
-          <h1>{t("Boundlexx")}</h1>
-          <Text variant="large"><Link href="https://api.boundlexx.app/api/v1/">{t("API Documentation")}</Link></Text>
+          <Headers />
+          <Stack
+            horizontalAlign="center"
+            verticalAlign="center"
+            verticalFill
+            tokens={containerStackTokens}
+          >
+            <img src="https://cdn.boundlexx.app/logos/logo.svg" alt="logo" width="300" height="300" className="logo" />
+            <h1>{t("Boundlexx")}</h1>
+            <Text variant="large"><Link href="https://api.boundlexx.app/api/v1/">{t("API Documentation")}</Link></Text>
 
-          <ThemeSelector />
-          <LanguageSelector />
-          <Colors />
-        </Stack>
-      </OpenAPIProvider>
+            <ThemeSelector />
+            <LanguageSelector />
+            <Colors />
+          </Stack>
+        </OpenAPIProvider>
       }
     </ReactReduxContext.Consumer>
   );
