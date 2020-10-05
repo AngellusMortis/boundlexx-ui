@@ -15,12 +15,15 @@ import { getClient } from "../api/config";
 import { Client as BoundlexxClient } from "../api/client";
 import { AxiosResponse } from "axios";
 import { BaseItems } from "../types";
+import "./Header.css";
+import { getTheme } from "../themes";
 
 const mapState = (state: RootState) => ({
     colors: state.colors,
     worlds: state.worlds,
     items: state.items,
     locale: state.prefs.language,
+    theme: state.prefs.theme,
 });
 
 const mapDispatchToProps = { changeAPIDefinition, updateColors, updateItems, updateWorlds };
@@ -105,10 +108,27 @@ class Header extends React.Component<Props> {
     }
 
     render = () => {
+        const theme = getTheme(this.props.theme);
+
         return (
             <header>
-                <Stack className="main-header">
-                    <Link href="/">
+                <Stack
+                    className="main-header"
+                    horizontal
+                    verticalAlign="center"
+                    style={{ justifyContent: "space-between" }}
+                >
+                    <Link
+                        href="/"
+                        style={{
+                            height: 50,
+                            display: "inline-flex",
+                            verticalAlign: "middle",
+                            alignItems: "center",
+                            paddingLeft: 10,
+                            paddingRight: 20,
+                        }}
+                    >
                         <img
                             src="https://cdn.boundlexx.app/logos/logo.svg"
                             alt="logo"
@@ -116,10 +136,14 @@ class Header extends React.Component<Props> {
                             height="50"
                             className="logo"
                         />
-                        <Text variant="xLarge">{this.props.t("Boundlexx")}</Text>
+                        <Text variant="xLarge" style={{ padding: 5, color: theme.palette.themePrimary }}>
+                            {this.props.t("Boundlexx")}
+                        </Text>
                     </Link>
-                    <ThemeSelector />
-                    <LanguageSelector />
+                    <div>
+                        <ThemeSelector />
+                        <LanguageSelector />
+                    </div>
                 </Stack>
                 <Stack className="nav-header">
                     <Link href="/worlds/">{this.props.t("World_plural")}</Link>
