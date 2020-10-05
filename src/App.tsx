@@ -10,6 +10,7 @@ import Worlds from "./pages/Worlds";
 import Items from "./pages/Items";
 import Colors from "./pages/Colors";
 import Emojis from "./pages/Emojis";
+import NotFound from "./pages/NotFound";
 
 function App() {
     return (
@@ -19,20 +20,23 @@ function App() {
                     <Router>
                         <Header />
                         <Switch>
-                            <Route path="/worlds">
+                            <Route path="/worlds/" exact>
                                 <Worlds />
                             </Route>
-                            <Route path="/items">
+                            <Route path="/items/" exact>
                                 <Items />
                             </Route>
-                            <Route path="/colors">
+                            <Route path="/colors/" exact>
                                 <Colors />
                             </Route>
-                            <Route path="/emojis">
+                            <Route path="/emojis/" exact>
                                 <Emojis />
                             </Route>
-                            <Route path="/">
+                            <Route path="/" exact>
                                 <Home />
+                            </Route>
+                            <Route>
+                                <NotFound />
                             </Route>
                         </Switch>
                     </Router>
