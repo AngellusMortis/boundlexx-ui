@@ -47,6 +47,7 @@ interface PartialState {
 interface BaseProps {
     theme: string;
     locale: string | null;
+    loadAll?: boolean;
     results?: BaseItems;
     name?: string;
     operationID?: string;
@@ -191,9 +192,9 @@ export class APIDisplay<T extends APIDisplayProps> extends React.Component<T, {}
         }
     }
 
-    setAsyncState = (state: PartialState) => {
+    setAsyncState = (state: PartialState, callback?: () => void) => {
         if (this.mounted) {
-            this.setState(state);
+            this.setState(state, callback);
         }
     };
 
@@ -540,7 +541,11 @@ export class APIDisplay<T extends APIDisplayProps> extends React.Component<T, {}
             newItems.lang = this.props.locale.toString();
         }
 
-        this.setAsyncState({ results: newItems, initialLoad: true, loading: false });
+        this.setAsyncState({ results: newItems, initialLoad: true, loading: false }, () => {
+            if (this.props.loadAll && this.state.results.nextUrl !== null) {
+                this.getData();
+            }
+        });
     };
 
     render() {

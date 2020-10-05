@@ -43,15 +43,15 @@ class Header extends React.Component<Props> {
         // load "essential data"
         this.client = await getClient(this.context.api, this.props.changeAPIDefinition);
 
-        if (window.location.pathname.indexOf("worlds") <= -1) {
+        if (window.location.pathname !== "/worlds/") {
             await this.loadAll(this.props.worlds, "listWorldsSimple", this.props.updateWorlds, undefined, [
                 { name: "show_inactive", value: true, in: "query" },
             ]);
         }
-        if (window.location.pathname.indexOf("colors") <= -1) {
+        if (window.location.pathname !== "/colors/") {
             await this.loadAll(this.props.colors, "listColors", this.props.updateColors, this.props.locale);
         }
-        if (window.location.pathname.indexOf("items") <= -1) {
+        if (window.location.pathname !== "/items/") {
             await this.loadAll(this.props.items, "listItems", this.props.updateItems, this.props.locale);
         }
     };

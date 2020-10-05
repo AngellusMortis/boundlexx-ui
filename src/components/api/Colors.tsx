@@ -15,6 +15,7 @@ const mapState = (state: RootState) => ({
     operationID: "listColors",
     name: "Color",
     items: mapNumericStoreToItems(state.colors),
+    loadAll: true,
 });
 
 const mapDispatchToProps = { changeAPIDefinition, updateItems: updateColors };
