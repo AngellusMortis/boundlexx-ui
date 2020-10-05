@@ -1,43 +1,45 @@
-import React from 'react';
-import './App.css';
-import { Stack, Text, Link, IStackTokens } from '@fluentui/react';
-import { OpenAPIProvider } from 'react-openapi-client';
-import Colors from './components/Colors';
-import ThemeSelector from './components/ThemeSelector';
-import LanguageSelector from './components/LanguageSelector';
-import { useTranslation } from 'react-i18next';
-import { apiConfig, getDefinition } from './api/config';
-import { ReactReduxContext } from 'react-redux'
-import Headers from './components/header/Headers'
-
-const containerStackTokens: IStackTokens = { childrenGap: 15 };
+import React from "react";
+import "./App.css";
+import { OpenAPIProvider } from "react-openapi-client";
+import { apiConfig, getDefinition } from "./api/config";
+import { ReactReduxContext } from "react-redux";
+import Header from "./components/Header";
+import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
+import Home from "./pages/Home";
+import Worlds from "./pages/Worlds";
+import Items from "./pages/Items";
+import Colors from "./pages/Colors";
+import Emojis from "./pages/Emojis";
 
 function App() {
-  const { t } = useTranslation();
-
-  return (
-    <ReactReduxContext.Consumer>
-      { store =>
-        <OpenAPIProvider definition={getDefinition(store.store.getState())} withServer={apiConfig.server}>
-          <Headers />
-          <Stack
-            horizontalAlign="center"
-            verticalAlign="center"
-            verticalFill
-            tokens={containerStackTokens}
-          >
-            <img src="https://cdn.boundlexx.app/logos/logo.svg" alt="logo" width="300" height="300" className="logo" />
-            <h1>{t("Boundlexx")}</h1>
-            <Text variant="large"><Link href="https://api.boundlexx.app/api/v1/">{t("API Documentation")}</Link></Text>
-
-            <ThemeSelector />
-            <LanguageSelector />
-            <Colors />
-          </Stack>
-        </OpenAPIProvider>
-      }
-    </ReactReduxContext.Consumer>
-  );
+    return (
+        <ReactReduxContext.Consumer>
+            {(store) => (
+                <OpenAPIProvider definition={getDefinition(store.store.getState())} withServer={apiConfig.server}>
+                    <Router>
+                        <Header />
+                        <Switch>
+                            <Route path="/worlds">
+                                <Worlds />
+                            </Route>
+                            <Route path="/items">
+                                <Items />
+                            </Route>
+                            <Route path="/colors">
+                                <Colors />
+                            </Route>
+                            <Route path="/emojis">
+                                <Emojis />
+                            </Route>
+                            <Route path="/">
+                                <Home />
+                            </Route>
+                        </Switch>
+                    </Router>
+                </OpenAPIProvider>
+            )}
+        </ReactReduxContext.Consumer>
+    );
 }
 
 export default App;

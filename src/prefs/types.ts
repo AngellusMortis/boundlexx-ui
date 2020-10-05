@@ -1,21 +1,20 @@
 export interface UserPreferences {
-    theme: string,
-    language: string,
+    theme: string;
+    language: string;
 }
 
-export const CHANGE_THEME = "CHANGE_THEME"
+export const CHANGE_THEME = "CHANGE_THEME";
 
 interface ChagneThemeAction {
-    type: typeof CHANGE_THEME
-    payload: string
+    type: typeof CHANGE_THEME;
+    payload: string;
 }
 
-export const CHANGE_LANGUAGE = "CHANGE_LANGUAGE"
+export const CHANGE_LANGUAGE = "CHANGE_LANGUAGE";
 
 interface ChangeLanguageAction {
-    type: typeof CHANGE_LANGUAGE
-    payload: string
+    type: typeof CHANGE_LANGUAGE;
+    payload: string;
 }
 
-export type PerfsActionsType = ChagneThemeAction | ChangeLanguageAction
-
+export type PerfsActionsType = ChagneThemeAction | ChangeLanguageAction;

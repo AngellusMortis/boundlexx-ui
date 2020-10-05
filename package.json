@@ -1,56 +1,61 @@
 {
-  "name": "boundlexx-ui",
-  "version": "0.1.0",
-  "private": true,
-  "dependencies": {
-    "@fluentui/react": "^7.144.2",
-    "@reduxjs/toolkit": "^1.4.0",
-    "@testing-library/jest-dom": "^4.2.4",
-    "@testing-library/react": "^9.3.2",
-    "@testing-library/user-event": "^7.1.2",
-    "@types/i18next": "^13.0.0",
-    "@types/jest": "^24.0.0",
-    "@types/node": "^14.11.2",
-    "@types/react": "^16.9.0",
-    "@types/react-dom": "^16.9.0",
-    "@types/react-redux": "^7.1.9",
-    "@types/redux-persist": "^4.3.1",
-    "@uifabric/react-cards": "^0.113.8",
-    "env-cmd": "^10.1.0",
-    "i18next": "^19.8.1",
-    "i18next-browser-languagedetector": "^6.0.1",
-    "react": "^16.13.1",
-    "react-dom": "^16.13.1",
-    "react-i18next": "^11.7.3",
-    "react-openapi-client": "^0.1.6",
-    "react-redux": "^7.2.1",
-    "react-scripts": "3.4.3",
-    "redux": "^4.0.5",
-    "redux-persist": "^6.0.0",
-    "redux-persist-expire": "^1.1.0",
-    "typescript": "~3.7.2"
-  },
-  "scripts": {
-    "start:prod": "env-cmd -f .env.prod react-scripts start",
-    "start:local": "env-cmd -f .env.local react-scripts start",
-    "build:prod": "env-cmd -f .env.prod react-scripts build",
-    "build:local": "env-cmd -f .env.local react-scripts build",
-    "test": "react-scripts test",
-    "eject": "react-scripts eject"
-  },
-  "eslintConfig": {
-    "extends": "react-app"
-  },
-  "browserslist": {
-    "production": [
-      ">0.2%",
-      "not dead",
-      "not op_mini all"
-    ],
-    "development": [
-      "last 1 chrome version",
-      "last 1 firefox version",
-      "last 1 safari version"
-    ]
-  }
+    "name": "boundlexx-ui",
+    "version": "0.1.0",
+    "private": true,
+    "dependencies": {
+        "@fluentui/react": "^7.144.2",
+        "@reduxjs/toolkit": "^1.4.0",
+        "@testing-library/jest-dom": "^4.2.4",
+        "@testing-library/react": "^9.3.2",
+        "@testing-library/user-event": "^7.1.2",
+        "@types/i18next": "^13.0.0",
+        "@types/jest": "^24.0.0",
+        "@types/node": "^14.11.2",
+        "@types/react": "^16.9.0",
+        "@types/react-dom": "^16.9.0",
+        "@types/react-redux": "^7.1.9",
+        "@types/react-router-dom": "^5.1.5",
+        "@types/redux-persist": "^4.3.1",
+        "@uifabric/react-cards": "^0.113.8",
+        "env-cmd": "^10.1.0",
+        "i18next": "^19.8.1",
+        "i18next-browser-languagedetector": "^6.0.1",
+        "openapi-client-axios-typegen": "^1.1.7",
+        "openapi-types": "^7.0.1",
+        "prettier": "^2.1.2",
+        "react": "^16.13.1",
+        "react-dom": "^16.13.1",
+        "react-i18next": "^11.7.3",
+        "react-openapi-client": "^0.1.6",
+        "react-redux": "^7.2.1",
+        "react-router-dom": "^5.2.0",
+        "react-scripts": "3.4.3",
+        "redux": "^4.0.5",
+        "redux-persist": "^6.0.0",
+        "redux-persist-expire": "^1.1.0",
+        "typescript": "~3.7.2"
+    },
+    "scripts": {
+        "start:prod": "env-cmd -f .env.prod react-scripts start",
+        "start:local": "env-cmd -f .env.local react-scripts start",
+        "build:prod": "env-cmd -f .env.prod react-scripts build",
+        "build:local": "env-cmd -f .env.local react-scripts build",
+        "test": "react-scripts test",
+        "eject": "react-scripts eject"
+    },
+    "eslintConfig": {
+        "extends": "react-app"
+    },
+    "browserslist": {
+        "production": [
+            ">0.2%",
+            "not dead",
+            "not op_mini all"
+        ],
+        "development": [
+            "last 1 chrome version",
+            "last 1 firefox version",
+            "last 1 safari version"
+        ]
+    }
 }

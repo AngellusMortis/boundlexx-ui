@@ -1,65 +1,59 @@
 // For format details, see https://aka.ms/devcontainer.json. For config options, see the README at:
 // https://github.com/microsoft/vscode-dev-containers/tree/v0.140.1/containers/javascript-node
 {
-  "name": "Boundlexx UI",
-  // Update the 'dockerComposeFile' list if you have more compose files or use different names.
-  // The .devcontainer/docker-compose.yml file contains any overrides you need/want to make.
-  "dockerComposeFile": [
-    "../docker-compose.yml",
-    "../docker-compose.override.yml"
-  ],
-  // The 'service' property is the name of the service for the container that VS Code should
-  // use. Update this value and .devcontainer/docker-compose.yml to the real service name.
-  "service": "web",
-  // The optional 'workspaceFolder' property is the path VS Code should open by default when
-  // connected. This is typically a file mount in .devcontainer/docker-compose.yml
-  "workspaceFolder": "/app",
-  // Set *default* container specific settings.json values on container create.
-  "settings": {
-    "terminal.integrated.shell.linux": "/bin/bash",
-    "tslint.configFile": "${workspaceFolder}/boundlexx-ui.tsoncif.json",
-    "tslint.jsEnable": true,
-    "eslint.validate": [
-      "javascript",
-      "javascriptreact",
-      "typescript",
-      "typescriptreact"
+    "name": "Boundlexx UI",
+    // Update the 'dockerComposeFile' list if you have more compose files or use different names.
+    // The .devcontainer/docker-compose.yml file contains any overrides you need/want to make.
+    "dockerComposeFile": ["../docker-compose.yml", "../docker-compose.override.yml"],
+    // The 'service' property is the name of the service for the container that VS Code should
+    // use. Update this value and .devcontainer/docker-compose.yml to the real service name.
+    "service": "web",
+    // The optional 'workspaceFolder' property is the path VS Code should open by default when
+    // connected. This is typically a file mount in .devcontainer/docker-compose.yml
+    "workspaceFolder": "/app/boundlexx-ui",
+    // Set *default* container specific settings.json values on container create.
+    "settings": {
+        "terminal.integrated.shell.linux": "/bin/bash",
+        "tslint.configFile": "${workspaceFolder}/boundlexx-ui.tsoncif.json",
+        "tslint.jsEnable": true,
+        "eslint.validate": ["javascript", "javascriptreact", "typescript", "typescriptreact"],
+        "[javascriptreact]": {
+            "editor.codeActionsOnSave": {
+                "source.fixAll.eslint": true
+            }
+        },
+        "editor.formatOnSave": true,
+        "[typescript]": {
+            "editor.codeActionsOnSave": {
+                "source.fixAll.eslint": true
+            },
+            "editor.defaultFormatter": "esbenp.prettier-vscode"
+        },
+        "[typescriptreact]": {
+            "editor.codeActionsOnSave": {
+                "source.fixAll.eslint": true
+            },
+            "editor.defaultFormatter": "esbenp.prettier-vscode"
+        },
+        "editor.renderWhitespace": "boundary",
+        "editor.codeActionsOnSave": {
+            "source.fixAll.eslint": true
+        },
+        "typescript.updateImportsOnFileMove.enabled": "always"
+    },
+    // Add the IDs of extensions you want installed when the container is created.
+    "extensions": [
+        "dbaeumer.vscode-eslint",
+        "esbenp.prettier-vscode",
+        "ms-vscode.vscode-typescript-tslint-plugin",
+        "msjsdiag.debugger-for-chrome"
     ],
-    "[javascriptreact]": {
-      "editor.codeActionsOnSave": {
-        "source.fixAll.eslint": true
-      }
-    },
-    "editor.formatOnSave": true,
-    "[typescript]": {
-      "editor.formatOnSave": false,
-      "editor.codeActionsOnSave": {
-        "source.fixAll.eslint": true
-      }
-    },
-    "[typescriptreact]": {
-      "editor.formatOnSave": false,
-      "editor.codeActionsOnSave": {
-        "source.fixAll.eslint": true
-      }
-    },
-    "editor.renderWhitespace": "boundary",
-    "editor.codeActionsOnSave": {
-      "source.fixAll.eslint": true
-    }
-  },
-  // Add the IDs of extensions you want installed when the container is created.
-  "extensions": [
-    "dbaeumer.vscode-eslint",
-    "esbenp.prettier-vscode",
-    "ms-vscode.vscode-typescript-tslint-plugin"
-  ],
-  // Uncomment the next line if you want start specific services in your Docker Compose config.
-  "runServices": ["web"],
-  // Uncomment the next line if you want to keep your containers running after VS Code shuts down.
-  // "shutdownAction": "none",
-  // Uncomment the next line to run commands after the container is created - for example installing git.
-  "postCreateCommand": "cp /app/.devcontainer/bashrc /home/node/.bashrc && sed -i 's/\r$//g' /home/node/.bashrc",
-  // Uncomment to connect as a non-root user. See https://aka.ms/vscode-remote/containers/non-root.
-  "remoteUser": "node"
+    // Uncomment the next line if you want start specific services in your Docker Compose config.
+    "runServices": ["web"],
+    // Uncomment the next line if you want to keep your containers running after VS Code shuts down.
+    // "shutdownAction": "none",
+    // Uncomment the next line to run commands after the container is created - for example installing git.
+    "postCreateCommand": "cp /app/.devcontainer/bashrc /home/node/.bashrc && sed -i 's/\r$//g' /home/node/.bashrc",
+    // Uncomment to connect as a non-root user. See https://aka.ms/vscode-remote/containers/non-root.
+    "remoteUser": "node"
 }

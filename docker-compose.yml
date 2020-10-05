@@ -1,18 +1,18 @@
 version: "3.4"
 
 services:
-  web: &web
-    build:
-      context: .
-      dockerfile: ./Dockerfile
-    ports:
-      - "4000:4000"
-    volumes:
-      - .:/app/boundlexx-ui
-    stdin_open: true
-    command: yarn run start:prod
+    web: &web
+        build:
+            context: .
+            dockerfile: ./Dockerfile
+        ports:
+            - "4000:4000"
+        volumes:
+            - .:/app/boundlexx-ui
+        stdin_open: true
+        command: yarn run start:prod
 
-  build:
-    <<: *web
-    ports: []
-    command: yarn run build:prod
+    build:
+        <<: *web
+        ports: []
+        command: yarn run build:prod

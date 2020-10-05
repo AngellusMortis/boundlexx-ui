@@ -5,9 +5,8 @@
 This project is configured to work with Docker inside of VS Code using the
 Remote Containers extension. It is recommend to use those. So make sure you have:
 
-* [Docker](https://docs.docker.com/get-docker/)
-* [VS Code](https://code.visualstudio.com/) with the [Remote Containers extension](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers).
-
+-   [Docker](https://docs.docker.com/get-docker/)
+-   [VS Code](https://code.visualstudio.com/) with the [Remote Containers extension](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers).
 
 ## Setup
 
