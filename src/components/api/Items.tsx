@@ -13,7 +13,7 @@ const mapState = (state: RootState) => ({
     theme: state.prefs.theme,
     locale: state.prefs.language,
     operationID: "listItems",
-    name: "Items",
+    name: "Item",
     items: mapNumericStoreToItems(state.items),
 });
 

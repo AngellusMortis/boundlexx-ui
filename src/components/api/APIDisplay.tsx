@@ -169,13 +169,24 @@ export class APIDisplay<T extends APIDisplayProps> extends React.Component<T, {}
         this.searchTimer = null;
     }
 
-    getName() {
+    getName(extra?: string, translate?: boolean, transArgs?: any) {
         let name = "";
         if (this.props.name !== undefined) {
             name = this.props.name.toString();
         }
 
-        return this.props.t(name);
+        if (extra !== undefined) {
+            name = `${name}${extra}`;
+        }
+
+        if (translate === undefined || translate) {
+            if (transArgs === undefined) {
+                return this.props.t(name);
+            } else {
+                return this.props.t(name, transArgs);
+            }
+        }
+        return name;
     }
 
     getOperationID() {
@@ -419,7 +430,7 @@ export class APIDisplay<T extends APIDisplayProps> extends React.Component<T, {}
         if (this.state.error) {
             return (
                 <Stack horizontalAlign={"center"}>
-                    <h2>{this.getName()}</h2>
+                    <h2>{this.getName("_plural")}</h2>
                     <Text>
                         {this.props.t("Error:")} {this.state.error.message}
                     </Text>
@@ -449,8 +460,12 @@ export class APIDisplay<T extends APIDisplayProps> extends React.Component<T, {}
         };
 
         const theme = getTheme(this.props.theme);
-        const displayCount = !this.state.initialLoadComplete ? "#" : this.state.items.count.toString();
-        const foundName = `${this.getName()} Found`;
+        const actualCount = this.state.items.count;
+        const displayCount = !this.state.initialLoadComplete ? "#" : actualCount.toString();
+        const foundName = `${this.getName(" FoundWithCount", true, { count: actualCount })}`.replace(
+            actualCount.toString(),
+            displayCount,
+        );
 
         return (
             <Stack horizontalAlign={"center"} styles={{ root: { width: "100%" } }} className="api-display">
@@ -463,13 +478,13 @@ export class APIDisplay<T extends APIDisplayProps> extends React.Component<T, {}
                         borderBottom: `${theme.palette.themePrimary} 1px solid`,
                     }}
                 >
-                    <h2 style={{ display: "inline-flex", margin: "0 20px" }}>{this.getName()}</h2>
+                    <h2 style={{ display: "inline-flex", margin: "0 20px" }}>{this.getName("_plural")}</h2>
                     <div style={{ display: "inline-flex", margin: "0 20px", alignItems: "flex-end" }}>
-                        <Text>{`${displayCount} ${this.props.t(foundName)}`}</Text>
+                        <Text>{foundName}</Text>
                     </div>
                     <div style={{ display: "inline-flex", margin: "0 20px" }}>
                         <SearchBox
-                            placeholder={this.props.t(`Search ${this.getName()}`)}
+                            placeholder={this.props.t(`Search ${this.getName("", false)}`)}
                             onChange={this.onSearchChange}
                             onSearch={this.onSearch}
                             onClear={this.clearSearch}

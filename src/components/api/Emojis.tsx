@@ -12,7 +12,7 @@ const mapState = (state: RootState) => ({
     theme: state.prefs.theme,
     locale: null,
     operationID: "listEmojis",
-    name: "Emojis",
+    name: "Emoji",
     items: mapStringStoreToItems(state.emojis),
 });
 
@@ -41,7 +41,7 @@ class Emojis extends APIDisplay<Props> {
 
         return (
             <Card.Section>
-                <Text>{this.props.t("In-game Names")}:</Text>
+                <Text>{this.props.t("In-game Name", { count: item.names.length })}:</Text>
                 <Text variant="tiny">
                     <pre>{names.trim()}</pre>
                 </Text>

@@ -12,7 +12,7 @@ const mapState = (state: RootState) => ({
     theme: state.prefs.theme,
     locale: null,
     operationID: "listWorldsSimple",
-    name: "Worlds",
+    name: "World",
     extraFilters: [{ name: "show_inactive", value: true, in: "query" }],
     items: mapNumericStoreToItems(state.worlds),
 });
