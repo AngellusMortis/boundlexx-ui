@@ -13,7 +13,7 @@ class NotFound extends React.Component<WithTranslation> {
         return (
             <Stack horizontalAlign="center" verticalAlign="center" verticalFill tokens={{ childrenGap: 15 }}>
                 <img
-                    src="https://cdn.boundlexx.app/logos/logo.svg"
+                    src="https://cdn.boundlexx.app/images/404.svg"
                     alt="logo"
                     width="300"
                     height="300"
