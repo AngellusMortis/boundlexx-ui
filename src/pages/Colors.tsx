@@ -5,6 +5,12 @@ import Colors from "../components/api/Colors";
 
 class Page extends React.Component<WithTranslation> {
     render() {
+        const boundlexx = this.props.t("Boundlexx");
+        const page = this.props.t("Color_plural");
+
+        document.title = `${boundlexx} | ${page}`;
+        window.history.replaceState(document.title, document.title);
+
         return (
             <Stack horizontalAlign="center" verticalAlign="center" verticalFill tokens={{ childrenGap: 15 }}>
                 <Colors />

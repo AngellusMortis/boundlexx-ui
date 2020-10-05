@@ -43,7 +43,7 @@ const persistConfig = {
             // (Optional) Key to be used for the time relative to which store is to be expired
             persistedAtKey: "__persisted_at",
             // (Required) Seconds after which store will be expired
-            expireSeconds: 604800, // 7 days
+            expireSeconds: 2592000, // 30 days
             // (Optional) State to be used for resetting e.g. provide initial reducer state
             expiredState: { def: null },
             // (Optional) Use it if you don't want to manually set the time in the reducer i.e. at `persistedAtKey`
@@ -57,7 +57,7 @@ const persistConfig = {
             // (Optional) Key to be used for the time relative to which store is to be expired
             persistedAtKey: "__persisted_at",
             // (Required) Seconds after which store will be expired
-            expireSeconds: 604800, // 7 days
+            expireSeconds: 2592000, // 30 days
             // (Optional) State to be used for resetting e.g. provide initial reducer state
             expiredState: { def: null },
             // (Optional) Use it if you don't want to manually set the time in the reducer i.e. at `persistedAtKey`
@@ -71,7 +71,7 @@ const persistConfig = {
             // (Optional) Key to be used for the time relative to which store is to be expired
             persistedAtKey: "__persisted_at",
             // (Required) Seconds after which store will be expired
-            expireSeconds: 604800, // 7 days
+            expireSeconds: 2592000, // 30 days
             // (Optional) State to be used for resetting e.g. provide initial reducer state
             expiredState: { def: null },
             // (Optional) Use it if you don't want to manually set the time in the reducer i.e. at `persistedAtKey`

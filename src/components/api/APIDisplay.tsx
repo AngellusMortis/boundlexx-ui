@@ -17,7 +17,7 @@ import "./APIDisplay.css";
 import { WithTranslation } from "react-i18next";
 import { getClient, apiConfig } from "../../api/config";
 import { Client as BoundlexxClient } from "../../api/client";
-import { StringAPIItems, NumericAPIItems } from "../../types";
+import { StringAPIItems, NumericAPIItems, StringDict } from "../../types";
 import { getTheme } from "../../themes";
 
 export interface Items {
@@ -34,6 +34,7 @@ interface State {
     error?: Error;
     loadedFromStore: boolean;
     initialLoadComplete: boolean;
+    queryParams: string;
 }
 
 interface PartialState {
@@ -43,6 +44,7 @@ interface PartialState {
     error?: Error;
     loadedFromStore?: boolean;
     initialLoadComplete?: boolean;
+    queryParams?: string;
 }
 
 interface BaseProps {
@@ -54,6 +56,7 @@ interface BaseProps {
     name?: string;
     operationID?: string;
     extraFilters?: any;
+    extraQSKeys?: string[];
 }
 
 const generatePlaceholders = (targetCount: number, items?: any[]) => {
@@ -154,6 +157,7 @@ export class APIDisplay<T extends APIDisplayProps> extends React.Component<T, {}
         },
         loadedFromStore: false,
         initialLoadComplete: false,
+        queryParams: "",
     };
     constructor(props: APIDisplayProps) {
         // @ts-ignore
@@ -169,6 +173,18 @@ export class APIDisplay<T extends APIDisplayProps> extends React.Component<T, {}
             } else if (this.props.updateItems !== undefined) {
                 this.props.updateItems([], null, null, props.locale);
             }
+        }
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const params: StringDict<string> = {};
+        urlParams.forEach((value, key) => {
+            params[key] = value;
+        });
+
+        const newState = this.setQueryParams(params);
+
+        if (newState !== null) {
+            this.state = { ...this.state, ...newState };
         }
         this.client = null;
         this.searchTimer = null;
@@ -218,6 +234,43 @@ export class APIDisplay<T extends APIDisplayProps> extends React.Component<T, {}
         return await operation(params);
     }
 
+    getStateFromParams = (params: StringDict<string>, urlEncoded: string) => {
+        const newState: PartialState = { queryParams: urlEncoded };
+        if ("search" in params) {
+            newState.search = params["search"];
+        }
+
+        return newState;
+    };
+
+    setQueryParams = (params: StringDict<string>) => {
+        let allowedKeys = ["search"];
+
+        if (this.props.extraFilters !== undefined) {
+            allowedKeys = allowedKeys.concat(this.props.extraFilters);
+        }
+
+        for (const key in Object.keys(params)) {
+            if (allowedKeys.indexOf(key) <= -1) {
+                delete params[key];
+            }
+        }
+
+        const urlEncoded = new URLSearchParams(params).toString();
+
+        if (urlEncoded !== this.state.queryParams) {
+            window.history.pushState(
+                urlEncoded,
+                document.title,
+                `${window.location.origin}${window.location.pathname}?${urlEncoded}`,
+            );
+
+            return this.getStateFromParams(params, urlEncoded);
+        }
+
+        return null;
+    };
+
     async getData(forceUpdate: boolean = false) {
         // do not double load
         if (this.state.loading || this.client === null) {
@@ -243,6 +296,8 @@ export class APIDisplay<T extends APIDisplayProps> extends React.Component<T, {}
             // initial request, or lang change
             if (forceUpdate || state.items.nextUrl === null) {
                 const items = state.items;
+                let queryParams: StringDict<string> = {};
+
                 items.results = generatePlaceholders(apiConfig.pageSize);
                 this.setState({ items: items, initialLoadComplete: false });
                 state.items = items;
@@ -259,12 +314,18 @@ export class APIDisplay<T extends APIDisplayProps> extends React.Component<T, {}
                         value: state.search,
                         in: "query",
                     });
+
+                    queryParams["search"] = state.search;
                 }
 
                 if (this.props.extraFilters !== undefined) {
                     params = params.concat(this.props.extraFilters);
                 }
 
+                const newState = this.setQueryParams(queryParams);
+                if (newState !== null) {
+                    this.setState(newState);
+                }
                 response = await this.callOperation(params);
             } else {
                 response = await this.client.get(state.items.nextUrl);
@@ -493,6 +554,7 @@ export class APIDisplay<T extends APIDisplayProps> extends React.Component<T, {}
                             onChange={this.onSearchChange}
                             onSearch={this.onSearch}
                             onClear={this.clearSearch}
+                            value={this.state.search || ""}
                         />
                     </div>
                 </div>

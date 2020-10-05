@@ -5,6 +5,12 @@ import Worlds from "../components/api/Worlds";
 
 class Page extends React.Component<WithTranslation> {
     render() {
+        const boundlexx = this.props.t("Boundlexx");
+        const page = this.props.t("World_plural");
+
+        document.title = `${boundlexx} | ${page}`;
+        window.history.replaceState(document.title, document.title);
+
         return (
             <Stack horizontalAlign="center" verticalAlign="center" verticalFill tokens={{ childrenGap: 15 }}>
                 <Worlds />
