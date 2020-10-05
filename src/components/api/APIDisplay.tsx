@@ -21,13 +21,6 @@ import { StringAPIItems, NumericAPIItems, BaseItems, StringDict } from "../../ty
 import { getTheme } from "../../themes";
 import { AxiosResponse } from "axios";
 
-export interface Items {
-    count: number | null;
-    results: any[];
-    nextUrl: string | null;
-    lang?: string;
-}
-
 export interface Filters {
     search: string | null;
     queryParams: string;
@@ -38,7 +31,7 @@ interface State {
     loadedFromStore: boolean;
     loading: boolean;
     filters: Filters;
-    items: Items;
+    results: BaseItems;
     error?: Error;
 }
 
@@ -47,14 +40,14 @@ interface PartialState {
     loadedFromStore?: boolean;
     loading?: boolean;
     filters?: Filters;
-    items?: Items;
+    results?: BaseItems;
     error?: Error;
 }
 
 interface BaseProps {
     theme: string;
     locale: string | null;
-    items?: Items;
+    results?: BaseItems;
     name?: string;
     operationID?: string;
     extraFilters?: any;
@@ -87,15 +80,15 @@ const mapToItems = (store: BaseItems, mapFunc: CallableFunction) => {
         return;
     }
 
-    const items: Items = {
+    const results: BaseItems = {
         count: store.count,
         nextUrl: store.nextUrl,
-        results: [],
+        items: [],
     };
 
-    items.results = mapFunc();
-    items.results = generatePlaceholders(items.count, items.results);
-    return items;
+    results.items = mapFunc();
+    results.items = generatePlaceholders(results.count, results.items);
+    return results;
 };
 
 export const mapNumericStoreToItems = (store: NumericAPIItems) => {
@@ -154,8 +147,8 @@ export class APIDisplay<T extends APIDisplayProps> extends React.Component<T, {}
     static contextType = OpenAPIContext;
 
     mounted: boolean = false;
-    client: BoundlexxClient | null;
-    searchTimer: NodeJS.Timeout | null;
+    client: BoundlexxClient | null = null;
+    searchTimer: NodeJS.Timeout | null = null;
     state: State = {
         initialLoad: false,
         loadedFromStore: false,
@@ -164,8 +157,8 @@ export class APIDisplay<T extends APIDisplayProps> extends React.Component<T, {}
             search: null,
             queryParams: "",
         },
-        items: {
-            results: [],
+        results: {
+            items: [],
             count: null,
             nextUrl: null,
         },
@@ -173,9 +166,6 @@ export class APIDisplay<T extends APIDisplayProps> extends React.Component<T, {}
     constructor(props: APIDisplayProps) {
         // @ts-ignore
         super(props);
-
-        this.client = null;
-        this.searchTimer = null;
 
         const urlParams = new URLSearchParams(window.location.search);
         const params: StringDict<string> = {};
@@ -186,12 +176,12 @@ export class APIDisplay<T extends APIDisplayProps> extends React.Component<T, {}
         const filters = this.updateQueryParam(params);
         if (filters !== null) {
             this.state.filters = filters;
-        } else if (props.items !== undefined) {
-            if (props.locale === null || props.locale === props.items.lang) {
-                this.state.items = props.items;
+        } else if (props.results !== undefined) {
+            if (props.locale === null || props.locale === props.results.lang) {
+                this.state.results = props.results;
 
                 // count == null means partial results from a search or something
-                if (props.items.count !== null) {
+                if (props.results.count !== null) {
                     this.state.initialLoad = true;
                     this.state.loadedFromStore = true;
                 }
@@ -255,20 +245,20 @@ export class APIDisplay<T extends APIDisplayProps> extends React.Component<T, {}
         if (
             (newState.filters === undefined || newState.filters.queryParams === "") &&
             this.state.loadedFromStore &&
-            this.props.items !== undefined
+            this.props.results !== undefined
         ) {
             // @ts-ignore
             newState.items = this.props.items;
         } else {
             newState.initialLoad = false;
-            newState.items = {
-                results: [],
+            newState.results = {
+                items: [],
                 count: null,
                 nextUrl: null,
             };
 
             if (this.props.locale !== null) {
-                newState.items.lang = this.props.locale.toString();
+                newState.results.lang = this.props.locale.toString();
             }
         }
         this.setState(newState, () => {
@@ -464,21 +454,21 @@ export class APIDisplay<T extends APIDisplayProps> extends React.Component<T, {}
         }
 
         // no more data, do not update
-        if (this.state.initialLoad && this.state.items.nextUrl === null) {
+        if (this.state.initialLoad && this.state.results.nextUrl === null) {
             return;
         }
 
         // add placeholder cards
-        let results = this.state.items.results;
+        let results = this.state.results.items;
         if (results.length < apiConfig.pageSize) {
             results = generatePlaceholders(apiConfig.pageSize, results);
         }
-        this.setState({ loading: true, error: null, items: { ...this.state.items, results: results } });
+        this.setState({ loading: true, error: null, items: { ...this.state.results, results: results } });
 
         let response: AxiosResponse | null = null;
         try {
             // initial request, or lang change
-            if (this.state.items.nextUrl === null) {
+            if (this.state.results.nextUrl === null) {
                 let queryParams: StringDict<string> = {};
                 let params: any[] = [{ name: "limit", value: apiConfig.pageSize, in: "query" }];
 
@@ -501,7 +491,7 @@ export class APIDisplay<T extends APIDisplayProps> extends React.Component<T, {}
                 }
                 response = await this.callOperation(params);
             } else {
-                response = await this.client.get(this.state.items.nextUrl);
+                response = await this.client.get(this.state.results.nextUrl);
             }
 
             if (response !== null && response.status >= 300) {
@@ -534,14 +524,14 @@ export class APIDisplay<T extends APIDisplayProps> extends React.Component<T, {}
         }
 
         // remove placeholder results, add new results
-        const newResults = this.state.items.results
-            .filter((v) => {
+        const newResults = this.state.results.items
+            .filter((v: any[]) => {
                 return v !== undefined;
             })
             .concat(response.data.results);
 
-        const newItems: Items = {
-            results: newResults.concat(generatePlaceholders(response.data.count - newResults.length)),
+        const newItems: BaseItems = {
+            items: newResults.concat(generatePlaceholders(response.data.count - newResults.length)),
             count: response.data.count,
             nextUrl: response.data.next,
         };
@@ -550,7 +540,7 @@ export class APIDisplay<T extends APIDisplayProps> extends React.Component<T, {}
             newItems.lang = this.props.locale.toString();
         }
 
-        this.setAsyncState({ items: newItems, initialLoad: true, loading: false });
+        this.setAsyncState({ results: newItems, initialLoad: true, loading: false });
     };
 
     render() {
@@ -586,7 +576,7 @@ export class APIDisplay<T extends APIDisplayProps> extends React.Component<T, {}
         };
 
         const theme = getTheme(this.props.theme);
-        const actualCount = this.state.items.count || apiConfig.pageSize;
+        const actualCount = this.state.results.count || apiConfig.pageSize;
         const displayCount = !this.state.initialLoad ? "#" : actualCount.toString();
         const foundName = `${this.getName(" FoundWithCount", true, { count: actualCount })}`.replace(
             actualCount.toString(),
@@ -627,7 +617,7 @@ export class APIDisplay<T extends APIDisplayProps> extends React.Component<T, {}
                 >
                     <ScrollablePane scrollbarVisibility={ScrollbarVisibility.auto}>
                         <List
-                            items={this.state.items.results}
+                            items={this.state.results.items}
                             onRenderCell={this.onRenderCell}
                             style={{ position: "relative" }}
                             getItemCountForPage={getItemCountForPage}
@@ -635,7 +625,7 @@ export class APIDisplay<T extends APIDisplayProps> extends React.Component<T, {}
                                 return 65;
                             }}
                             usePageCache={true}
-                            renderCount={this.state.items.count || apiConfig.pageSize}
+                            renderCount={this.state.results.count || apiConfig.pageSize}
                             onPageAdded={onPageAdded}
                         />
                     </ScrollablePane>

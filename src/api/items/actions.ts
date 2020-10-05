@@ -3,15 +3,15 @@ import { Components } from "../client";
 import { NumberDict } from "../../types";
 
 export function updateItems(
-    items: Components.Schemas.Item[],
+    results: Components.Schemas.Item[],
     count?: number,
     nextUrl?: string,
     lang?: string,
 ): UpdateItemsAction {
     let mapped: NumberDict<Components.Schemas.Item> = {};
 
-    items.forEach((item) => {
-        mapped[item.game_id] = item;
+    results.forEach((result) => {
+        mapped[result.game_id] = result;
     });
 
     return {
