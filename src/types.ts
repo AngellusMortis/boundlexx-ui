@@ -7,6 +7,7 @@ export interface NumberDict<T> {
 }
 
 export interface BaseItems {
+    items: any;
     nextUrl: string | null;
     count: number | null;
 }

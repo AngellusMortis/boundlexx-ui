@@ -17,8 +17,9 @@ import "./APIDisplay.css";
 import { WithTranslation } from "react-i18next";
 import { getClient, apiConfig } from "../../api/config";
 import { Client as BoundlexxClient } from "../../api/client";
-import { StringAPIItems, NumericAPIItems, StringDict } from "../../types";
+import { StringAPIItems, NumericAPIItems, BaseItems, StringDict } from "../../types";
 import { getTheme } from "../../themes";
+import { AxiosResponse } from "axios";
 
 export interface Items {
     count: number | null;
@@ -27,36 +28,40 @@ export interface Items {
     lang?: string;
 }
 
-interface State {
-    loading: boolean;
+export interface Filters {
     search: string | null;
-    items: Items;
-    error?: Error;
-    loadedFromStore: boolean;
-    initialLoadComplete: boolean;
     queryParams: string;
 }
 
+interface State {
+    initialLoad: boolean;
+    loadedFromStore: boolean;
+    loading: boolean;
+    filters: Filters;
+    items: Items;
+    error?: Error;
+}
+
 interface PartialState {
+    initialLoad?: boolean;
+    loadedFromStore?: boolean;
     loading?: boolean;
-    search?: string | null;
+    filters?: Filters;
     items?: Items;
     error?: Error;
-    loadedFromStore?: boolean;
-    initialLoadComplete?: boolean;
-    queryParams?: string;
 }
 
 interface BaseProps {
     theme: string;
     locale: string | null;
-    changeAPIDefinition?: CallableFunction;
-    updateItems?: CallableFunction;
     items?: Items;
     name?: string;
     operationID?: string;
     extraFilters?: any;
     extraQSKeys?: string[];
+
+    changeAPIDefinition?: CallableFunction;
+    updateItems?: CallableFunction;
 }
 
 const generatePlaceholders = (targetCount: number | null, items?: any[]) => {
@@ -65,10 +70,7 @@ const generatePlaceholders = (targetCount: number | null, items?: any[]) => {
     }
 
     if (items === undefined) {
-        if (targetCount > 0) {
-            return new Array(targetCount);
-        }
-        return [];
+        items = [];
     }
 
     const placeholderCount = targetCount - items.length;
@@ -80,7 +82,7 @@ const generatePlaceholders = (targetCount: number | null, items?: any[]) => {
     return items;
 };
 
-export const mapNumericStoreToItems = (store: NumericAPIItems) => {
+const mapToItems = (store: BaseItems, mapFunc: CallableFunction) => {
     if (store.items === undefined) {
         return;
     }
@@ -91,55 +93,57 @@ export const mapNumericStoreToItems = (store: NumericAPIItems) => {
         results: [],
     };
 
-    let ids: number[] = [];
-    Reflect.ownKeys(store.items).forEach((key) => {
-        let numKey: number | null = null;
-        switch (typeof key) {
-            case "number":
-                numKey = key;
-                break;
-            case "string":
-                numKey = parseInt(key);
-                break;
-        }
-
-        if (numKey !== null) {
-            ids.push(numKey);
-        }
-    });
-    ids = ids.sort((a, b) => a - b);
-    ids.forEach((id) => {
-        items.results.push(store.items[id]);
-    });
-
+    items.results = mapFunc();
     items.results = generatePlaceholders(items.count, items.results);
     return items;
 };
 
+export const mapNumericStoreToItems = (store: NumericAPIItems) => {
+    return mapToItems(store, () => {
+        let results: any[] = [];
+
+        let ids: number[] = [];
+        Reflect.ownKeys(store.items).forEach((key) => {
+            let numKey: number | null = null;
+            switch (typeof key) {
+                case "number":
+                    numKey = key;
+                    break;
+                case "string":
+                    numKey = parseInt(key);
+                    break;
+            }
+
+            if (numKey !== null) {
+                ids.push(numKey);
+            }
+        });
+        ids = ids.sort((a, b) => a - b);
+        ids.forEach((id) => {
+            results.push(store.items[id]);
+        });
+
+        return results;
+    });
+};
+
 export const mapStringStoreToItems = (store: StringAPIItems) => {
-    if (store.items === undefined) {
-        return;
-    }
+    return mapToItems(store, () => {
+        let results: any[] = [];
 
-    const items: Items = {
-        count: store.count,
-        nextUrl: store.nextUrl,
-        results: [],
-    };
+        let ids: string[] = [];
+        Reflect.ownKeys(store.items).forEach((key) => {
+            if (typeof key === "string") {
+                ids.push(key);
+            }
+        });
+        ids = ids.sort();
+        ids.forEach((id) => {
+            results.push(store.items[id]);
+        });
 
-    let ids: string[] = [];
-    Reflect.ownKeys(store.items).forEach((key) => {
-        if (typeof key === "string") {
-            ids.push(key);
-        }
+        return results;
     });
-    ids = ids.sort();
-    ids.forEach((id) => {
-        items.results.push(store.items[id]);
-    });
-
-    items.results = generatePlaceholders(items.count, items.results);
-    return items;
 };
 
 export type APIDisplayProps = WithTranslation & BaseProps;
@@ -149,39 +153,29 @@ const SEARCH_TIMEOUT = 1000;
 export class APIDisplay<T extends APIDisplayProps> extends React.Component<T, {}> {
     static contextType = OpenAPIContext;
 
+    mounted: boolean = false;
     client: BoundlexxClient | null;
     searchTimer: NodeJS.Timeout | null;
     state: State = {
+        initialLoad: false,
+        loadedFromStore: false,
         loading: false,
-        search: null,
+        filters: {
+            search: null,
+            queryParams: "",
+        },
         items: {
-            count: apiConfig.pageSize,
-            results: generatePlaceholders(apiConfig.pageSize),
+            results: [],
+            count: null,
             nextUrl: null,
         },
-        loadedFromStore: false,
-        initialLoadComplete: false,
-        queryParams: "",
     };
     constructor(props: APIDisplayProps) {
         // @ts-ignore
         super(props);
 
-        if (props.items !== undefined) {
-            if (props.locale === null || props.locale === props.items.lang) {
-                this.state.items = props.items;
-                if (
-                    this.state.items.results.length > 0 &&
-                    this.state.items.results[0] !== undefined &&
-                    this.state.items.count !== null
-                ) {
-                    this.state.loadedFromStore = true;
-                    this.state.initialLoadComplete = true;
-                }
-            } else if (this.props.updateItems !== undefined) {
-                this.props.updateItems([], null, null, props.locale);
-            }
-        }
+        this.client = null;
+        this.searchTimer = null;
 
         const urlParams = new URLSearchParams(window.location.search);
         const params: StringDict<string> = {};
@@ -189,15 +183,146 @@ export class APIDisplay<T extends APIDisplayProps> extends React.Component<T, {}
             params[key] = value;
         });
 
-        const newState = this.setQueryParams(params);
-        if (newState !== null) {
-            this.state = { ...this.state, ...newState };
+        const filters = this.updateQueryParam(params);
+        if (filters !== null) {
+            this.state.filters = filters;
+        } else if (props.items !== undefined) {
+            if (props.locale === null || props.locale === props.items.lang) {
+                this.state.items = props.items;
+
+                // count == null means partial results from a search or something
+                if (props.items.count !== null) {
+                    this.state.initialLoad = true;
+                    this.state.loadedFromStore = true;
+                }
+            } else {
+                this.resetStore();
+            }
         }
-        this.client = null;
-        this.searchTimer = null;
     }
 
-    getName(extra?: string, translate?: boolean, transArgs?: any) {
+    setAsyncState = (state: PartialState) => {
+        if (this.mounted) {
+            this.setState(state);
+        }
+    };
+
+    getAPIClient = async () => {
+        try {
+            this.client = await getClient(this.context.api, this.props.changeAPIDefinition);
+        } catch (err) {
+            this.setAsyncState({ error: err });
+        }
+    };
+
+    componentDidMount = async () => {
+        this.mounted = true;
+
+        await this.getAPIClient();
+
+        if (!this.state.loadedFromStore) {
+            this.getData();
+        }
+    };
+
+    componentDidUpdate(prevProps: APIDisplayProps) {
+        if (this.props.locale !== prevProps.locale) {
+            // lang changed, clear stored items
+            this.resetStore();
+            this.resetState();
+        }
+    }
+
+    componentWillUnmount() {
+        this.mounted = false;
+    }
+
+    resetStore = () => {
+        if (this.props.updateItems !== undefined) {
+            this.props.updateItems([], null, null, this.props.locale);
+        }
+    };
+
+    resetState = (filters?: Filters | null) => {
+        let newState: PartialState = {
+            filters: filters || {
+                search: null,
+                queryParams: "",
+            },
+        };
+
+        // reload items from props if that is where they came from
+        if (
+            (newState.filters === undefined || newState.filters.queryParams === "") &&
+            this.state.loadedFromStore &&
+            this.props.items !== undefined
+        ) {
+            // @ts-ignore
+            newState.items = this.props.items;
+        } else {
+            newState.initialLoad = false;
+            newState.items = {
+                results: [],
+                count: null,
+                nextUrl: null,
+            };
+
+            if (this.props.locale !== null) {
+                newState.items.lang = this.props.locale.toString();
+            }
+        }
+        this.setState(newState, () => {
+            this.getData();
+        });
+    };
+
+    updateQueryParam = (params: StringDict<string>) => {
+        let allowedKeys = ["search"];
+
+        if (this.props.extraQSKeys !== undefined) {
+            // @ts-ignore
+            allowedKeys = allowedKeys.concat(this.props.extraQSKeys);
+        }
+
+        for (const key in Object.keys(params)) {
+            if (allowedKeys.indexOf(key) <= -1) {
+                delete params[key];
+            }
+        }
+
+        const urlEncoded = new URLSearchParams(params).toString();
+
+        if (urlEncoded !== this.state.filters.queryParams) {
+            this.setQueryParams(urlEncoded);
+            return this.getFiltersFromParams(params, urlEncoded);
+        }
+
+        return null;
+    };
+
+    setQueryParams = (urlEncoded: string) => {
+        let search = "";
+        if (urlEncoded !== "") {
+            search = `?${urlEncoded}`;
+        }
+
+        window.history.pushState(
+            urlEncoded,
+            document.title,
+            `${window.location.origin}${window.location.pathname}${search}`,
+        );
+    };
+
+    getFiltersFromParams = (params: StringDict<string>, urlEncoded: string) => {
+        const filters: Filters = {
+            search: params["search"] || null,
+            queryParams: urlEncoded,
+        };
+
+        return filters;
+    };
+
+    getName = (extra?: string, translate?: boolean, transArgs?: any) => {
         let name = "";
         if (this.props.name !== undefined) {
             name = this.props.name.toString();
@@ -215,18 +340,18 @@ export class APIDisplay<T extends APIDisplayProps> extends React.Component<T, {}
             }
         }
         return name;
-    }
+    };
 
-    getOperationID() {
+    getOperationID = () => {
         let operationID = "";
         if (this.props.operationID !== undefined) {
             operationID = this.props.operationID.toString();
         }
 
         return operationID;
-    }
+    };
 
-    async callOperation(params: any) {
+    callOperation = async (params: any) => {
         if (this.client === null) {
             this.client = await getClient(this.context.api, this.props.changeAPIDefinition);
         }
@@ -239,204 +364,52 @@ export class APIDisplay<T extends APIDisplayProps> extends React.Component<T, {}
         }
 
         return await operation(params);
-    }
-
-    getStateFromParams = (params: StringDict<string>, urlEncoded: string) => {
-        const newState: PartialState = {
-            queryParams: urlEncoded,
-            items: {
-                results: [],
-                count: null,
-                nextUrl: null,
-            },
-        };
-
-        if (this.props.locale !== null && newState.items !== undefined) {
-            newState.items.lang = this.props.locale.toString();
-        }
-
-        if ("search" in params) {
-            newState.search = params["search"];
-        }
-
-        return newState;
     };
 
-    setQueryParams = (params: StringDict<string>) => {
-        let allowedKeys = ["search"];
-
-        if (this.props.extraFilters !== undefined) {
-            allowedKeys = allowedKeys.concat(this.props.extraFilters);
+    clearSearchTimer = () => {
+        if (this.searchTimer !== null) {
+            window.clearTimeout(this.searchTimer);
+            this.searchTimer = null;
         }
-
-        for (const key in Object.keys(params)) {
-            if (allowedKeys.indexOf(key) <= -1) {
-                delete params[key];
-            }
-        }
-
-        const urlEncoded = new URLSearchParams(params).toString();
-
-        if (urlEncoded !== this.state.queryParams) {
-            window.history.pushState(
-                urlEncoded,
-                document.title,
-                `${window.location.origin}${window.location.pathname}?${urlEncoded}`,
-            );
-
-            return this.getStateFromParams(params, urlEncoded);
-        }
-
-        return null;
     };
 
-    async getData() {
-        // do not double load
-        if (this.state.loading || this.client === null) {
-            return;
+    search = (newSearch: string) => {
+        const filters = this.updateQueryParam({ search: newSearch });
+        this.resetState(filters);
+    };
+
+    clearSearch = () => {
+        // clear timeout that will be set by onSearchChange
+        this.searchTimer = setTimeout(() => {
+            this.clearSearchTimer();
+        }, 100);
+
+        this.setQueryParams("");
+        this.resetState();
+    };
+
+    onSearchChange = (event: React.ChangeEvent<HTMLInputElement> | undefined, newValue?: string) => {
+        this.clearSearchTimer();
+
+        this.searchTimer = setTimeout(() => {
+            this.onSearch(event, newValue);
+        }, SEARCH_TIMEOUT);
+    };
+
+    onSearch = (event: React.ChangeEvent<HTMLInputElement> | undefined, newValue?: string) => {
+        let newSearch: string | null = null;
+        if (newValue !== undefined && newValue.trim().length > 0) {
+            newSearch = newValue;
         }
 
-        // no more data, do not update
-        if (
-            this.state.items.count !== null &&
-            this.state.items.nextUrl === null &&
-            this.state.items.results.length > 0 &&
-            this.state.items.results[0] !== undefined
-        ) {
-            debugger;
-            return;
-        }
-
-        this.setState({ loading: true, error: null });
-        let newItems: Items | null = null;
-        try {
-            let response = null;
-            let state = { ...this.state };
-
-            // initial request, or lang change
-            if (state.items.nextUrl === null) {
-                let queryParams: StringDict<string> = {};
-                let params: any[] = [{ name: "limit", value: apiConfig.pageSize, in: "query" }];
-
-                if (this.props.locale !== null) {
-                    params.push({ name: "lang", value: this.props.locale, in: "query" });
-                }
-
-                if (state.search !== null) {
-                    params.push({
-                        name: "search",
-                        value: state.search,
-                        in: "query",
-                    });
-
-                    queryParams["search"] = state.search;
-                }
-
-                if (this.props.extraFilters !== undefined) {
-                    params = params.concat(this.props.extraFilters);
-                }
-
-                const newState = this.setQueryParams(queryParams);
-                if (newState !== null) {
-                    this.setState(newState);
-                }
-                response = await this.callOperation(params);
+        if (newSearch !== this.state.filters.search) {
+            if (newSearch == null) {
+                this.clearSearch();
             } else {
-                response = await this.client.get(state.items.nextUrl);
-            }
-
-            if (this.props.updateItems !== undefined) {
-                if (state.search !== null) {
-                    this.props.updateItems(response.data.results);
-                } else if (this.props.locale === null) {
-                    this.props.updateItems(response.data.results, response.data.count, response.data.next);
-                } else {
-                    this.props.updateItems(
-                        response.data.results,
-                        response.data.count,
-                        response.data.next,
-                        this.props.locale,
-                    );
-                }
-            }
-
-            // remove placeholder results, add new results
-            const newResults = state.items.results
-                .filter((v) => {
-                    return v !== undefined;
-                })
-                .concat(response.data.results);
-
-            newItems = {
-                results: newResults.concat(generatePlaceholders(response.data.count - newResults.length)),
-                count: response.data.count,
-                nextUrl: response.data.next,
-            };
-
-            if (this.props.locale !== null) {
-                newItems.lang = this.props.locale.toString();
-            }
-
-            this.setState({ items: newItems, initialLoadComplete: true });
-        } catch (err) {
-            this.setState({ error: err });
-        }
-
-        const newState: PartialState = {
-            loading: false,
-        };
-
-        if (newItems !== null) {
-            newState.items = newItems;
-        }
-        this.setState(newState);
-    }
-
-    resetState = () => {
-        let newState: PartialState = {
-            search: null,
-            queryParams: "",
-        };
-
-        if (this.state.loadedFromStore && this.props.items !== undefined) {
-            // @ts-ignore
-            newState.items = this.props.items;
-        } else {
-            newState.initialLoadComplete = false;
-            newState.items = {
-                results: generatePlaceholders(apiConfig.pageSize),
-                count: null,
-                nextUrl: null,
-            };
-
-            if (this.props.locale !== null) {
-                newState.items.lang = this.props.locale.toString();
+                this.search(newSearch);
             }
         }
-        this.setState(newState);
-        this.getData();
     };
-
-    async componentDidMount() {
-        try {
-            this.client = await getClient(this.context.api, this.props.changeAPIDefinition);
-        } catch (err) {
-            this.setState({ error: err });
-        }
-
-        if (!this.state.loadedFromStore) {
-            this.getData();
-        }
-    }
-
-    async componentDidUpdate(prevProps: APIDisplayProps) {
-        if (this.props.locale !== prevProps.locale) {
-            if (this.props.updateItems !== undefined) {
-                this.props.updateItems([], null, null, this.props.locale);
-            }
-            this.resetState();
-        }
-    }
 
     renderCardImage(item: any, index: number | undefined) {
         return <div></div>;
@@ -475,56 +448,110 @@ export class APIDisplay<T extends APIDisplayProps> extends React.Component<T, {}
         );
     };
 
-    clearSearchTimer = () => {
-        if (this.searchTimer !== null) {
-            window.clearTimeout(this.searchTimer);
-            this.searchTimer = null;
-        }
-    };
-
-    onSearchChange = (event: React.ChangeEvent<HTMLInputElement> | undefined, newValue?: string) => {
-        this.clearSearchTimer();
-
-        this.searchTimer = setTimeout(() => {
-            this.onSearch(event, newValue);
-        }, SEARCH_TIMEOUT);
-    };
-
-    onSearch = (event: React.ChangeEvent<HTMLInputElement> | undefined, newValue?: string) => {
-        let newSearch: string | null = null;
-        if (newValue !== undefined && newValue.trim().length > 0) {
-            newSearch = newValue;
-        }
-
-        if (newSearch !== this.state.search) {
-            if (newSearch == null) {
-                this.clearSearch();
-            } else {
-                this.search(newSearch);
-            }
-        }
-    };
-
-    search = (newSearch: string) => {
-        this.setState({ search: newSearch });
-        this.getData();
-    };
-
-    clearSearch = () => {
-        // clear timeout that will be set by onSearchChange
-        this.searchTimer = setTimeout(() => {
-            this.clearSearchTimer();
-        }, 100);
-
-        if (this.props.items !== undefined) {
-            window.history.pushState("", document.title, `${window.location.origin}${window.location.pathname}`);
+    onRetryClick = async () => {
+        await this.getAPIClient();
+        if (this.mounted) {
             this.resetState();
         }
     };
 
-    async onRetryClick() {
-        await this.componentDidMount();
-    }
+    getInitialURL() {}
+
+    getData = async () => {
+        // do not double load
+        if (this.state.loading || this.client === null) {
+            return;
+        }
+
+        // no more data, do not update
+        if (this.state.initialLoad && this.state.items.nextUrl === null) {
+            return;
+        }
+
+        // add placeholder cards
+        let results = this.state.items.results;
+        if (results.length < apiConfig.pageSize) {
+            results = generatePlaceholders(apiConfig.pageSize, results);
+        }
+        this.setState({ loading: true, error: null, items: { ...this.state.items, results: results } });
+
+        let response: AxiosResponse | null = null;
+        try {
+            // initial request, or lang change
+            if (this.state.items.nextUrl === null) {
+                let queryParams: StringDict<string> = {};
+                let params: any[] = [{ name: "limit", value: apiConfig.pageSize, in: "query" }];
+
+                if (this.props.locale !== null) {
+                    params.push({ name: "lang", value: this.props.locale, in: "query" });
+                }
+
+                if (this.state.filters.search !== null) {
+                    params.push({
+                        name: "search",
+                        value: this.state.filters.search,
+                        in: "query",
+                    });
+
+                    queryParams["search"] = this.state.filters.search;
+                }
+
+                if (this.props.extraFilters !== undefined) {
+                    params = params.concat(this.props.extraFilters);
+                }
+                response = await this.callOperation(params);
+            } else {
+                response = await this.client.get(this.state.items.nextUrl);
+            }
+
+            if (response !== null && response.status >= 300) {
+                throw new Error(`Unexpected response status: ${response.status}`);
+            }
+        } catch (err) {
+            this.setAsyncState({ error: err, loading: false });
+            return;
+        }
+
+        if (response === null) {
+            return;
+        }
+
+        if (this.props.updateItems !== undefined) {
+            // do not change count/locale/nextURL on search/filter
+            if (this.state.filters.queryParams !== "") {
+                this.props.updateItems(response.data.results);
+                // do not change locale if view does not support it
+            } else if (this.props.locale === null) {
+                this.props.updateItems(response.data.results, response.data.count, response.data.next);
+            } else {
+                this.props.updateItems(
+                    response.data.results,
+                    response.data.count,
+                    response.data.next,
+                    this.props.locale,
+                );
+            }
+        }
+
+        // remove placeholder results, add new results
+        const newResults = this.state.items.results
+            .filter((v) => {
+                return v !== undefined;
+            })
+            .concat(response.data.results);
+
+        const newItems: Items = {
+            results: newResults.concat(generatePlaceholders(response.data.count - newResults.length)),
+            count: response.data.count,
+            nextUrl: response.data.next,
+        };
+
+        if (this.props.locale !== null) {
+            newItems.lang = this.props.locale.toString();
+        }
+
+        this.setAsyncState({ items: newItems, initialLoad: true, loading: false });
+    };
 
     render() {
         if (this.state.error) {
@@ -540,7 +567,6 @@ export class APIDisplay<T extends APIDisplayProps> extends React.Component<T, {}
         }
 
         let columnCount = 0;
-
         const getItemCountForPage = (index: number | undefined, surface: IRectangle | undefined) => {
             if (index === 0 && surface !== undefined) {
                 columnCount = Math.floor(surface.width / 300);
@@ -561,7 +587,7 @@ export class APIDisplay<T extends APIDisplayProps> extends React.Component<T, {}
 
         const theme = getTheme(this.props.theme);
         const actualCount = this.state.items.count || apiConfig.pageSize;
-        const displayCount = !this.state.initialLoadComplete ? "#" : actualCount.toString();
+        const displayCount = !this.state.initialLoad ? "#" : actualCount.toString();
         const foundName = `${this.getName(" FoundWithCount", true, { count: actualCount })}`.replace(
             actualCount.toString(),
             displayCount,
@@ -588,7 +614,7 @@ export class APIDisplay<T extends APIDisplayProps> extends React.Component<T, {}
                             onChange={this.onSearchChange}
                             onSearch={this.onSearch}
                             onClear={this.clearSearch}
-                            value={this.state.search || ""}
+                            value={this.state.filters.search || ""}
                         />
                     </div>
                 </div>
