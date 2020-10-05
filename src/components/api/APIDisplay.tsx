@@ -58,7 +58,10 @@ interface BaseProps {
 
 const generatePlaceholders = (targetCount: number, items?: any[]) => {
     if (items === undefined) {
-        return new Array(targetCount);
+        if (targetCount > 0) {
+            return new Array(targetCount);
+        }
+        return [];
     }
 
     const placeholderCount = targetCount - items.length;
@@ -159,8 +162,10 @@ export class APIDisplay<T extends APIDisplayProps> extends React.Component<T, {}
         if (props.items !== undefined) {
             if (props.locale === null || props.locale === props.items.lang) {
                 this.state.items = props.items;
-                this.state.loadedFromStore = true;
-                this.state.initialLoadComplete = true;
+                if (this.state.items.results.length > 0 && this.state.items.results[0] !== undefined) {
+                    this.state.loadedFromStore = true;
+                    this.state.initialLoadComplete = true;
+                }
             } else if (this.props.updateItems !== undefined) {
                 this.props.updateItems([], null, null, props.locale);
             }

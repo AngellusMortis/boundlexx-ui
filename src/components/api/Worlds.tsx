@@ -55,7 +55,7 @@ class Worlds extends APIDisplay<Props> {
     renderCardDetails(item: any, index: number | undefined) {
         let specialType = "";
         if (item.special_type !== null && item.special_type > 0) {
-            specialType = `${SpecialTypeMap[item.special_type]} `;
+            specialType = `${this.props.t(SpecialTypeMap[item.special_type])} `;
         }
         let worldClass = "Homeworld";
         if (item.is_creative) {
