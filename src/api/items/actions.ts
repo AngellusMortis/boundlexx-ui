@@ -1,13 +1,13 @@
-import { UpdateItemsAction, UPDATE_ITEMS } from './types'
-import { Components } from '../client'
-import { NumberDict } from '../../types'
+import { UpdateItemsAction, UPDATE_ITEMS } from "./types";
+import { Components } from "../client";
+import { NumberDict } from "../../types";
 
 export function updateItems(items: Components.Schemas.Item[], count?: number, nextUrl?: string): UpdateItemsAction {
-    let mapped: NumberDict<Components.Schemas.Item> = {}
+    let mapped: NumberDict<Components.Schemas.Item> = {};
 
     items.forEach((item) => {
-        mapped[item.game_id] = item
-    })
+        mapped[item.game_id] = item;
+    });
 
     return {
         type: UPDATE_ITEMS,
@@ -16,5 +16,5 @@ export function updateItems(items: Components.Schemas.Item[], count?: number, ne
             count: count,
             nextUrl: nextUrl,
         },
-    }
+    };
 }

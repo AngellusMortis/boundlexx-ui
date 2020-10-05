@@ -1,13 +1,13 @@
-import { IDropdownOption, Dropdown } from '@fluentui/react';
-import React from 'react';
-import { RootState } from '../store';
-import { connect, ConnectedProps } from 'react-redux';
-import { changeLanuage } from '../prefs/actions';
-import { withTranslation, WithTranslation } from 'react-i18next';
-import { StringDict } from '../types'
+import { IDropdownOption, Dropdown } from "@fluentui/react";
+import React from "react";
+import { RootState } from "../store";
+import { connect, ConnectedProps } from "react-redux";
+import { changeLanuage } from "../prefs/actions";
+import { withTranslation, WithTranslation } from "react-i18next";
+import { StringDict } from "../types";
 
 const mapState = (state: RootState) => ({
-    locale: state.prefs.language
+    locale: state.prefs.language,
 });
 
 const mapDispatchToProps = { changeLanuage };
@@ -17,20 +17,20 @@ const connector = connect(mapState, mapDispatchToProps);
 type Props = WithTranslation & ConnectedProps<typeof connector>;
 
 const LangToBoundlessMap: StringDict<string> = {
-    "en": "english",
-    "fr": "french",
-    "de": "german",
-    "it": "italian",
-    "es": "spanish",
+    en: "english",
+    fr: "french",
+    de: "german",
+    it: "italian",
+    es: "spanish",
 };
 
 const BoundlessToLangMap: StringDict<string> = {
-    "english": "en",
-    "french": "fr",
-    "german": "de",
-    "italian": "it",
-    "spanish": "es",
-}
+    english: "en",
+    french: "fr",
+    german: "de",
+    italian: "it",
+    spanish: "es",
+};
 
 class LanguageSelector extends React.Component<Props> {
     constructor(props: Props) {
@@ -40,7 +40,7 @@ class LanguageSelector extends React.Component<Props> {
         this.updateLanguageFromI18n.bind(this);
 
         this.updateLanguageFromI18n(this.props.i18n.language);
-        this.props.i18n.on("languageChanged", lang => {
+        this.props.i18n.on("languageChanged", (lang) => {
             this.updateLanguageFromI18n(lang);
         });
     }
@@ -50,7 +50,7 @@ class LanguageSelector extends React.Component<Props> {
         lang = LangToBoundlessMap[lang] || "english";
 
         this.updateLanguage(lang);
-    }
+    };
 
     updateLanguage = (lang: string) => {
         if (this.props.locale !== lang) {
@@ -61,13 +61,13 @@ class LanguageSelector extends React.Component<Props> {
         if (this.props.i18n.language !== i18nLang) {
             this.props.i18n.changeLanguage(i18nLang);
         }
-    }
+    };
 
     handleChange = (event: React.FormEvent<HTMLDivElement>, option?: IDropdownOption) => {
         if (option !== undefined) {
             this.updateLanguage(option.key.toString());
         }
-    }
+    };
 
     render() {
         const langOptions: IDropdownOption[] = [
@@ -84,7 +84,7 @@ class LanguageSelector extends React.Component<Props> {
                 defaultSelectedKey={this.props.locale}
                 options={langOptions}
                 onChange={this.handleChange}
-                styles={{dropdown: { width: 300} }}
+                styles={{ dropdown: { width: 300 } }}
             />
         );
     }

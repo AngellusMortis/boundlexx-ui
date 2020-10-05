@@ -7,13 +7,13 @@ export interface NumberDict<T> {
 }
 
 export interface NumericAPIItems {
-    items: NumberDict<any>,
-    nextUrl: string | null,
-    count: number | null,
+    items: NumberDict<any>;
+    nextUrl: string | null;
+    count: number | null;
 }
 
 export interface StringAPIItems {
-    items: StringDict<any>,
-    nextUrl: string | null,
-    count: number | null,
+    items: StringDict<any>;
+    nextUrl: string | null;
+    count: number | null;
 }

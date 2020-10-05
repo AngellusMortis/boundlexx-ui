@@ -1,8 +1,8 @@
-import { CHANGE_DEFINITION, ChangeDefinitionAction } from './types'
+import { CHANGE_DEFINITION, ChangeDefinitionAction } from "./types";
 
-export function changeAPIDefinition(definition: any ): ChangeDefinitionAction {
+export function changeAPIDefinition(definition: any): ChangeDefinitionAction {
     return {
         type: CHANGE_DEFINITION,
         payload: definition,
-    }
+    };
 }

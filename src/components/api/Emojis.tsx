@@ -1,20 +1,18 @@
-import React from 'react';
-import { Text } from '@fluentui/react';
-import { Card } from '@uifabric/react-cards';
-import { RootState } from '../../store';
-import { connect, ConnectedProps } from 'react-redux'
-import { withTranslation } from 'react-i18next';
-import { changeAPIDefinition } from '../../api/actions'
-import { APIDisplay, APIDisplayProps, mapStringStoreToItems }  from './APIDisplay'
-import { Components } from '../../api/client'
-import { updateEmojis } from '../../api/emojis/actions'
-
+import React from "react";
+import { Text } from "@fluentui/react";
+import { Card } from "@uifabric/react-cards";
+import { RootState } from "../../store";
+import { connect, ConnectedProps } from "react-redux";
+import { withTranslation } from "react-i18next";
+import { changeAPIDefinition } from "../../api/actions";
+import { APIDisplay, APIDisplayProps, mapStringStoreToItems } from "./APIDisplay";
+import { updateEmojis } from "../../api/emojis/actions";
 
 const mapState = (state: RootState) => ({
     locale: state.prefs.language,
     operationID: "listEmojis",
     name: "Emojis",
-    items: mapStringStoreToItems(state.emojis)
+    items: mapStringStoreToItems(state.emojis),
 });
 
 const mapDispatchToProps = { changeAPIDefinition, updateItems: updateEmojis };
@@ -25,16 +23,15 @@ type PropsFromRedux = ConnectedProps<typeof connector>;
 
 type Props = APIDisplayProps & PropsFromRedux;
 
-
 class Emojis extends APIDisplay<Props> {
     renderCardImage(item: any, index: number | undefined) {
-        return <img src={item.image_url} className="card-preview" alt={`emoji ${item.names[0]}`}></img>
+        return <img src={item.image_url} className="card-preview" alt={`emoji ${item.names[0]}`}></img>;
     }
 
     renderCardDetails(item: any, index: number | undefined) {
-        let names = ""
+        let names = "";
         item.names.forEach((element: string, index: number) => {
-            if (index == 2) {
+            if (index === 2) {
                 names += "\n";
             }
 
@@ -44,10 +41,12 @@ class Emojis extends APIDisplay<Props> {
         return (
             <Card.Section>
                 <Text>{this.props.t("In-game Names")}:</Text>
-                <Text variant="tiny"><pre>{names.trim()}</pre></Text>
+                <Text variant="tiny">
+                    <pre>{names.trim()}</pre>
+                </Text>
             </Card.Section>
-        )
+        );
     }
-};
+}
 
 export default connector(withTranslation()(Emojis));

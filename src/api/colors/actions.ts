@@ -1,13 +1,13 @@
-import { UpdateColorsAction, UPDATE_COLORS } from './types'
-import { Components } from '../client'
-import { NumberDict } from '../../types'
+import { UpdateColorsAction, UPDATE_COLORS } from "./types";
+import { Components } from "../client";
+import { NumberDict } from "../../types";
 
 export function updateColors(items: Components.Schemas.Color[], count?: number, nextUrl?: string): UpdateColorsAction {
-    let mapped: NumberDict<Components.Schemas.Color> = {}
+    let mapped: NumberDict<Components.Schemas.Color> = {};
 
     items.forEach((item) => {
-        mapped[item.game_id] = item
-    })
+        mapped[item.game_id] = item;
+    });
 
     return {
         type: UPDATE_COLORS,
@@ -16,5 +16,5 @@ export function updateColors(items: Components.Schemas.Color[], count?: number, 
             count: count,
             nextUrl: nextUrl,
         },
-    }
+    };
 }
