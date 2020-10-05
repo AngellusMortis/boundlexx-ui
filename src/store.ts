@@ -45,7 +45,7 @@ const persistConfig = {
             // (Required) Seconds after which store will be expired
             expireSeconds: 2592000, // 30 days
             // (Optional) State to be used for resetting e.g. provide initial reducer state
-            expiredState: { def: null },
+            expiredState: { count: null, nextUrl: null, results: [], lang: "english" },
             // (Optional) Use it if you don't want to manually set the time in the reducer i.e. at `persistedAtKey`
             // and want the store to  be automatically expired if the record is not updated in the `expireSeconds` time
             autoExpire: true,
@@ -59,7 +59,7 @@ const persistConfig = {
             // (Required) Seconds after which store will be expired
             expireSeconds: 2592000, // 30 days
             // (Optional) State to be used for resetting e.g. provide initial reducer state
-            expiredState: { def: null },
+            expiredState: { count: null, nextUrl: null, results: [] },
             // (Optional) Use it if you don't want to manually set the time in the reducer i.e. at `persistedAtKey`
             // and want the store to  be automatically expired if the record is not updated in the `expireSeconds` time
             autoExpire: true,
@@ -73,7 +73,7 @@ const persistConfig = {
             // (Required) Seconds after which store will be expired
             expireSeconds: 2592000, // 30 days
             // (Optional) State to be used for resetting e.g. provide initial reducer state
-            expiredState: { def: null },
+            expiredState: { count: null, nextUrl: null, results: [], lang: "english" },
             // (Optional) Use it if you don't want to manually set the time in the reducer i.e. at `persistedAtKey`
             // and want the store to  be automatically expired if the record is not updated in the `expireSeconds` time
             autoExpire: true,
@@ -87,7 +87,7 @@ const persistConfig = {
             // (Required) Seconds after which store will be expired
             expireSeconds: 3600, // 1 hour
             // (Optional) State to be used for resetting e.g. provide initial reducer state
-            expiredState: { def: null },
+            expiredState: { count: null, nextUrl: null, results: [], lang: "english" },
             // (Optional) Use it if you don't want to manually set the time in the reducer i.e. at `persistedAtKey`
             // and want the store to  be automatically expired if the record is not updated in the `expireSeconds` time
             autoExpire: true,

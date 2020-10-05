@@ -23,7 +23,7 @@ const Link: FunctionComponent<ILink> = (props) => {
         <FabricLink href={props.href}>{props.children}</FabricLink>
     ) : (
         <FabricLink href={props.href} as={"span"}>
-            <RouterLink className={"ms-Link-Child"} to={props.href}>
+            <RouterLink className={"ms-Link-Child"} to={props.href} style={props.style}>
                 {props.children}
             </RouterLink>
         </FabricLink>
