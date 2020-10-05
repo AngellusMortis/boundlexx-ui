@@ -15,6 +15,7 @@ import { getClient } from "../api/config";
 import { Client as BoundlexxClient } from "../api/client";
 import { AxiosResponse } from "axios";
 import { BaseItems } from "../types";
+import { CommandBar, ICommandBarItemProps } from "office-ui-fabric-react/lib/CommandBar";
 
 const mapState = (state: RootState) => ({
     colors: state.colors,
@@ -105,6 +106,37 @@ class Header extends React.Component<Props> {
     }
 
     render = () => {
+        const _items: ICommandBarItemProps[] = [
+            {
+                key: "Worlds",
+                text: "Worlds",
+                iconProps: { iconName: "Upload" },
+                disabled: false,
+                href: "/worlds/",
+            },
+            {
+                key: "Items",
+                text: "Items",
+                iconProps: { iconName: "Share" },
+                disabled: false,
+                href: "/items/",
+            },
+            {
+                key: "Colors",
+                text: "Colors",
+                iconProps: { iconName: "Download" },
+                href: "/colors/",
+                disabled: false,
+            },
+            {
+                key: "Emojis",
+                text: "Emojis",
+                iconProps: { iconName: "Upload" },
+                disabled: false,
+                href: "/emojis/",
+            },
+        ];
+
         return (
             <header>
                 <Stack className="main-header">
@@ -122,10 +154,12 @@ class Header extends React.Component<Props> {
                     <LanguageSelector />
                 </Stack>
                 <Stack className="nav-header">
-                    <Link href="/worlds/">{this.props.t("World_plural")}</Link>
+                    <CommandBar items={_items} />
+
+                    {/* <Link href="/worlds/">{this.props.t("World_plural")}</Link>
                     <Link href="/items/">{this.props.t("Item_plural")}</Link>
                     <Link href="/colors/">{this.props.t("Color_plural")}</Link>
-                    <Link href="/emojis/">{this.props.t("Emoji_plural")}</Link>
+                    <Link href="/emojis/">{this.props.t("Emoji_plural")}</Link> */}
                 </Stack>
             </header>
         );
