@@ -1,7 +1,7 @@
 import { Components } from "../../api/client";
-import { NumberDict, NumericAPIItems } from "../../types";
+import { NumberDict, LocalizedNumericAPIItems } from "../../types";
 
-export interface Colors extends NumericAPIItems {
+export interface Colors extends LocalizedNumericAPIItems {
     items: NumberDict<Components.Schemas.Color>;
 }
 
@@ -9,6 +9,7 @@ export interface ColorsPayload {
     items: NumberDict<Components.Schemas.Color>;
     nextUrl?: string | null;
     count?: number | null;
+    lang?: string;
 }
 
 export const UPDATE_COLORS = "UPDATE_COLORS";

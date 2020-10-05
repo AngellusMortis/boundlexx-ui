@@ -6,14 +6,25 @@ export interface NumberDict<T> {
     [key: number]: T;
 }
 
-export interface NumericAPIItems {
-    items: NumberDict<any>;
+export interface BaseItems {
     nextUrl: string | null;
     count: number | null;
 }
 
-export interface StringAPIItems {
+export interface NumericAPIItems extends BaseItems {
+    items: NumberDict<any>;
+}
+
+export interface LocalizedNumericAPIItems extends NumericAPIItems {
+    lang: string;
+}
+
+export interface StringAPIItems extends BaseItems {
     items: StringDict<any>;
     nextUrl: string | null;
     count: number | null;
+}
+
+export interface LocalizedStringAPIItems extends StringAPIItems {
+    lang: string;
 }

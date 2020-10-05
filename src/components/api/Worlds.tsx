@@ -9,13 +9,11 @@ import { APIDisplay, APIDisplayProps, mapNumericStoreToItems } from "./APIDispla
 import { updateWorlds } from "../../api/worlds/actions";
 
 const mapState = (state: RootState) => ({
+    theme: state.prefs.theme,
     locale: null,
     operationID: "listWorldsSimple",
     name: "Worlds",
-    extraFilters: [
-        { name: "active", value: true, in: "query" },
-        { name: "is_public", value: true, in: "query" },
-    ],
+    extraFilters: [{ name: "show_inactive", value: true, in: "query" }],
     items: mapNumericStoreToItems(state.worlds),
 });
 
@@ -68,6 +66,12 @@ class Worlds extends APIDisplay<Props> {
             worldClass = "Exoworld";
         }
 
+        const status_text = item.is_locked
+            ? this.props.t("Locked")
+            : item.active
+            ? this.props.t("Active")
+            : this.props.t("Inactive");
+
         return (
             <Card.Section>
                 <Text>
@@ -78,7 +82,7 @@ class Worlds extends APIDisplay<Props> {
                     {this.props.t(TypeNameMap[item.world_type])} {specialType} {worldClass}
                 </Text>
                 <Text variant="tiny">
-                    {this.props.t("ID")}: {item.id}
+                    {this.props.t("ID")}: {item.id}, {status_text}
                 </Text>
             </Card.Section>
         );

@@ -2,7 +2,12 @@ import { UpdateItemsAction, UPDATE_ITEMS } from "./types";
 import { Components } from "../client";
 import { NumberDict } from "../../types";
 
-export function updateItems(items: Components.Schemas.Item[], count?: number, nextUrl?: string): UpdateItemsAction {
+export function updateItems(
+    items: Components.Schemas.Item[],
+    count?: number,
+    nextUrl?: string,
+    lang?: string,
+): UpdateItemsAction {
     let mapped: NumberDict<Components.Schemas.Item> = {};
 
     items.forEach((item) => {
@@ -15,6 +20,7 @@ export function updateItems(items: Components.Schemas.Item[], count?: number, ne
             items: mapped,
             count: count,
             nextUrl: nextUrl,
+            lang: lang,
         },
     };
 }

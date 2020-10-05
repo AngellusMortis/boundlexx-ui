@@ -24,10 +24,10 @@ class Header extends React.Component<WithTranslation> {
                     <LanguageSelector />
                 </Stack>
                 <Stack className="nav-header">
-                    <Link href="/worlds">Worlds</Link>
-                    <Link href="/items">Items</Link>
-                    <Link href="/colors">Colors</Link>
-                    <Link href="/emojis">Emojis</Link>
+                    <Link href="/worlds">{this.props.t("Worlds")}</Link>
+                    <Link href="/items">{this.props.t("Items")}</Link>
+                    <Link href="/colors">{this.props.t("Colors")}</Link>
+                    <Link href="/emojis">{this.props.t("Emojis")}</Link>
                 </Stack>
             </header>
         );

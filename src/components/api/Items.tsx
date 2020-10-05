@@ -10,6 +10,7 @@ import { Components } from "../../api/client";
 import { updateItems } from "../../api/items/actions";
 
 const mapState = (state: RootState) => ({
+    theme: state.prefs.theme,
     locale: state.prefs.language,
     operationID: "listItems",
     name: "Items",

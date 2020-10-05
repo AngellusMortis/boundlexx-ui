@@ -9,7 +9,8 @@ import { APIDisplay, APIDisplayProps, mapStringStoreToItems } from "./APIDisplay
 import { updateEmojis } from "../../api/emojis/actions";
 
 const mapState = (state: RootState) => ({
-    locale: state.prefs.language,
+    theme: state.prefs.theme,
+    locale: null,
     operationID: "listEmojis",
     name: "Emojis",
     items: mapStringStoreToItems(state.emojis),

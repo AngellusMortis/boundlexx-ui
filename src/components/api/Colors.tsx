@@ -9,14 +9,13 @@ import { APIDisplay, APIDisplayProps, mapNumericStoreToItems } from "./APIDispla
 import { Components } from "../../api/client";
 import { updateColors } from "../../api/colors/actions";
 
-const mapState = (state: RootState) => {
-    return {
-        locale: state.prefs.language,
-        operationID: "listColors",
-        name: "Colors",
-        items: mapNumericStoreToItems(state.colors),
-    };
-};
+const mapState = (state: RootState) => ({
+    theme: state.prefs.theme,
+    locale: state.prefs.language,
+    operationID: "listColors",
+    name: "Colors",
+    items: mapNumericStoreToItems(state.colors),
+});
 
 const mapDispatchToProps = { changeAPIDefinition, updateItems: updateColors };
 

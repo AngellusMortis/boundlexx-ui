@@ -1,7 +1,7 @@
 import { Components } from "../../api/client";
-import { NumberDict, NumericAPIItems } from "../../types";
+import { NumberDict, LocalizedNumericAPIItems } from "../../types";
 
-export interface Items extends NumericAPIItems {
+export interface Items extends LocalizedNumericAPIItems {
     items: NumberDict<Components.Schemas.Item>;
 }
 
@@ -9,6 +9,7 @@ export interface ItemsPayload {
     items: NumberDict<Components.Schemas.Item>;
     nextUrl?: string | null;
     count?: number | null;
+    lang?: string;
 }
 
 export const UPDATE_ITEMS = "UPDATE_ITEMS";

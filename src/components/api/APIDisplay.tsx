@@ -18,11 +18,13 @@ import { WithTranslation } from "react-i18next";
 import { getClient, apiConfig } from "../../api/config";
 import { Client as BoundlexxClient } from "../../api/client";
 import { StringAPIItems, NumericAPIItems } from "../../types";
+import { getTheme } from "../../themes";
 
 export interface Items {
     count: number;
     results: any[];
     nextUrl: string | null;
+    lang?: string;
 }
 
 interface State {
@@ -31,6 +33,7 @@ interface State {
     items: Items;
     error?: Error;
     loadedFromStore: boolean;
+    initialLoadComplete: boolean;
 }
 
 interface PartialState {
@@ -39,9 +42,11 @@ interface PartialState {
     items?: Items;
     error?: Error;
     loadedFromStore?: boolean;
+    initialLoadComplete?: boolean;
 }
 
 interface BaseProps {
+    theme: string;
     locale: string | null;
     changeAPIDefinition?: CallableFunction;
     updateItems?: CallableFunction;
@@ -145,14 +150,20 @@ export class APIDisplay<T extends APIDisplayProps> extends React.Component<T, {}
             nextUrl: null,
         },
         loadedFromStore: false,
+        initialLoadComplete: false,
     };
     constructor(props: APIDisplayProps) {
         // @ts-ignore
         super(props);
 
         if (props.items !== undefined) {
-            this.state.items = props.items;
-            this.state.loadedFromStore = true;
+            if (props.locale === null || props.locale === props.items.lang) {
+                this.state.items = props.items;
+                this.state.loadedFromStore = true;
+                this.state.initialLoadComplete = true;
+            } else if (this.props.updateItems !== undefined) {
+                this.props.updateItems([], null, null, props.locale);
+            }
         }
         this.client = null;
         this.searchTimer = null;
@@ -173,7 +184,7 @@ export class APIDisplay<T extends APIDisplayProps> extends React.Component<T, {}
             operationID = this.props.operationID.toString();
         }
 
-        return this.props.t(operationID);
+        return operationID;
     }
 
     async callOperation(params: any) {
@@ -217,7 +228,7 @@ export class APIDisplay<T extends APIDisplayProps> extends React.Component<T, {}
             if (forceUpdate || state.items.nextUrl === null) {
                 const items = state.items;
                 items.results = generatePlaceholders(apiConfig.pageSize);
-                this.setState({ items: items });
+                this.setState({ items: items, initialLoadComplete: false });
                 state.items = items;
 
                 let params: any[] = [{ name: "limit", value: apiConfig.pageSize, in: "query" }];
@@ -246,8 +257,15 @@ export class APIDisplay<T extends APIDisplayProps> extends React.Component<T, {}
             if (this.props.updateItems !== undefined) {
                 if (state.search !== null) {
                     this.props.updateItems(response.data.results);
-                } else {
+                } else if (this.props.locale === null) {
                     this.props.updateItems(response.data.results, response.data.count, response.data.next);
+                } else {
+                    this.props.updateItems(
+                        response.data.results,
+                        response.data.count,
+                        response.data.next,
+                        this.props.locale,
+                    );
                 }
             }
 
@@ -264,7 +282,11 @@ export class APIDisplay<T extends APIDisplayProps> extends React.Component<T, {}
                 nextUrl: response.data.next,
             };
 
-            this.setState({ items: newItems });
+            if (this.props.locale !== null) {
+                newItems.lang = this.props.locale.toString();
+            }
+
+            this.setState({ items: newItems, initialLoadComplete: true });
         } catch (err) {
             this.setState({ error: err });
         }
@@ -293,6 +315,9 @@ export class APIDisplay<T extends APIDisplayProps> extends React.Component<T, {}
 
     async componentDidUpdate(prevProps: APIDisplayProps) {
         if (this.props.locale !== prevProps.locale) {
+            if (this.props.updateItems !== undefined) {
+                this.props.updateItems([], null, null, this.props.locale);
+            }
             this.getData(true);
         }
     }
@@ -379,6 +404,7 @@ export class APIDisplay<T extends APIDisplayProps> extends React.Component<T, {}
             this.setState({
                 items: this.props.items,
                 loadedFromStore: true,
+                initialLoadComplete: true,
                 search: null,
             });
         } else {
@@ -422,20 +448,25 @@ export class APIDisplay<T extends APIDisplayProps> extends React.Component<T, {}
             }
         };
 
+        const theme = getTheme(this.props.theme);
+        const displayCount = !this.state.initialLoadComplete ? "#" : this.state.items.count.toString();
+        const foundName = `${this.getName()} Found`;
+
         return (
-            <Stack
-                horizontalAlign={"center"}
-                styles={{ root: { width: "100%", marginBottom: 20 } }}
-                className="api-display"
-            >
+            <Stack horizontalAlign={"center"} styles={{ root: { width: "100%" } }} className="api-display">
                 <div
                     style={{
                         display: "flex",
                         justifyContent: "space-between",
                         width: "100%",
+                        paddingBottom: 10,
+                        borderBottom: `${theme.palette.themePrimary} 1px solid`,
                     }}
                 >
                     <h2 style={{ display: "inline-flex", margin: "0 20px" }}>{this.getName()}</h2>
+                    <div style={{ display: "inline-flex", margin: "0 20px", alignItems: "flex-end" }}>
+                        <Text>{`${displayCount} ${this.props.t(foundName)}`}</Text>
+                    </div>
                     <div style={{ display: "inline-flex", margin: "0 20px" }}>
                         <SearchBox
                             placeholder={this.props.t(`Search ${this.getName()}`)}
@@ -448,7 +479,7 @@ export class APIDisplay<T extends APIDisplayProps> extends React.Component<T, {}
                 <div
                     style={{
                         position: "relative",
-                        height: "calc(100vh - 304px)",
+                        height: "calc(100vh - 296px)",
                         width: "100%",
                     }}
                 >
