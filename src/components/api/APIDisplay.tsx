@@ -21,7 +21,7 @@ import { StringAPIItems, NumericAPIItems, StringDict } from "../../types";
 import { getTheme } from "../../themes";
 
 export interface Items {
-    count: number;
+    count: number | null;
     results: any[];
     nextUrl: string | null;
     lang?: string;
@@ -59,7 +59,11 @@ interface BaseProps {
     extraQSKeys?: string[];
 }
 
-const generatePlaceholders = (targetCount: number, items?: any[]) => {
+const generatePlaceholders = (targetCount: number | null, items?: any[]) => {
+    if (targetCount === null) {
+        targetCount = apiConfig.pageSize;
+    }
+
     if (items === undefined) {
         if (targetCount > 0) {
             return new Array(targetCount);
@@ -82,7 +86,7 @@ export const mapNumericStoreToItems = (store: NumericAPIItems) => {
     }
 
     const items: Items = {
-        count: store.count || apiConfig.pageSize,
+        count: store.count,
         nextUrl: store.nextUrl,
         results: [],
     };
@@ -118,7 +122,7 @@ export const mapStringStoreToItems = (store: StringAPIItems) => {
     }
 
     const items: Items = {
-        count: store.count || apiConfig.pageSize,
+        count: store.count,
         nextUrl: store.nextUrl,
         results: [],
     };
@@ -166,7 +170,11 @@ export class APIDisplay<T extends APIDisplayProps> extends React.Component<T, {}
         if (props.items !== undefined) {
             if (props.locale === null || props.locale === props.items.lang) {
                 this.state.items = props.items;
-                if (this.state.items.results.length > 0 && this.state.items.results[0] !== undefined) {
+                if (
+                    this.state.items.results.length > 0 &&
+                    this.state.items.results[0] !== undefined &&
+                    this.state.items.count !== null
+                ) {
                     this.state.loadedFromStore = true;
                     this.state.initialLoadComplete = true;
                 }
@@ -182,7 +190,6 @@ export class APIDisplay<T extends APIDisplayProps> extends React.Component<T, {}
         });
 
         const newState = this.setQueryParams(params);
-
         if (newState !== null) {
             this.state = { ...this.state, ...newState };
         }
@@ -235,7 +242,19 @@ export class APIDisplay<T extends APIDisplayProps> extends React.Component<T, {}
     }
 
     getStateFromParams = (params: StringDict<string>, urlEncoded: string) => {
-        const newState: PartialState = { queryParams: urlEncoded };
+        const newState: PartialState = {
+            queryParams: urlEncoded,
+            items: {
+                results: [],
+                count: null,
+                nextUrl: null,
+            },
+        };
+
+        if (this.props.locale !== null && newState.items !== undefined) {
+            newState.items.lang = this.props.locale.toString();
+        }
+
         if ("search" in params) {
             newState.search = params["search"];
         }
@@ -271,7 +290,7 @@ export class APIDisplay<T extends APIDisplayProps> extends React.Component<T, {}
         return null;
     };
 
-    async getData(forceUpdate: boolean = false) {
+    async getData() {
         // do not double load
         if (this.state.loading || this.client === null) {
             return;
@@ -279,11 +298,12 @@ export class APIDisplay<T extends APIDisplayProps> extends React.Component<T, {}
 
         // no more data, do not update
         if (
-            !forceUpdate &&
+            this.state.items.count !== null &&
             this.state.items.nextUrl === null &&
             this.state.items.results.length > 0 &&
             this.state.items.results[0] !== undefined
         ) {
+            debugger;
             return;
         }
 
@@ -294,14 +314,8 @@ export class APIDisplay<T extends APIDisplayProps> extends React.Component<T, {}
             let state = { ...this.state };
 
             // initial request, or lang change
-            if (forceUpdate || state.items.nextUrl === null) {
-                const items = state.items;
+            if (state.items.nextUrl === null) {
                 let queryParams: StringDict<string> = {};
-
-                items.results = generatePlaceholders(apiConfig.pageSize);
-                this.setState({ items: items, initialLoadComplete: false });
-                state.items = items;
-
                 let params: any[] = [{ name: "limit", value: apiConfig.pageSize, in: "query" }];
 
                 if (this.props.locale !== null) {
@@ -378,6 +392,31 @@ export class APIDisplay<T extends APIDisplayProps> extends React.Component<T, {}
         this.setState(newState);
     }
 
+    resetState = () => {
+        let newState: PartialState = {
+            search: null,
+            queryParams: "",
+        };
+
+        if (this.state.loadedFromStore && this.props.items !== undefined) {
+            // @ts-ignore
+            newState.items = this.props.items;
+        } else {
+            newState.initialLoadComplete = false;
+            newState.items = {
+                results: generatePlaceholders(apiConfig.pageSize),
+                count: null,
+                nextUrl: null,
+            };
+
+            if (this.props.locale !== null) {
+                newState.items.lang = this.props.locale.toString();
+            }
+        }
+        this.setState(newState);
+        this.getData();
+    };
+
     async componentDidMount() {
         try {
             this.client = await getClient(this.context.api, this.props.changeAPIDefinition);
@@ -386,7 +425,7 @@ export class APIDisplay<T extends APIDisplayProps> extends React.Component<T, {}
         }
 
         if (!this.state.loadedFromStore) {
-            this.getData(true);
+            this.getData();
         }
     }
 
@@ -395,7 +434,7 @@ export class APIDisplay<T extends APIDisplayProps> extends React.Component<T, {}
             if (this.props.updateItems !== undefined) {
                 this.props.updateItems([], null, null, this.props.locale);
             }
-            this.getData(true);
+            this.resetState();
         }
     }
 
@@ -468,7 +507,7 @@ export class APIDisplay<T extends APIDisplayProps> extends React.Component<T, {}
 
     search = (newSearch: string) => {
         this.setState({ search: newSearch });
-        this.getData(true);
+        this.getData();
     };
 
     clearSearch = () => {
@@ -478,13 +517,8 @@ export class APIDisplay<T extends APIDisplayProps> extends React.Component<T, {}
         }, 100);
 
         if (this.props.items !== undefined) {
-            this.setState({
-                items: this.props.items,
-                loadedFromStore: true,
-                initialLoadComplete: true,
-                search: null,
-            });
-        } else {
+            window.history.pushState("", document.title, `${window.location.origin}${window.location.pathname}`);
+            this.resetState();
         }
     };
 
@@ -526,7 +560,7 @@ export class APIDisplay<T extends APIDisplayProps> extends React.Component<T, {}
         };
 
         const theme = getTheme(this.props.theme);
-        const actualCount = this.state.items.count;
+        const actualCount = this.state.items.count || apiConfig.pageSize;
         const displayCount = !this.state.initialLoadComplete ? "#" : actualCount.toString();
         const foundName = `${this.getName(" FoundWithCount", true, { count: actualCount })}`.replace(
             actualCount.toString(),
@@ -575,7 +609,7 @@ export class APIDisplay<T extends APIDisplayProps> extends React.Component<T, {}
                                 return 65;
                             }}
                             usePageCache={true}
-                            renderCount={this.state.items.count}
+                            renderCount={this.state.items.count || apiConfig.pageSize}
                             onPageAdded={onPageAdded}
                         />
                     </ScrollablePane>
