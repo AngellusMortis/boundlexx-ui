@@ -15,6 +15,7 @@ const mapState = (state: RootState) => ({
     name: "World",
     extraFilters: [{ name: "show_inactive", value: true, in: "query" }],
     items: mapNumericStoreToItems(state.worlds),
+    loadAll: true,
 });
 
 const mapDispatchToProps = { changeAPIDefinition, updateItems: updateWorlds };

@@ -3,18 +3,18 @@ import { Components } from "../client";
 import { NumberDict } from "../../types";
 
 export function updateWorlds(
-    items: Components.Schemas.KindOfSimpleWorld[],
+    results: Components.Schemas.KindOfSimpleWorld[],
     count?: number,
     nextUrl?: string,
 ): UpdateWorldsAction {
     let mapped: NumberDict<Components.Schemas.KindOfSimpleWorld> = {};
 
-    items.forEach((item) => {
-        if (item.id === undefined) {
+    results.forEach((result) => {
+        if (result.id === undefined) {
             return;
         }
 
-        mapped[item.id] = item;
+        mapped[result.id] = result;
     });
 
     return {

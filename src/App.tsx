@@ -13,6 +13,15 @@ import Emojis from "./pages/Emojis";
 import NotFound from "./pages/NotFound";
 
 function App() {
+    // enforce trailing slash
+    if (!window.location.pathname.endsWith("/")) {
+        window.history.replaceState(
+            "",
+            document.title,
+            `${window.location.origin}${window.location.pathname}/${window.location.search}`,
+        );
+    }
+
     return (
         <ReactReduxContext.Consumer>
             {(store) => (
@@ -20,19 +29,19 @@ function App() {
                     <Router>
                         <Header />
                         <Switch>
-                            <Route path="/worlds/" exact>
+                            <Route path="/worlds/" exact strict>
                                 <Worlds />
                             </Route>
-                            <Route path="/items/" exact>
+                            <Route path="/items/" exact strict>
                                 <Items />
                             </Route>
-                            <Route path="/colors/" exact>
+                            <Route path="/colors/" exact strict>
                                 <Colors />
                             </Route>
-                            <Route path="/emojis/" exact>
+                            <Route path="/emojis/" exact strict>
                                 <Emojis />
                             </Route>
-                            <Route path="/" exact>
+                            <Route path="/" exact strict>
                                 <Home />
                             </Route>
                             <Route>

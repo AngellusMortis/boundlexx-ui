@@ -17,6 +17,7 @@
         "@types/react-router-dom": "^5.1.5",
         "@types/redux-persist": "^4.3.1",
         "@uifabric/react-cards": "^0.113.8",
+        "async-mutex": "^0.2.4",
         "env-cmd": "^10.1.0",
         "i18next": "^19.8.1",
         "i18next-browser-languagedetector": "^6.0.1",

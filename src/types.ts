@@ -7,24 +7,28 @@ export interface NumberDict<T> {
 }
 
 export interface BaseItems {
+    items: any;
     nextUrl: string | null;
     count: number | null;
+    lang?: string;
+}
+
+export interface LocalizedBaseItems extends BaseItems {
+    lang: string;
 }
 
 export interface NumericAPIItems extends BaseItems {
     items: NumberDict<any>;
 }
 
-export interface LocalizedNumericAPIItems extends NumericAPIItems {
-    lang: string;
+export interface LocalizedNumericAPIItems extends LocalizedBaseItems {
+    items: NumberDict<any>;
 }
 
 export interface StringAPIItems extends BaseItems {
     items: StringDict<any>;
-    nextUrl: string | null;
-    count: number | null;
 }
 
-export interface LocalizedStringAPIItems extends StringAPIItems {
-    lang: string;
+export interface LocalizedStringAPIItems extends LocalizedBaseItems {
+    items: StringDict<any>;
 }
