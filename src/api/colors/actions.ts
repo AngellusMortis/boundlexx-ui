@@ -8,7 +8,7 @@ export function updateColors(
     nextUrl?: string,
     lang?: string,
 ): UpdateColorsAction {
-    let mapped: NumberDict<Components.Schemas.Color> = {};
+    const mapped: NumberDict<Components.Schemas.Color> = {};
 
     items.forEach((item) => {
         mapped[item.game_id] = item;

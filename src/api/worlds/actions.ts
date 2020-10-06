@@ -7,7 +7,7 @@ export function updateWorlds(
     count?: number,
     nextUrl?: string,
 ): UpdateWorldsAction {
-    let mapped: NumberDict<Components.Schemas.KindOfSimpleWorld> = {};
+    const mapped: NumberDict<Components.Schemas.KindOfSimpleWorld> = {};
 
     results.forEach((result) => {
         if (result.id === undefined) {

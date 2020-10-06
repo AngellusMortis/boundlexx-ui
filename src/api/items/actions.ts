@@ -8,7 +8,7 @@ export function updateItems(
     nextUrl?: string,
     lang?: string,
 ): UpdateItemsAction {
-    let mapped: NumberDict<Components.Schemas.Item> = {};
+    const mapped: NumberDict<Components.Schemas.Item> = {};
 
     results.forEach((result) => {
         mapped[result.game_id] = result;

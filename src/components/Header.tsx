@@ -64,7 +64,7 @@ const myStyle2 = mergeStyles(AnimationStyles.slideDownIn20);
 class Header extends React.Component<Props> {
     static contextType = OpenAPIContext;
 
-    mounted: boolean = false;
+    mounted = false;
     client: BoundlexxClient | null = null;
 
     componentDidMount = async () => {

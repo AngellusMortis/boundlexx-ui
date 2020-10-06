@@ -3,7 +3,7 @@ import { Components } from "../client";
 import { StringDict } from "../../types";
 
 export function updateEmojis(items: Components.Schemas.Emoji[], count?: number, nextUrl?: string): UpdateEmojisAction {
-    let mapped: StringDict<Components.Schemas.Emoji> = {};
+    const mapped: StringDict<Components.Schemas.Emoji> = {};
 
     items.forEach((item) => {
         if (item.names === undefined || item.names.length === 0) {
