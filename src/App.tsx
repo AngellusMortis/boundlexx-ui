@@ -32,10 +32,10 @@ function App() {
                         <Stack
                             id="content"
                             horizontalAlign="center"
-                            verticalAlign="center"
+                            verticalAlign="start"
                             verticalFill
                             tokens={{ childrenGap: 15 }}
-                            style={{ height: "calc(100vh - 146px)" }}
+                            style={{ height: "calc(100vh - 146px)", textAlign: "center" }}
                         >
                             <Switch>
                                 <Route path="/worlds/" exact strict>
