@@ -1,4 +1,4 @@
-import { createTheme, loadTheme } from "@fluentui/react";
+import { createTheme, loadTheme, ITheme } from "@fluentui/react";
 
 // Primary Color: #ec375e
 // Text Color: #ffffff
@@ -63,21 +63,21 @@ export const lightTheme = createTheme({
     },
 });
 
-export const isDark = (theme: string) => {
+export const isDark = (theme: string): boolean => {
     if (theme === "") {
         return !window.matchMedia("(prefers-color-scheme: light)").matches;
     }
     return theme === "dark";
 };
 
-export const getTheme = (currentTheme: string) => {
+export const getTheme = (currentTheme: string): ITheme => {
     if (isDark(currentTheme)) {
         return darkTheme;
     }
     return lightTheme;
 };
 
-export const setTheme = (theme: string) => {
+export const setTheme = (theme: string): void => {
     if (isDark(theme)) {
         loadTheme(darkTheme);
         document.documentElement.style.background = darkTheme.palette.white;

@@ -14,7 +14,7 @@ const mapState = (state: RootState) => ({
     locale: state.prefs.language,
     operationID: "listItems",
     name: "Item",
-    items: mapNumericStoreToItems(state.items),
+    results: mapNumericStoreToItems(state.items),
     loadAll: true,
 });
 
@@ -22,16 +22,16 @@ const mapDispatchToProps = { changeAPIDefinition, updateItems: updateItems };
 
 const connector = connect(mapState, mapDispatchToProps);
 
-type PropsFromRedux = ConnectedProps<typeof connector>;
+class Items extends APIDisplay {
+    onCardClick = () => {
+        return;
+    };
 
-type Props = APIDisplayProps & PropsFromRedux;
-
-class Items extends APIDisplay<Props> {
-    renderCardImage = (item: Components.Schemas.Item, index: number | undefined) => {
+    renderCardImage = (item: Components.Schemas.Item) => {
         return <div></div>;
     };
 
-    renderCardDetails = (item: Components.Schemas.Item, index: number | undefined) => {
+    renderCardDetails = (item: Components.Schemas.Item) => {
         const loaded = item !== undefined;
         return (
             <div>

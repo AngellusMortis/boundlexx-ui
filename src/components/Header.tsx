@@ -22,7 +22,7 @@ import { OpenAPIContext } from "react-openapi-client";
 import { getClient } from "../api/config";
 import { Client as BoundlexxClient } from "../api/client";
 import { AxiosResponse } from "axios";
-import { BaseItems } from "../types";
+import { BaseItems, APIParams } from "../types";
 import "./Header.css";
 import { getTheme } from "../themes";
 import { RouteComponentProps, withRouter } from "react-router-dom";
@@ -95,7 +95,7 @@ class Header extends React.Component<Props> {
         operationID: string,
         updateMethod: CallableFunction,
         locale?: string,
-        params?: any[],
+        params?: APIParams[],
     ) => {
         if (this.client === null || !this.mounted) {
             return;
@@ -107,6 +107,7 @@ class Header extends React.Component<Props> {
         }
 
         console.log(`Preloading ${operationID}...`);
+        // eslint-disable-next-line
         // @ts-ignore
         const operation = this.client[operationID];
 
@@ -138,9 +139,9 @@ class Header extends React.Component<Props> {
         event?: React.MouseEvent<HTMLElement, MouseEvent> | React.KeyboardEvent<HTMLElement> | undefined,
         item?: IContextualMenuItem | undefined,
     ) => {
-        if (event !== undefined && item !== undefined) {
+        if (event !== undefined && item !== undefined && item.href !== undefined) {
             event.preventDefault();
-            this.props.history.push(item.href!);
+            this.props.history.push(item.href);
         }
     };
 

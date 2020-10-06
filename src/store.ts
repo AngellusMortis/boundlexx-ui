@@ -7,6 +7,7 @@ import { worldsReducer } from "./api/worlds/reducers";
 import { itemsReducer } from "./api/items/reducers";
 import { persistStore, persistReducer } from "redux-persist";
 import storage from "redux-persist/lib/storage";
+// eslint-disable-next-line
 // @ts-ignore
 import expireReducer from "redux-persist-expire";
 
@@ -97,6 +98,7 @@ const persistConfig = {
 
 export type RootState = ReturnType<typeof rootReducer>;
 
+// eslint-disable-next-line
 // @ts-ignore
 const persistedReducer = persistReducer<RootState>(persistConfig, rootReducer);
 

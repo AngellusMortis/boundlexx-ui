@@ -49,7 +49,7 @@
         "start:local": "env-cmd -f .env.local react-scripts start",
         "build:prod": "env-cmd -f .env.prod react-scripts build",
         "build:local": "env-cmd -f .env.local react-scripts build",
-        "lint": "eslint '*/**/*.{js,ts,tsx}' --fix"
+        "lint": "eslint '*/**/*.{js,ts,tsx}' --fix",
         "test": "react-scripts test",
         "eject": "react-scripts eject"
     },

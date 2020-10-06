@@ -17,7 +17,7 @@ import "./APIDisplay.css";
 import { WithTranslation } from "react-i18next";
 import { getClient, apiConfig } from "../../api/config";
 import { Client as BoundlexxClient } from "../../api/client";
-import { StringAPIItems, NumericAPIItems, BaseItems, StringDict } from "../../types";
+import { StringAPIItems, NumericAPIItems, BaseItems, StringDict, APIParams } from "../../types";
 import { AxiosResponse } from "axios";
 
 export interface Filters {
@@ -34,15 +34,6 @@ interface State {
     error?: Error;
 }
 
-interface PartialState {
-    initialLoad?: boolean;
-    loadedFromStore?: boolean;
-    loading?: boolean;
-    filters?: Filters;
-    results?: BaseItems;
-    error?: Error;
-}
-
 interface BaseProps {
     theme: ITheme;
     locale: string | null;
@@ -50,14 +41,14 @@ interface BaseProps {
     results?: BaseItems;
     name?: string;
     operationID?: string;
-    extraFilters?: any;
+    extraFilters?: APIParams[];
     extraQSKeys?: string[];
 
     changeAPIDefinition?: CallableFunction;
     updateItems?: CallableFunction;
 }
 
-const generatePlaceholders = (targetCount: number | null, items?: any[]) => {
+const generatePlaceholders = (targetCount: number | null, items?: BaseItems[]) => {
     if (targetCount === null) {
         targetCount = apiConfig.pageSize;
     }
@@ -75,7 +66,7 @@ const generatePlaceholders = (targetCount: number | null, items?: any[]) => {
     return items;
 };
 
-const mapToItems = (store: BaseItems, mapFunc: CallableFunction) => {
+const mapToItems = (store: BaseItems, mapFunc: CallableFunction): BaseItems | undefined => {
     if (store.items === undefined) {
         return;
     }
@@ -91,9 +82,9 @@ const mapToItems = (store: BaseItems, mapFunc: CallableFunction) => {
     return results;
 };
 
-export const mapNumericStoreToItems = (store: NumericAPIItems) => {
+export const mapNumericStoreToItems = (store: NumericAPIItems): BaseItems | undefined => {
     return mapToItems(store, () => {
-        const results: any[] = [];
+        const results: BaseItems[] = [];
 
         let ids: number[] = [];
         Reflect.ownKeys(store.items).forEach((key) => {
@@ -120,9 +111,9 @@ export const mapNumericStoreToItems = (store: NumericAPIItems) => {
     });
 };
 
-export const mapStringStoreToItems = (store: StringAPIItems) => {
+export const mapStringStoreToItems = (store: StringAPIItems): BaseItems | undefined => {
     return mapToItems(store, () => {
-        const results: any[] = [];
+        const results: BaseItems[] = [];
 
         let ids: string[] = [];
         Reflect.ownKeys(store.items).forEach((key) => {
@@ -143,7 +134,7 @@ export type APIDisplayProps = WithTranslation & BaseProps;
 
 const SEARCH_TIMEOUT = 1000;
 
-export class APIDisplay<T extends APIDisplayProps> extends React.Component<T, {}> {
+export abstract class APIDisplay extends React.Component<APIDisplayProps> {
     static contextType = OpenAPIContext;
 
     mounted = false;
@@ -164,7 +155,6 @@ export class APIDisplay<T extends APIDisplayProps> extends React.Component<T, {}
         },
     };
     constructor(props: APIDisplayProps) {
-        // @ts-ignore
         super(props);
 
         const urlParams = new URLSearchParams(window.location.search);
@@ -191,13 +181,13 @@ export class APIDisplay<T extends APIDisplayProps> extends React.Component<T, {}
         }
     }
 
-    setAsyncState = (state: PartialState, callback?: () => void) => {
+    setAsyncState = (state: Partial<State>, callback?: () => void): void => {
         if (this.mounted) {
             this.setState(state, callback);
         }
     };
 
-    getAPIClient = async () => {
+    getAPIClient = async (): Promise<void> => {
         try {
             this.client = await getClient(this.context.api, this.props.changeAPIDefinition);
         } catch (err) {
@@ -205,7 +195,7 @@ export class APIDisplay<T extends APIDisplayProps> extends React.Component<T, {}
         }
     };
 
-    componentDidMount = async () => {
+    componentDidMount = async (): Promise<void> => {
         this.mounted = true;
 
         await this.getAPIClient();
@@ -215,7 +205,7 @@ export class APIDisplay<T extends APIDisplayProps> extends React.Component<T, {}
         }
     };
 
-    componentDidUpdate(prevProps: APIDisplayProps) {
+    componentDidUpdate(prevProps: APIDisplayProps): void {
         if (this.props.locale !== prevProps.locale) {
             // lang changed, clear stored items
             this.resetStore();
@@ -223,18 +213,18 @@ export class APIDisplay<T extends APIDisplayProps> extends React.Component<T, {}
         }
     }
 
-    componentWillUnmount() {
+    componentWillUnmount = (): void => {
         this.mounted = false;
-    }
+    };
 
-    resetStore = () => {
+    resetStore = (): void => {
         if (this.props.updateItems !== undefined) {
             this.props.updateItems([], null, null, this.props.locale);
         }
     };
 
-    resetState = (filters?: Filters | null) => {
-        const newState: PartialState = {
+    resetState = (filters?: Filters | null): void => {
+        const newState: Partial<State> = {
             filters: filters || {
                 search: null,
                 queryParams: "",
@@ -247,8 +237,7 @@ export class APIDisplay<T extends APIDisplayProps> extends React.Component<T, {}
             this.state.loadedFromStore &&
             this.props.results !== undefined
         ) {
-            // @ts-ignore
-            newState.items = this.props.items;
+            newState.results = this.props.results;
         } else {
             newState.initialLoad = false;
             newState.results = {
@@ -266,11 +255,10 @@ export class APIDisplay<T extends APIDisplayProps> extends React.Component<T, {}
         });
     };
 
-    updateQueryParam = (params: StringDict<string>) => {
+    updateQueryParam = (params: StringDict<string>): Filters | null => {
         let allowedKeys = ["search"];
 
         if (this.props.extraQSKeys !== undefined) {
-            // @ts-ignore
             allowedKeys = allowedKeys.concat(this.props.extraQSKeys);
         }
 
@@ -290,7 +278,7 @@ export class APIDisplay<T extends APIDisplayProps> extends React.Component<T, {}
         return null;
     };
 
-    setQueryParams = (urlEncoded: string) => {
+    setQueryParams = (urlEncoded: string): void => {
         let search = "";
         if (urlEncoded !== "") {
             search = `?${urlEncoded}`;
@@ -303,14 +291,15 @@ export class APIDisplay<T extends APIDisplayProps> extends React.Component<T, {}
         );
     };
 
-    getFiltersFromParams = (params: StringDict<string>, urlEncoded: string) => {
+    getFiltersFromParams = (params: StringDict<string>, urlEncoded: string): Filters => {
         return {
             search: params["search"] || null,
             queryParams: urlEncoded,
         };
     };
 
-    getName = (extra?: string, translate?: boolean, transArgs?: any) => {
+    // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types, @typescript-eslint/no-explicit-any
+    getName = (extra?: string, translate?: boolean, transArgs?: any): string => {
         let name = "";
         if (this.props.name !== undefined) {
             name = this.props.name.toString();
@@ -330,22 +319,14 @@ export class APIDisplay<T extends APIDisplayProps> extends React.Component<T, {}
         return name;
     };
 
-    getOperationID = () => {
-        let operationID = "";
-        if (this.props.operationID !== undefined) {
-            operationID = this.props.operationID.toString();
-        }
-
-        return operationID;
-    };
-
-    callOperation = async (params: any) => {
+    callOperation = async (params: APIParams[]): Promise<AxiosResponse> => {
         if (this.client === null) {
             this.client = await getClient(this.context.api, this.props.changeAPIDefinition);
         }
 
+        // eslint-disable-next-line
         // @ts-ignore
-        const operation = this.client[this.getOperationID()];
+        const operation = this.client[this.props.operationID];
 
         if (operation === undefined) {
             throw new Error("Bad Operation ID");
@@ -354,19 +335,19 @@ export class APIDisplay<T extends APIDisplayProps> extends React.Component<T, {}
         return await operation(params);
     };
 
-    clearSearchTimer = () => {
+    clearSearchTimer = (): void => {
         if (this.searchTimer !== null) {
             window.clearTimeout(this.searchTimer);
             this.searchTimer = null;
         }
     };
 
-    search = (newSearch: string) => {
+    search = (newSearch: string): void => {
         const filters = this.updateQueryParam({ search: newSearch });
         this.resetState(filters);
     };
 
-    clearSearch = () => {
+    clearSearch = (): void => {
         // clear timeout that will be set by onSearchChange
         this.searchTimer = setTimeout(() => {
             this.clearSearchTimer();
@@ -376,7 +357,7 @@ export class APIDisplay<T extends APIDisplayProps> extends React.Component<T, {}
         this.resetState();
     };
 
-    onSearchChange = (event: React.ChangeEvent<HTMLInputElement> | undefined, newValue?: string) => {
+    onSearchChange = (event: React.ChangeEvent<HTMLInputElement> | undefined, newValue?: string): void => {
         this.clearSearchTimer();
 
         this.searchTimer = setTimeout(() => {
@@ -384,7 +365,7 @@ export class APIDisplay<T extends APIDisplayProps> extends React.Component<T, {}
         }, SEARCH_TIMEOUT);
     };
 
-    onSearch = (event: React.ChangeEvent<HTMLInputElement> | undefined, newValue?: string) => {
+    onSearch = (event: React.ChangeEvent<HTMLInputElement> | undefined, newValue?: string): void => {
         let newSearch: string | null = null;
         if (newValue !== undefined && newValue.trim().length > 0) {
             newSearch = newValue;
@@ -399,13 +380,9 @@ export class APIDisplay<T extends APIDisplayProps> extends React.Component<T, {}
         }
     };
 
-    renderCardImage = (item: any, index: number | undefined) => {
-        return <div></div>;
-    };
+    abstract renderCardImage(item: any, index: number | undefined): JSX.Element;
 
-    renderCardDetails = (item: any, index: number | undefined) => {
-        return <Card.Section></Card.Section>;
-    };
+    abstract renderCardDetails(item: any, index: number | undefined): JSX.Element;
 
     onRenderCell = (item: any, index: number | undefined) => {
         return (
@@ -436,18 +413,17 @@ export class APIDisplay<T extends APIDisplayProps> extends React.Component<T, {}
         );
     };
 
-    onRetryClick = async () => {
+    onRetryClick = async (): Promise<void> => {
         await this.getAPIClient();
         if (this.mounted) {
             this.resetState();
         }
     };
 
-    onCardClick = (event: React.MouseEvent<HTMLElement, MouseEvent> | undefined) => {};
+    abstract onCardClick(event: React.MouseEvent<HTMLElement, MouseEvent> | undefined): void;
 
-    getInitialURL() {}
-
-    getData = async () => {
+    // eslint-disable-next-line
+    getData = async (): Promise<void> => {
         // do not double load
         if (this.state.loading || this.client === null) {
             return;
@@ -470,7 +446,7 @@ export class APIDisplay<T extends APIDisplayProps> extends React.Component<T, {}
             // initial request, or lang change
             if (this.state.results.nextUrl === null) {
                 const queryParams: StringDict<string> = {};
-                let params: any[] = [{ name: "limit", value: apiConfig.pageSize, in: "query" }];
+                let params: APIParams[] = [{ name: "limit", value: apiConfig.pageSize, in: "query" }];
 
                 if (this.props.locale !== null) {
                     params.push({ name: "lang", value: this.props.locale, in: "query" });
@@ -547,7 +523,7 @@ export class APIDisplay<T extends APIDisplayProps> extends React.Component<T, {}
         });
     };
 
-    render() {
+    render(): JSX.Element {
         if (this.state.error) {
             return (
                 <Stack horizontalAlign={"center"}>

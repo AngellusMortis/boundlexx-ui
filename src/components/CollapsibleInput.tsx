@@ -31,8 +31,8 @@ const CollapsibleInput: React.FunctionComponent<Props> = (props) => {
     };
 
     const onBlur = (event: React.FocusEvent<HTMLElement>) => {
-        if (event !== undefined) {
-            event.target.classList.add(AnimationClassNames.fadeOut500!);
+        if (event !== undefined && AnimationClassNames.fadeOut500 !== undefined) {
+            event.target.classList.add(AnimationClassNames.fadeOut500);
             setTimeout(() => {
                 setSelected(false);
             }, 500);
