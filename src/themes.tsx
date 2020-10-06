@@ -33,6 +33,7 @@ export const darkTheme = createTheme({
 // Primary Color: #ec375e
 // Text Color: #191a21
 // Background Color: #f6f7fb
+// changed themePrimary from ec375e to 505466
 // changed neutralLighter from f6f7fa to a5a7b4
 // changed neutralTertiaryAlt from f8f9fc to d1d2d6
 export const lightTheme = createTheme({

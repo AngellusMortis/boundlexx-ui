@@ -418,6 +418,7 @@ export class APIDisplay<T extends APIDisplayProps> extends React.Component<T, {}
                 style={{ borderColor: this.props.theme.palette.themePrimary }}
                 styles={{
                     root: {
+                        backgroundColor: this.props.theme.palette.neutralLighter,
                         margin: 5,
                         position: "relative",
                         padding: 2,
