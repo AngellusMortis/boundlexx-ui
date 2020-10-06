@@ -1,6 +1,5 @@
 import React from "react";
 import { Shimmer, Text } from "@fluentui/react";
-import { Card } from "@uifabric/react-cards";
 import { RootState } from "../../store";
 import { connect, ConnectedProps } from "react-redux";
 import { withTranslation } from "react-i18next";

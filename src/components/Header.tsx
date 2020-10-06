@@ -9,7 +9,6 @@ import {
     AnimationStyles,
     mergeStyles,
 } from "@fluentui/react";
-import { MotionAnimations, MotionDurations, MotionTimings } from "@fluentui/theme";
 import ThemeSelector from "./ThemeSelector";
 import LanguageSelector from "./LanguageSelector";
 import Link from "./Link";
@@ -33,7 +32,7 @@ const mapState = (state: RootState) => ({
     worlds: state.worlds,
     items: state.items,
     locale: state.prefs.language,
-    theme: state.prefs.theme,
+    theme: getTheme(state.prefs.theme),
 });
 
 const mapDispatchToProps = { changeAPIDefinition, updateColors, updateItems, updateWorlds };
@@ -56,6 +55,7 @@ const links: menuLink[] = [
     { key: "items", text: "Item_plural", icon: "Stack", href: "/items/" },
     { key: "colors", text: "Color_plural", icon: "Color", href: "/colors/" },
     { key: "emojis", text: "Emoji_plural", icon: "Emoji2", href: "/emojis/" },
+    { key: "forum", text: "Forum Generator", icon: "PageHeaderEdit", href: "/forum/" },
 ];
 
 const myStyle1 = mergeStyles(AnimationStyles.fadeIn500);
@@ -145,7 +145,6 @@ class Header extends React.Component<Props> {
     };
 
     render = () => {
-        const theme = getTheme(this.props.theme);
         const items: ICommandBarItemProps[] = [];
         links.forEach((link) => {
             items.push({
@@ -159,7 +158,7 @@ class Header extends React.Component<Props> {
                 onClick: this.onClick,
                 buttonStyles: {
                     root: {
-                        backgroundColor: theme.palette.neutralTertiaryAlt,
+                        backgroundColor: this.props.theme.palette.neutralTertiaryAlt,
                     },
                 },
             });
@@ -173,7 +172,7 @@ class Header extends React.Component<Props> {
                     verticalAlign="center"
                     style={{
                         justifyContent: "space-between",
-                        backgroundColor: theme.palette.neutralLighter,
+                        backgroundColor: this.props.theme.palette.neutralLighter,
                         padding: "10px 0",
                     }}
                 >
@@ -198,7 +197,7 @@ class Header extends React.Component<Props> {
                         <Text
                             className={myStyle1}
                             variant="xLarge"
-                            style={{ padding: 5, color: theme.palette.themePrimary }}
+                            style={{ padding: 5, color: this.props.theme.palette.themePrimary }}
                         >
                             {this.props.t("Boundlexx")}
                         </Text>
@@ -211,11 +210,15 @@ class Header extends React.Component<Props> {
                 <Stack
                     className={myStyle2}
                     style={{
-                        backgroundColor: theme.palette.neutralTertiaryAlt,
+                        backgroundColor: this.props.theme.palette.neutralTertiaryAlt,
                         marginBottom: "5px",
                     }}
                 >
-                    <CommandBar className="nav-header" items={items} />
+                    <CommandBar
+                        className="nav-header"
+                        items={items}
+                        style={{ width: "100%", justifyContent: "center", display: "flex" }}
+                    />
                 </Stack>
             </header>
         );

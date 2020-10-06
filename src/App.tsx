@@ -11,6 +11,7 @@ import Items from "./pages/Items";
 import Colors from "./pages/Colors";
 import Emojis from "./pages/Emojis";
 import NotFound from "./pages/NotFound";
+import Forum from "./pages/Forum";
 import { Stack } from "@fluentui/react";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -51,6 +52,9 @@ function App() {
                                 </Route>
                                 <Route path="/emojis/" exact strict>
                                     <Emojis />
+                                </Route>
+                                <Route path="/forum/" exact strict>
+                                    <Forum />
                                 </Route>
                                 <Route path="/" exact strict>
                                     <Home />

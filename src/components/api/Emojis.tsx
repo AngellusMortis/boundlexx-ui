@@ -1,5 +1,5 @@
 import React from "react";
-import { Text, Shimmer } from "@fluentui/react";
+import { Text, Shimmer, Image, ImageFit } from "@fluentui/react";
 import { Card } from "@uifabric/react-cards";
 import { RootState } from "../../store";
 import { connect, ConnectedProps } from "react-redux";
@@ -7,12 +7,11 @@ import { withTranslation } from "react-i18next";
 import { changeAPIDefinition } from "../../api/actions";
 import { APIDisplay, APIDisplayProps, mapStringStoreToItems } from "./APIDisplay";
 import { updateEmojis } from "../../api/emojis/actions";
-import { getTheme, isDark } from "../../themes";
-import { toast } from "react-toastify";
+import { getTheme } from "../../themes";
+import toast from "../../toast";
 
 const mapState = (state: RootState) => ({
     theme: getTheme(state.prefs.theme),
-    isDark: isDark(state.prefs.theme),
     locale: null,
     operationID: "listEmojis",
     name: "Emoji",
@@ -29,29 +28,27 @@ type Props = APIDisplayProps & PropsFromRedux;
 
 class Emojis extends APIDisplay<Props> {
     onCardClick = (event: React.MouseEvent<HTMLElement, MouseEvent> | undefined) => {
-        if (event !== undefined) {
-            const pre = (event.target as HTMLElement).querySelector(".names");
-
-            if (pre !== null) {
-                const names = pre.innerHTML.split(" ");
-                const name = names[names.length - 1];
-                navigator.clipboard.writeText(name);
-
-                let toastFunc: CallableFunction = toast;
-                if (this.props.isDark) {
-                    toastFunc = toast.dark;
-                }
-
-                toastFunc(`Emoji (${name}) copied to clipboard!`, {
-                    style: {
-                        fontFamily: this.props.theme.fonts.medium.fontFamily,
-                    },
-                    progressStyle: {
-                        background: this.props.theme.palette.themePrimary,
-                    },
-                });
-            }
+        if (event === undefined) {
+            return;
         }
+
+        const card = (event.target as HTMLElement).closest(".ms-List-cell");
+
+        if (card === null) {
+            return;
+        }
+
+        const pre = card.querySelector(".names");
+
+        if (pre === null) {
+            return;
+        }
+
+        const names = pre.innerHTML.split(" ");
+        const name = names[names.length - 1];
+        navigator.clipboard.writeText(name).then(() => {
+            toast(this.props.theme, `Emoji (${name}) copied to clipboard!`);
+        });
     };
 
     getNames = (item: any) => {
@@ -69,7 +66,17 @@ class Emojis extends APIDisplay<Props> {
 
     renderCardImage = (item: any, index: number | undefined) => {
         if (item !== undefined) {
-            return <img src={item.image_url} className="card-preview" alt={`emoji ${item.names[0]}`}></img>;
+            return (
+                <Image
+                    imageFit={ImageFit.centerCover}
+                    maximizeFrame={true}
+                    shouldFadeIn={true}
+                    src={item.image_url}
+                    className="card-preview"
+                    alt={`emoji ${item.names[0]}`}
+                    onClick={this.onCardClick}
+                ></Image>
+            );
         }
         return <div></div>;
     };
@@ -80,11 +87,15 @@ class Emojis extends APIDisplay<Props> {
         return (
             <Card.Section>
                 <Shimmer isDataLoaded={loaded} width={110}>
-                    {loaded && <Text>{this.props.t("In-game Name", { count: item.names.length })}:</Text>}
+                    {loaded && (
+                        <Text onClick={this.onCardClick}>
+                            {this.props.t("In-game Name", { count: item.names.length })}:
+                        </Text>
+                    )}
                 </Shimmer>
                 <Shimmer isDataLoaded={loaded} width={150}>
                     {loaded && (
-                        <Text variant="tiny">
+                        <Text variant="tiny" onClick={this.onCardClick}>
                             <pre className="names">{this.getNames(item)}</pre>
                         </Text>
                     )}
