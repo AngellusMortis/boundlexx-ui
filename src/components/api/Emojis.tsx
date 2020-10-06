@@ -33,7 +33,8 @@ class Emojis extends APIDisplay<Props> {
             const pre = (event.target as HTMLElement).querySelector(".names");
 
             if (pre !== null) {
-                const name = pre.innerHTML.split(" ")[0];
+                const names = pre.innerHTML.split(" ");
+                const name = names[names.length - 1];
                 navigator.clipboard.writeText(name);
 
                 let toastFunc: CallableFunction = toast;
@@ -41,7 +42,7 @@ class Emojis extends APIDisplay<Props> {
                     toastFunc = toast.dark;
                 }
 
-                toastFunc(`Name (${name}) copied to clipboard!`, {
+                toastFunc(`Emoji (${name}) copied to clipboard!`, {
                     style: {
                         fontFamily: this.props.theme.fonts.medium.fontFamily,
                     },
