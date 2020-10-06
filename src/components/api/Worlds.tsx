@@ -1,6 +1,5 @@
 import React from "react";
-import { Text, Shimmer } from "@fluentui/react";
-import { Card } from "@uifabric/react-cards";
+import { Text, Shimmer, ImageFit, Image } from "@fluentui/react";
 import { RootState } from "../../store";
 import { connect, ConnectedProps } from "react-redux";
 import { withTranslation } from "react-i18next";
@@ -55,7 +54,16 @@ class Worlds extends APIDisplay<Props> {
         if (item.image_url === null) {
             return <div className="card-preview"></div>;
         }
-        return <img src={item.image_url} className="card-preview" alt={item.text_name}></img>;
+        return (
+            <Image
+                imageFit={ImageFit.centerCover}
+                maximizeFrame={true}
+                shouldFadeIn={true}
+                src={item.image_url}
+                className="card-preview"
+                alt={item.text_name}
+            ></Image>
+        );
     };
 
     getStatusText = (item: any) => {
