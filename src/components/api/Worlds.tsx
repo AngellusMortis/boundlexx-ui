@@ -52,7 +52,16 @@ class Worlds extends APIDisplay<Props> {
         }
 
         if (item.image_url === null) {
-            return <div className="card-preview"></div>;
+            return (
+                <Image
+                    imageFit={ImageFit.centerCover}
+                    maximizeFrame={true}
+                    shouldFadeIn={true}
+                    src="https://cdn.boundlexx.app/worlds/unknown.png"
+                    className="card-preview"
+                    alt={item.text_name}
+                ></Image>
+            );
         }
         return (
             <Image

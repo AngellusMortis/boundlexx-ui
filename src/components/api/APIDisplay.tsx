@@ -565,7 +565,7 @@ export class APIDisplay<T extends APIDisplayProps> extends React.Component<T, {}
         let columnCount = 0;
         const getItemCountForPage = (index: number | undefined, surface: IRectangle | undefined) => {
             if (index === 0 && surface !== undefined) {
-                columnCount = Math.floor(surface.width / 300);
+                columnCount = Math.floor(surface.width / 304);
             }
 
             return columnCount;
