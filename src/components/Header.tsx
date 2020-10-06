@@ -1,6 +1,6 @@
 import React from "react";
 import { withTranslation, WithTranslation } from "react-i18next";
-import { Stack, Text } from "@fluentui/react";
+import { Stack, Text, CommandBar, ICommandBarItemProps, IContextualMenuItem } from "@fluentui/react";
 import ThemeSelector from "./ThemeSelector";
 import LanguageSelector from "./LanguageSelector";
 import Link from "./Link";
@@ -15,9 +15,9 @@ import { getClient } from "../api/config";
 import { Client as BoundlexxClient } from "../api/client";
 import { AxiosResponse } from "axios";
 import { BaseItems } from "../types";
-import { CommandBar, ICommandBarItemProps } from "office-ui-fabric-react/lib/CommandBar";
 import "./Header.css";
 import { getTheme } from "../themes";
+import { RouteComponentProps, withRouter } from "react-router-dom";
 
 const mapState = (state: RootState) => ({
     colors: state.colors,
@@ -33,7 +33,21 @@ const connector = connect(mapState, mapDispatchToProps);
 
 type PropsFromRedux = ConnectedProps<typeof connector>;
 
-type Props = WithTranslation & PropsFromRedux;
+type Props = RouteComponentProps & WithTranslation & PropsFromRedux;
+
+interface menuLink {
+    key: string;
+    text: string;
+    icon: string;
+    href: string;
+}
+
+const links: menuLink[] = [
+    { key: "worlds", text: "World_plural", icon: "World", href: "/worlds/" },
+    { key: "items", text: "Item_plural", icon: "Stack", href: "/items/" },
+    { key: "colors", text: "Color_plural", icon: "Color", href: "/colors/" },
+    { key: "emojis", text: "Emoji_plural", icon: "Emoji2", href: "/emojis/" },
+];
 
 class Header extends React.Component<Props> {
     static contextType = OpenAPIContext;
@@ -108,38 +122,35 @@ class Header extends React.Component<Props> {
         return nextURL;
     }
 
+    onClick = (
+        event?: React.MouseEvent<HTMLElement, MouseEvent> | React.KeyboardEvent<HTMLElement> | undefined,
+        item?: IContextualMenuItem | undefined,
+    ) => {
+        if (event !== undefined && item !== undefined) {
+            event.preventDefault();
+            this.props.history.push(item.href!);
+        }
+    };
+
     render = () => {
-        const _items: ICommandBarItemProps[] = [
-            {
-                key: "Worlds",
-                text: "Worlds",
-                iconProps: { iconName: "Upload" },
-                disabled: false,
-                href: "/worlds/",
-            },
-            {
-                key: "Items",
-                text: "Items",
-                iconProps: { iconName: "Share" },
-                disabled: false,
-                href: "/items/",
-            },
-            {
-                key: "Colors",
-                text: "Colors",
-                iconProps: { iconName: "Download" },
-                href: "/colors/",
-                disabled: false,
-            },
-            {
-                key: "Emojis",
-                text: "Emojis",
-                iconProps: { iconName: "Upload" },
-                disabled: false,
-                href: "/emojis/",
-            },
-        ];
         const theme = getTheme(this.props.theme);
+        const items: ICommandBarItemProps[] = [];
+        links.forEach((link) => {
+            items.push({
+                key: link.key,
+                text: this.props.t(link.text),
+                iconProps: { iconName: link.icon },
+                disabled: false,
+                checked: window.location.pathname === link.href,
+                href: link.href,
+                onClick: this.onClick,
+                buttonStyles: {
+                    root: {
+                        backgroundColor: theme.palette.neutralTertiaryAlt,
+                    },
+                },
+            });
+        });
 
         return (
             <header>
@@ -180,17 +191,18 @@ class Header extends React.Component<Props> {
                         <LanguageSelector />
                     </Stack>
                 </Stack>
-                <Stack className="nav-header">
-                    <CommandBar items={_items} />
-
-                    {/* <Link href="/worlds/">{this.props.t("World_plural")}</Link>
-                    <Link href="/items/">{this.props.t("Item_plural")}</Link>
-                    <Link href="/colors/">{this.props.t("Color_plural")}</Link>
-                    <Link href="/emojis/">{this.props.t("Emoji_plural")}</Link> */}
+                <Stack
+                    className="nav-header"
+                    style={{
+                        backgroundColor: theme.palette.neutralTertiaryAlt,
+                        marginBottom: "5px",
+                    }}
+                >
+                    <CommandBar className="nav-header" items={items} />
                 </Stack>
             </header>
         );
     };
 }
 
-export default connector(withTranslation()(Header));
+export default connector(withRouter(withTranslation()(Header)));

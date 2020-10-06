@@ -35,7 +35,7 @@ function App() {
                             verticalAlign="start"
                             verticalFill
                             tokens={{ childrenGap: 15 }}
-                            style={{ height: "calc(100vh - 146px)", textAlign: "center" }}
+                            style={{ height: "calc(100vh - 119px)", textAlign: "center" }}
                         >
                             <Switch>
                                 <Route path="/worlds/" exact strict>
