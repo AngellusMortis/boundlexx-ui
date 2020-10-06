@@ -589,7 +589,11 @@ export class APIDisplay<T extends APIDisplayProps> extends React.Component<T, {}
         );
 
         return (
-            <Stack horizontalAlign={"center"} styles={{ root: { width: "100%" } }} className="api-display">
+            <Stack
+                horizontalAlign={"center"}
+                styles={{ root: { width: "100%", height: "100%" } }}
+                className="api-display"
+            >
                 <div
                     style={{
                         display: "flex",
@@ -616,7 +620,7 @@ export class APIDisplay<T extends APIDisplayProps> extends React.Component<T, {}
                 <div
                     style={{
                         position: "relative",
-                        height: "calc(100vh - 296px)",
+                        height: "100%",
                         width: "100%",
                     }}
                 >

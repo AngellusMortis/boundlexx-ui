@@ -116,7 +116,11 @@ class Header extends React.Component<Props> {
                     className="main-header"
                     horizontal
                     verticalAlign="center"
-                    style={{ justifyContent: "space-between" }}
+                    style={{
+                        justifyContent: "space-between",
+                        backgroundColor: theme.palette.neutralLighter,
+                        padding: "10px 0",
+                    }}
                 >
                     <Link
                         href="/"
@@ -140,10 +144,10 @@ class Header extends React.Component<Props> {
                             {this.props.t("Boundlexx")}
                         </Text>
                     </Link>
-                    <div>
+                    <Stack horizontal verticalAlign="center" style={{ height: 50 }}>
                         <ThemeSelector />
                         <LanguageSelector />
-                    </div>
+                    </Stack>
                 </Stack>
                 <Stack className="nav-header">
                     <Link href="/worlds/">{this.props.t("World_plural")}</Link>

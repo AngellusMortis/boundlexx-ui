@@ -5,6 +5,7 @@ import { connect, ConnectedProps } from "react-redux";
 import { changeLanuage } from "../prefs/actions";
 import { withTranslation, WithTranslation } from "react-i18next";
 import { StringDict } from "../types";
+import CollapsibleInput from "./CollapsibleInput";
 
 const mapState = (state: RootState) => ({
     locale: state.prefs.language,
@@ -79,13 +80,15 @@ class LanguageSelector extends React.Component<Props> {
         ];
 
         return (
-            <Dropdown
-                label="Language"
-                defaultSelectedKey={this.props.locale}
-                options={langOptions}
-                onChange={this.handleChange}
-                styles={{ dropdown: { width: 300 } }}
-            />
+            <CollapsibleInput icon={{ iconName: "LocaleLanguage" }} name={this.props.t("Change Language")}>
+                <Dropdown
+                    label={this.props.t("Language")}
+                    defaultSelectedKey={this.props.locale}
+                    options={langOptions}
+                    onChange={this.handleChange}
+                    styles={{ dropdown: { width: 100 } }}
+                />
+            </CollapsibleInput>
         );
     }
 }

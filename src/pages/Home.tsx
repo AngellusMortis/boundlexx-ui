@@ -11,7 +11,7 @@ class Home extends React.Component<WithTranslation> {
         window.history.replaceState(document.title, document.title);
 
         return (
-            <Stack horizontalAlign="center" verticalAlign="center" verticalFill tokens={{ childrenGap: 15 }}>
+            <Stack>
                 <img
                     src="https://cdn.boundlexx.app/logos/logo.svg"
                     alt="logo"
