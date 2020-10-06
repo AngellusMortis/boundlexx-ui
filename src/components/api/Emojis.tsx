@@ -42,6 +42,9 @@ class Emojis extends APIDisplay<Props> {
                 }
 
                 toastFunc(`Name (${name}) copied to clipboard!`, {
+                    style: {
+                        fontFamily: this.props.theme.fonts.medium.fontFamily,
+                    },
                     progressStyle: {
                         background: this.props.theme.palette.themePrimary,
                     },
