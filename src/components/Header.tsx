@@ -9,7 +9,6 @@ import {
     AnimationStyles,
     mergeStyles,
 } from "@fluentui/react";
-import { MotionAnimations, MotionDurations, MotionTimings } from "@fluentui/theme";
 import ThemeSelector from "./ThemeSelector";
 import LanguageSelector from "./LanguageSelector";
 import Link from "./Link";

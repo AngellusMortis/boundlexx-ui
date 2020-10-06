@@ -33,9 +33,11 @@ export const darkTheme = createTheme({
 // Primary Color: #ec375e
 // Text Color: #191a21
 // Background Color: #f6f7fb
+// changed neutralLighter from f6f7fa to a5a7b4
+// changed neutralTertiaryAlt from f8f9fc to d1d2d6
 export const lightTheme = createTheme({
     palette: {
-        themePrimary: "#ec375e",
+        themePrimary: "#505466",
         themeLighterAlt: "#090204",
         themeLighter: "#26090f",
         themeLight: "#47101c",
@@ -45,11 +47,11 @@ export const lightTheme = createTheme({
         themeDark: "#f16483",
         themeDarker: "#f58ba2",
         neutralLighterAlt: "#f5f6fa",
-        neutralLighter: "#f6f7fa",
+        neutralLighter: "#a5a7b4",
         neutralLight: "#f6f7fb",
         neutralQuaternaryAlt: "#f7f8fb",
         neutralQuaternary: "#f7f8fb",
-        neutralTertiaryAlt: "#f8f9fc",
+        neutralTertiaryAlt: "#d1d2d6",
         neutralTertiary: "#09090b",
         neutralSecondary: "#0b0c0f",
         neutralPrimaryAlt: "#0e0f13",
