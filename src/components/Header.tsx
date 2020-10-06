@@ -1,6 +1,15 @@
 import React from "react";
 import { withTranslation, WithTranslation } from "react-i18next";
-import { Stack, Text, CommandBar, ICommandBarItemProps, IContextualMenuItem } from "@fluentui/react";
+import {
+    Stack,
+    Text,
+    CommandBar,
+    ICommandBarItemProps,
+    IContextualMenuItem,
+    AnimationStyles,
+    mergeStyles,
+} from "@fluentui/react";
+import { MotionAnimations, MotionDurations, MotionTimings } from "@fluentui/theme";
 import ThemeSelector from "./ThemeSelector";
 import LanguageSelector from "./LanguageSelector";
 import Link from "./Link";
@@ -48,6 +57,9 @@ const links: menuLink[] = [
     { key: "colors", text: "Color_plural", icon: "Color", href: "/colors/" },
     { key: "emojis", text: "Emoji_plural", icon: "Emoji2", href: "/emojis/" },
 ];
+
+const myStyle1 = mergeStyles(AnimationStyles.fadeIn500);
+const myStyle2 = mergeStyles(AnimationStyles.slideDownIn20);
 
 class Header extends React.Component<Props> {
     static contextType = OpenAPIContext;
@@ -138,6 +150,7 @@ class Header extends React.Component<Props> {
         links.forEach((link) => {
             items.push({
                 key: link.key,
+                className: myStyle1,
                 text: this.props.t(link.text),
                 iconProps: { iconName: link.icon },
                 disabled: false,
@@ -180,9 +193,13 @@ class Header extends React.Component<Props> {
                             alt="logo"
                             width="50"
                             height="50"
-                            className="logo"
+                            className={myStyle1}
                         />
-                        <Text variant="xLarge" style={{ padding: 5, color: theme.palette.themePrimary }}>
+                        <Text
+                            className={myStyle1}
+                            variant="xLarge"
+                            style={{ padding: 5, color: theme.palette.themePrimary }}
+                        >
                             {this.props.t("Boundlexx")}
                         </Text>
                     </Link>
@@ -192,7 +209,7 @@ class Header extends React.Component<Props> {
                     </Stack>
                 </Stack>
                 <Stack
-                    className="nav-header"
+                    className={myStyle2}
                     style={{
                         backgroundColor: theme.palette.neutralTertiaryAlt,
                         marginBottom: "5px",

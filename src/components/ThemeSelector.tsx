@@ -1,4 +1,4 @@
-import { IDropdownOption, Dropdown } from "@fluentui/react";
+import { IDropdownOption, Dropdown, AnimationStyles, mergeStyles } from "@fluentui/react";
 import React from "react";
 import { RootState } from "../store";
 import { connect, ConnectedProps } from "react-redux";
@@ -14,6 +14,8 @@ const mapState = (state: RootState) => ({
 const mapDispatchToProps = { changeTheme };
 
 const connector = connect(mapState, mapDispatchToProps);
+
+const myStyle1 = mergeStyles(AnimationStyles.fadeIn500);
 
 type Props = WithTranslation & ConnectedProps<typeof connector>;
 
@@ -54,7 +56,10 @@ class ThemeSelector extends React.Component<Props> {
         ];
 
         return (
-            <CollapsibleInput icon={{ iconName: "Personalize" }} name={this.props.t("Change Theme")}>
+            <CollapsibleInput
+                icon={{ className: myStyle1, iconName: "Personalize" }}
+                name={this.props.t("Change Theme")}
+            >
                 <Dropdown
                     label={this.props.t("Theme")}
                     defaultSelectedKey={this.props.theme}

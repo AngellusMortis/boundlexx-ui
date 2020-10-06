@@ -1,4 +1,4 @@
-import { IDropdownOption, Dropdown } from "@fluentui/react";
+import { IDropdownOption, Dropdown, AnimationStyles, mergeStyles } from "@fluentui/react";
 import React from "react";
 import { RootState } from "../store";
 import { connect, ConnectedProps } from "react-redux";
@@ -10,6 +10,8 @@ import CollapsibleInput from "./CollapsibleInput";
 const mapState = (state: RootState) => ({
     locale: state.prefs.language,
 });
+
+const myStyle1 = mergeStyles(AnimationStyles.fadeIn400);
 
 const mapDispatchToProps = { changeLanuage };
 
@@ -80,7 +82,10 @@ class LanguageSelector extends React.Component<Props> {
         ];
 
         return (
-            <CollapsibleInput icon={{ iconName: "LocaleLanguage" }} name={this.props.t("Change Language")}>
+            <CollapsibleInput
+                icon={{ className: myStyle1, iconName: "LocaleLanguage" }}
+                name={this.props.t("Change Language")}
+            >
                 <Dropdown
                     label={this.props.t("Language")}
                     defaultSelectedKey={this.props.locale}
