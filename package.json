@@ -16,9 +16,16 @@
         "@types/react-redux": "^7.1.9",
         "@types/react-router-dom": "^5.1.5",
         "@types/redux-persist": "^4.3.1",
+        "@typescript-eslint/eslint-plugin": "^4.4.0",
+        "@typescript-eslint/parser": "^4.4.0",
         "@uifabric/react-cards": "^0.113.8",
         "async-mutex": "^0.2.4",
         "env-cmd": "^10.1.0",
+        "eslint": "^6.0.0",
+        "eslint-config-prettier": "^6.12.0",
+        "eslint-plugin-prettier": "^3.1.4",
+        "eslint-plugin-react": "^7.21.3",
+        "eslint-plugin-sonarjs": "^0.5.0",
         "i18next": "^19.8.1",
         "i18next-browser-languagedetector": "^6.0.1",
         "openapi-client-axios-typegen": "^1.1.7",
@@ -42,11 +49,9 @@
         "start:local": "env-cmd -f .env.local react-scripts start",
         "build:prod": "env-cmd -f .env.prod react-scripts build",
         "build:local": "env-cmd -f .env.local react-scripts build",
+        "lint": "eslint '*/**/*.{js,ts,tsx}' --fix"
         "test": "react-scripts test",
         "eject": "react-scripts eject"
-    },
-    "eslintConfig": {
-        "extends": "react-app"
     },
     "browserslist": {
         "production": [

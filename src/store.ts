@@ -100,5 +100,5 @@ export type RootState = ReturnType<typeof rootReducer>;
 // @ts-ignore
 const persistedReducer = persistReducer<RootState>(persistConfig, rootReducer);
 
-export let store = createStore(persistedReducer);
-export let persistor = persistStore(store);
+export const store = createStore(persistedReducer);
+export const persistor = persistStore(store);

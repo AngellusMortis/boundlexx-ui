@@ -93,7 +93,7 @@ const mapToItems = (store: BaseItems, mapFunc: CallableFunction) => {
 
 export const mapNumericStoreToItems = (store: NumericAPIItems) => {
     return mapToItems(store, () => {
-        let results: any[] = [];
+        const results: any[] = [];
 
         let ids: number[] = [];
         Reflect.ownKeys(store.items).forEach((key) => {
@@ -122,7 +122,7 @@ export const mapNumericStoreToItems = (store: NumericAPIItems) => {
 
 export const mapStringStoreToItems = (store: StringAPIItems) => {
     return mapToItems(store, () => {
-        let results: any[] = [];
+        const results: any[] = [];
 
         let ids: string[] = [];
         Reflect.ownKeys(store.items).forEach((key) => {
@@ -146,7 +146,7 @@ const SEARCH_TIMEOUT = 1000;
 export class APIDisplay<T extends APIDisplayProps> extends React.Component<T, {}> {
     static contextType = OpenAPIContext;
 
-    mounted: boolean = false;
+    mounted = false;
     client: BoundlexxClient | null = null;
     searchTimer: NodeJS.Timeout | null = null;
     state: State = {
@@ -234,7 +234,7 @@ export class APIDisplay<T extends APIDisplayProps> extends React.Component<T, {}
     };
 
     resetState = (filters?: Filters | null) => {
-        let newState: PartialState = {
+        const newState: PartialState = {
             filters: filters || {
                 search: null,
                 queryParams: "",
@@ -304,12 +304,10 @@ export class APIDisplay<T extends APIDisplayProps> extends React.Component<T, {}
     };
 
     getFiltersFromParams = (params: StringDict<string>, urlEncoded: string) => {
-        const filters: Filters = {
+        return {
             search: params["search"] || null,
             queryParams: urlEncoded,
         };
-
-        return filters;
     };
 
     getName = (extra?: string, translate?: boolean, transArgs?: any) => {
@@ -471,7 +469,7 @@ export class APIDisplay<T extends APIDisplayProps> extends React.Component<T, {}
         try {
             // initial request, or lang change
             if (this.state.results.nextUrl === null) {
-                let queryParams: StringDict<string> = {};
+                const queryParams: StringDict<string> = {};
                 let params: any[] = [{ name: "limit", value: apiConfig.pageSize, in: "query" }];
 
                 if (this.props.locale !== null) {
