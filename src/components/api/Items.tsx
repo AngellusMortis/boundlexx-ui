@@ -1,5 +1,5 @@
 import React from "react";
-import { Text } from "@fluentui/react";
+import { Shimmer, Text } from "@fluentui/react";
 import { Card } from "@uifabric/react-cards";
 import { RootState } from "../../store";
 import { connect, ConnectedProps } from "react-redux";
@@ -28,20 +28,27 @@ type PropsFromRedux = ConnectedProps<typeof connector>;
 type Props = APIDisplayProps & PropsFromRedux;
 
 class Items extends APIDisplay<Props> {
-    renderCardImage(item: Components.Schemas.Item, index: number | undefined) {
+    renderCardImage = (item: Components.Schemas.Item, index: number | undefined) => {
         return <div></div>;
-    }
+    };
 
-    renderCardDetails(item: Components.Schemas.Item, index: number | undefined) {
+    renderCardDetails = (item: Components.Schemas.Item, index: number | undefined) => {
+        const loaded = item !== undefined;
         return (
-            <Card.Section>
-                <Text>{item.localization[0].name}</Text>
-                <Text variant="small">
-                    {this.props.t("ID")}: {item.game_id}
-                </Text>
-            </Card.Section>
+            <div>
+                <Shimmer isDataLoaded={loaded} width={100}>
+                    {loaded && <Text>{item.localization[0].name}</Text>}
+                </Shimmer>
+                <Shimmer isDataLoaded={loaded} width={60}>
+                    {loaded && (
+                        <Text variant="small">
+                            {this.props.t("ID")}: {item.game_id}
+                        </Text>
+                    )}
+                </Shimmer>
+            </div>
         );
-    }
+    };
 }
 
 export default connector(withTranslation()(Items));

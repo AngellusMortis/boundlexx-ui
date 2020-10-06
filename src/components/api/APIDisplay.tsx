@@ -158,7 +158,7 @@ export class APIDisplay<T extends APIDisplayProps> extends React.Component<T, {}
             queryParams: "",
         },
         results: {
-            items: [],
+            items: generatePlaceholders(apiConfig.pageSize),
             count: null,
             nextUrl: null,
         },
@@ -401,49 +401,38 @@ export class APIDisplay<T extends APIDisplayProps> extends React.Component<T, {}
         }
     };
 
-    renderCardImage(item: any, index: number | undefined) {
+    renderCardImage = (item: any, index: number | undefined) => {
         return <div></div>;
-    }
+    };
 
-    renderCardDetails(item: any, index: number | undefined) {
+    renderCardDetails = (item: any, index: number | undefined) => {
         return <Card.Section></Card.Section>;
-    }
+    };
 
     onRenderCell = (item: any, index: number | undefined) => {
-        if (item !== undefined) {
-            return (
-                <Card
-                    data-is-focusable
-                    horizontal
-                    tokens={{ childrenMargin: 5 }}
-                    style={{ borderColor: this.props.theme.palette.themePrimary }}
-                    styles={{
-                        root: {
-                            margin: 5,
-                            position: "relative",
-                            padding: 2,
-                            width: 300,
-                            height: 66,
-                        },
-                    }}
-                    onClick={this.onCardClick}
-                >
-                    <Card.Item fill>{this.renderCardImage(item, index)}</Card.Item>
-                    {this.renderCardDetails(item, index)}
-                </Card>
-            );
-        }
-
         return (
             <Card
                 data-is-focusable
                 horizontal
                 tokens={{ childrenMargin: 5 }}
-                style={{ position: "relative", float: "left", padding: 2 }}
+                style={{ borderColor: this.props.theme.palette.themePrimary }}
+                styles={{
+                    root: {
+                        margin: 5,
+                        position: "relative",
+                        padding: 2,
+                        width: 300,
+                        height: 66,
+                    },
+                }}
+                onClick={this.onCardClick}
             >
                 <Card.Item fill>
-                    <Shimmer className="card-preview" />
+                    <Shimmer className="card-preview" isDataLoaded={item !== undefined}>
+                        {this.renderCardImage(item, index)}
+                    </Shimmer>
                 </Card.Item>
+                <Card.Section>{this.renderCardDetails(item, index)}</Card.Section>
             </Card>
         );
     };
@@ -601,7 +590,7 @@ export class APIDisplay<T extends APIDisplayProps> extends React.Component<T, {}
         return (
             <Stack
                 horizontalAlign={"center"}
-                styles={{ root: { width: "100%", height: "100%" } }}
+                styles={{ root: { width: "100%", height: "100%", textAlign: "left" } }}
                 className="api-display"
             >
                 <div

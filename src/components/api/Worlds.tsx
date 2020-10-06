@@ -1,5 +1,5 @@
 import React from "react";
-import { Text } from "@fluentui/react";
+import { Text, Shimmer } from "@fluentui/react";
 import { Card } from "@uifabric/react-cards";
 import { RootState } from "../../store";
 import { connect, ConnectedProps } from "react-redux";
@@ -47,18 +47,34 @@ const TypeNameMap: any = {
 const SpecialTypeMap = ["", "Color-Cycling"];
 
 class Worlds extends APIDisplay<Props> {
-    renderCardImage(item: any, index: number | undefined) {
+    renderCardImage = (item: any, index: number | undefined) => {
+        if (item === undefined) {
+            return <div></div>;
+        }
+
         if (item.image_url === null) {
             return <div className="card-preview"></div>;
         }
         return <img src={item.image_url} className="card-preview" alt={item.text_name}></img>;
-    }
+    };
 
-    renderCardDetails(item: any, index: number | undefined) {
+    getStatusText = (item: any) => {
+        return item.is_locked
+            ? this.props.t("Locked")
+            : item.active
+            ? this.props.t("Active")
+            : this.props.t("Inactive");
+    };
+
+    getSpecialType = (item: any) => {
         let specialType = "";
         if (item.special_type !== null && item.special_type > 0) {
             specialType = `${this.props.t(SpecialTypeMap[item.special_type])} `;
         }
+        return specialType;
+    };
+
+    getWorldClass = (item: any) => {
         let worldClass = "Homeworld";
         if (item.is_creative) {
             worldClass = "Creative World";
@@ -67,28 +83,40 @@ class Worlds extends APIDisplay<Props> {
         } else if (item.is_exo) {
             worldClass = "Exoworld";
         }
+        return worldClass;
+    };
 
-        const status_text = item.is_locked
-            ? this.props.t("Locked")
-            : item.active
-            ? this.props.t("Active")
-            : this.props.t("Inactive");
+    renderCardDetails = (item: any, index: number | undefined) => {
+        const loaded = item !== undefined;
 
         return (
-            <Card.Section>
-                <Text>
-                    <span dangerouslySetInnerHTML={{ __html: item.html_name }}></span>
-                </Text>
-                <Text variant="xSmall">
-                    T{item.tier + 1} - {this.props.t(TierNameMap[item.tier])}{" "}
-                    {this.props.t(TypeNameMap[item.world_type])} {specialType} {worldClass}
-                </Text>
-                <Text variant="tiny">
-                    {this.props.t("ID")}: {item.id}, {status_text}
-                </Text>
-            </Card.Section>
+            <div>
+                <Shimmer isDataLoaded={loaded} width={80}>
+                    {loaded && (
+                        <Text>
+                            <span dangerouslySetInnerHTML={{ __html: item.html_name }}></span>
+                        </Text>
+                    )}
+                </Shimmer>
+                <Shimmer isDataLoaded={loaded} width={150}>
+                    {loaded && (
+                        <Text variant="xSmall">
+                            T{item.tier + 1} - {this.props.t(TierNameMap[item.tier])}{" "}
+                            {this.props.t(TypeNameMap[item.world_type])} {this.getSpecialType(item)}{" "}
+                            {this.getWorldClass(item)}
+                        </Text>
+                    )}
+                </Shimmer>
+                <Shimmer isDataLoaded={loaded} width={60}>
+                    {loaded && (
+                        <Text variant="tiny">
+                            {this.props.t("ID")}: {item.id}, {this.getStatusText(item)}
+                        </Text>
+                    )}
+                </Shimmer>
+            </div>
         );
-    }
+    };
 }
 
 export default connector(withTranslation()(Worlds));

@@ -1,5 +1,5 @@
 import React from "react";
-import { Text } from "@fluentui/react";
+import { Text, Shimmer } from "@fluentui/react";
 import { Card } from "@uifabric/react-cards";
 import { RootState } from "../../store";
 import { connect, ConnectedProps } from "react-redux";
@@ -54,11 +54,7 @@ class Emojis extends APIDisplay<Props> {
         }
     };
 
-    renderCardImage(item: any, index: number | undefined) {
-        return <img src={item.image_url} className="card-preview" alt={`emoji ${item.names[0]}`}></img>;
-    }
-
-    renderCardDetails(item: any, index: number | undefined) {
+    getNames = (item: any) => {
         let names = "";
         item.names.forEach((element: string, index: number) => {
             if (index === 2) {
@@ -68,15 +64,34 @@ class Emojis extends APIDisplay<Props> {
             names += `:${element}: `;
         });
 
+        return names.trim();
+    };
+
+    renderCardImage = (item: any, index: number | undefined) => {
+        if (item !== undefined) {
+            return <img src={item.image_url} className="card-preview" alt={`emoji ${item.names[0]}`}></img>;
+        }
+        return <div></div>;
+    };
+
+    renderCardDetails = (item: any, index: number | undefined) => {
+        const loaded = item !== undefined;
+
         return (
             <Card.Section>
-                <Text>{this.props.t("In-game Name", { count: item.names.length })}:</Text>
-                <Text variant="tiny">
-                    <pre className="names">{names.trim()}</pre>
-                </Text>
+                <Shimmer isDataLoaded={loaded} width={110}>
+                    {loaded && <Text>{this.props.t("In-game Name", { count: item.names.length })}:</Text>}
+                </Shimmer>
+                <Shimmer isDataLoaded={loaded} width={150}>
+                    {loaded && (
+                        <Text variant="tiny">
+                            <pre className="names">{this.getNames(item)}</pre>
+                        </Text>
+                    )}
+                </Shimmer>
             </Card.Section>
         );
-    }
+    };
 }
 
 export default connector(withTranslation()(Emojis));

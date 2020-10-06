@@ -1,5 +1,13 @@
 import React from "react";
-import { IconButton, IIconProps, TooltipHost, ITooltipHostStyles, FocusZone } from "@fluentui/react";
+import {
+    IconButton,
+    IIconProps,
+    TooltipHost,
+    ITooltipHostStyles,
+    FocusZone,
+    AnimationStyles,
+    AnimationClassNames,
+} from "@fluentui/react";
 import { useId } from "@uifabric/react-hooks";
 
 interface Props {
@@ -22,22 +30,27 @@ const CollapsibleInput: React.FunctionComponent<Props> = (props) => {
         setSelected(true);
     };
 
-    const onBlur = () => {
-        setSelected(false);
+    const onBlur = (event: React.FocusEvent<HTMLElement>) => {
+        if (event !== undefined) {
+            event.target.classList.add(AnimationClassNames.fadeOut500!);
+            setTimeout(() => {
+                setSelected(false);
+            }, 500);
+        }
     };
 
     const children = React.Children.map(props.children, (child) => {
         if (React.isValidElement(child)) {
-            return React.cloneElement(child, { onBlur: onBlur });
+            return React.cloneElement(child, { onBlur: onBlur, className: AnimationStyles.fadeIn500 });
         }
     });
 
     if (selected) {
-        return <FocusZone>{children}</FocusZone>;
+        return <FocusZone style={{ position: "relative" }}>{children}</FocusZone>;
     }
 
     return (
-        <FocusZone>
+        <FocusZone style={{ position: "relative" }}>
             <TooltipHost
                 content={props.name}
                 // This id is used on the tooltip itself, not the host
