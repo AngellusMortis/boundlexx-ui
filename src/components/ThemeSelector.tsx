@@ -5,6 +5,7 @@ import { connect, ConnectedProps } from "react-redux";
 import { changeTheme } from "../prefs/actions";
 import { withTranslation, WithTranslation } from "react-i18next";
 import { setTheme } from "../themes";
+import CollapsibleInput from "./CollapsibleInput";
 
 const mapState = (state: RootState) => ({
     theme: state.prefs.theme,
@@ -53,13 +54,15 @@ class ThemeSelector extends React.Component<Props> {
         ];
 
         return (
-            <Dropdown
-                label="Theme"
-                defaultSelectedKey={this.props.theme}
-                options={themeOptions}
-                onChange={this.handleChange}
-                styles={{ dropdown: { width: 300 } }}
-            />
+            <CollapsibleInput icon={{ iconName: "Personalize" }} name={this.props.t("Change Theme")}>
+                <Dropdown
+                    label={this.props.t("Theme")}
+                    defaultSelectedKey={this.props.theme}
+                    options={themeOptions}
+                    onChange={this.handleChange}
+                    styles={{ dropdown: { width: 150 } }}
+                />
+            </CollapsibleInput>
         );
     }
 }

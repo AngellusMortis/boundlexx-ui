@@ -1,6 +1,5 @@
 import React from "react";
 import { withTranslation, WithTranslation } from "react-i18next";
-import { Stack } from "@fluentui/react";
 import Emojis from "../components/api/Emojis";
 
 class Page extends React.Component<WithTranslation> {
@@ -11,11 +10,7 @@ class Page extends React.Component<WithTranslation> {
         document.title = `${boundlexx} | ${page}`;
         window.history.replaceState(document.title, document.title);
 
-        return (
-            <Stack horizontalAlign="center" verticalAlign="center" verticalFill tokens={{ childrenGap: 15 }}>
-                <Emojis />
-            </Stack>
-        );
+        return <Emojis />;
     }
 }
 

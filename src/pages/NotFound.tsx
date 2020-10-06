@@ -11,7 +11,7 @@ class NotFound extends React.Component<WithTranslation> {
         window.history.replaceState(document.title, document.title);
 
         return (
-            <Stack horizontalAlign="center" verticalAlign="center" verticalFill tokens={{ childrenGap: 15 }}>
+            <Stack>
                 <img
                     src="https://cdn.boundlexx.app/images/404.svg"
                     alt="logo"

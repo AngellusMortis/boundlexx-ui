@@ -11,6 +11,7 @@ import Items from "./pages/Items";
 import Colors from "./pages/Colors";
 import Emojis from "./pages/Emojis";
 import NotFound from "./pages/NotFound";
+import { Stack } from "@fluentui/react";
 
 function App() {
     // enforce trailing slash
@@ -28,26 +29,35 @@ function App() {
                 <OpenAPIProvider definition={getDefinition(store.store.getState())} withServer={apiConfig.server}>
                     <Router>
                         <Header />
-                        <Switch>
-                            <Route path="/worlds/" exact strict>
-                                <Worlds />
-                            </Route>
-                            <Route path="/items/" exact strict>
-                                <Items />
-                            </Route>
-                            <Route path="/colors/" exact strict>
-                                <Colors />
-                            </Route>
-                            <Route path="/emojis/" exact strict>
-                                <Emojis />
-                            </Route>
-                            <Route path="/" exact strict>
-                                <Home />
-                            </Route>
-                            <Route>
-                                <NotFound />
-                            </Route>
-                        </Switch>
+                        <Stack
+                            id="content"
+                            horizontalAlign="center"
+                            verticalAlign="start"
+                            verticalFill
+                            tokens={{ childrenGap: 15 }}
+                            style={{ height: "calc(100vh - 146px)", textAlign: "center" }}
+                        >
+                            <Switch>
+                                <Route path="/worlds/" exact strict>
+                                    <Worlds />
+                                </Route>
+                                <Route path="/items/" exact strict>
+                                    <Items />
+                                </Route>
+                                <Route path="/colors/" exact strict>
+                                    <Colors />
+                                </Route>
+                                <Route path="/emojis/" exact strict>
+                                    <Emojis />
+                                </Route>
+                                <Route path="/" exact strict>
+                                    <Home />
+                                </Route>
+                                <Route>
+                                    <NotFound />
+                                </Route>
+                            </Switch>
+                        </Stack>
                     </Router>
                 </OpenAPIProvider>
             )}
