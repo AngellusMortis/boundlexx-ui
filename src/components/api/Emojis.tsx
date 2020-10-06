@@ -7,9 +7,12 @@ import { withTranslation } from "react-i18next";
 import { changeAPIDefinition } from "../../api/actions";
 import { APIDisplay, APIDisplayProps, mapStringStoreToItems } from "./APIDisplay";
 import { updateEmojis } from "../../api/emojis/actions";
+import { getTheme, isDark } from "../../themes";
+import { toast } from "react-toastify";
 
 const mapState = (state: RootState) => ({
-    theme: state.prefs.theme,
+    theme: getTheme(state.prefs.theme),
+    isDark: isDark(state.prefs.theme),
     locale: null,
     operationID: "listEmojis",
     name: "Emoji",
@@ -25,6 +28,28 @@ type PropsFromRedux = ConnectedProps<typeof connector>;
 type Props = APIDisplayProps & PropsFromRedux;
 
 class Emojis extends APIDisplay<Props> {
+    onCardClick = (event: React.MouseEvent<HTMLElement, MouseEvent> | undefined) => {
+        if (event !== undefined) {
+            const pre = (event.target as HTMLElement).querySelector(".names");
+
+            if (pre !== null) {
+                const name = pre.innerHTML.split(" ")[0];
+                navigator.clipboard.writeText(name);
+
+                let toastFunc: CallableFunction = toast;
+                if (this.props.isDark) {
+                    toastFunc = toast.dark;
+                }
+
+                toastFunc(`Name (${name}) copied to clipboard!`, {
+                    progressStyle: {
+                        background: this.props.theme.palette.themePrimary,
+                    },
+                });
+            }
+        }
+    };
+
     renderCardImage(item: any, index: number | undefined) {
         return <img src={item.image_url} className="card-preview" alt={`emoji ${item.names[0]}`}></img>;
     }
@@ -43,7 +68,7 @@ class Emojis extends APIDisplay<Props> {
             <Card.Section>
                 <Text>{this.props.t("In-game Name", { count: item.names.length })}:</Text>
                 <Text variant="tiny">
-                    <pre>{names.trim()}</pre>
+                    <pre className="names">{names.trim()}</pre>
                 </Text>
             </Card.Section>
         );

@@ -12,6 +12,8 @@ import Colors from "./pages/Colors";
 import Emojis from "./pages/Emojis";
 import NotFound from "./pages/NotFound";
 import { Stack } from "@fluentui/react";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 function App() {
     // enforce trailing slash
@@ -58,6 +60,17 @@ function App() {
                                 </Route>
                             </Switch>
                         </Stack>
+                        <ToastContainer
+                            position="top-right"
+                            autoClose={5000}
+                            hideProgressBar={false}
+                            newestOnTop={false}
+                            closeOnClick
+                            rtl={false}
+                            pauseOnFocusLoss
+                            draggable
+                            pauseOnHover
+                        />
                     </Router>
                 </OpenAPIProvider>
             )}

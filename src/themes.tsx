@@ -60,7 +60,7 @@ export const lightTheme = createTheme({
     },
 });
 
-const isDark = (theme: string) => {
+export const isDark = (theme: string) => {
     if (theme === "") {
         return !window.matchMedia("(prefers-color-scheme: light)").matches;
     }

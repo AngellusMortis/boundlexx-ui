@@ -12,7 +12,7 @@ import { PersistGate } from "redux-persist/integration/react";
 const App = React.lazy(() => import("./App"));
 
 const renderLoader = () => (
-    <div style={{ textAlign: "center" }}>
+    <div style={{ textAlign: "center", paddingTop: 170 }}>
         <img src="https://cdn.boundlexx.app/logos/logo.svg" alt="logo" width="300" height="300" className="logo" />
         <h1 style={{ color: darkTheme.palette.black }}>Boundlexx</h1>
     </div>
@@ -22,6 +22,7 @@ initializeIcons();
 
 document.documentElement.style.background = darkTheme.palette.white;
 ReactDOM.render(
+    // renderLoader(),
     <React.Suspense fallback={renderLoader()}>
         <Provider store={store}>
             <PersistGate loading={renderLoader()} persistor={persistor}>

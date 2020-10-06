@@ -7,9 +7,10 @@ import { withTranslation } from "react-i18next";
 import { changeAPIDefinition } from "../../api/actions";
 import { APIDisplay, APIDisplayProps, mapNumericStoreToItems } from "./APIDisplay";
 import { updateWorlds } from "../../api/worlds/actions";
+import { getTheme } from "../../themes";
 
 const mapState = (state: RootState) => ({
-    theme: state.prefs.theme,
+    theme: getTheme(state.prefs.theme),
     locale: null,
     operationID: "listWorldsSimple",
     name: "World",

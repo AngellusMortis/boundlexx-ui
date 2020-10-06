@@ -8,9 +8,10 @@ import { changeAPIDefinition } from "../../api/actions";
 import { APIDisplay, APIDisplayProps, mapNumericStoreToItems } from "./APIDisplay";
 import { Components } from "../../api/client";
 import { updateColors } from "../../api/colors/actions";
+import { getTheme } from "../../themes";
 
 const mapState = (state: RootState) => ({
-    theme: state.prefs.theme,
+    theme: getTheme(state.prefs.theme),
     locale: state.prefs.language,
     operationID: "listColors",
     name: "Color",

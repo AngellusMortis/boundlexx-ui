@@ -7,9 +7,9 @@ import {
     IRectangle,
     Shimmer,
     IPage,
-    ScrollbarVisibility,
-    ScrollablePane,
     DefaultButton,
+    FocusZone,
+    ITheme,
 } from "@fluentui/react";
 import { Card } from "@uifabric/react-cards";
 import { OpenAPIContext } from "react-openapi-client";
@@ -18,7 +18,6 @@ import { WithTranslation } from "react-i18next";
 import { getClient, apiConfig } from "../../api/config";
 import { Client as BoundlexxClient } from "../../api/client";
 import { StringAPIItems, NumericAPIItems, BaseItems, StringDict } from "../../types";
-import { getTheme } from "../../themes";
 import { AxiosResponse } from "axios";
 
 export interface Filters {
@@ -45,7 +44,7 @@ interface PartialState {
 }
 
 interface BaseProps {
-    theme: string;
+    theme: ITheme;
     locale: string | null;
     loadAll?: boolean;
     results?: BaseItems;
@@ -417,7 +416,17 @@ export class APIDisplay<T extends APIDisplayProps> extends React.Component<T, {}
                     data-is-focusable
                     horizontal
                     tokens={{ childrenMargin: 5 }}
-                    style={{ position: "relative", float: "left", padding: 2 }}
+                    style={{ borderColor: this.props.theme.palette.themePrimary }}
+                    styles={{
+                        root: {
+                            margin: 5,
+                            position: "relative",
+                            padding: 2,
+                            width: 300,
+                            height: 66,
+                        },
+                    }}
+                    onClick={this.onCardClick}
                 >
                     <Card.Item fill>{this.renderCardImage(item, index)}</Card.Item>
                     {this.renderCardDetails(item, index)}
@@ -445,6 +454,8 @@ export class APIDisplay<T extends APIDisplayProps> extends React.Component<T, {}
             this.resetState();
         }
     };
+
+    onCardClick = (event: React.MouseEvent<HTMLElement, MouseEvent> | undefined) => {};
 
     getInitialURL() {}
 
@@ -580,7 +591,6 @@ export class APIDisplay<T extends APIDisplayProps> extends React.Component<T, {}
             }
         };
 
-        const theme = getTheme(this.props.theme);
         const actualCount = this.state.results.count || apiConfig.pageSize;
         const displayCount = !this.state.initialLoad ? "#" : actualCount.toString();
         const foundName = `${this.getName(" FoundWithCount", true, { count: actualCount })}`.replace(
@@ -600,7 +610,7 @@ export class APIDisplay<T extends APIDisplayProps> extends React.Component<T, {}
                         justifyContent: "space-between",
                         width: "100%",
                         paddingBottom: 10,
-                        borderBottom: `${theme.palette.themePrimary} 1px solid`,
+                        borderBottom: `${this.props.theme.palette.themePrimary} 1px solid`,
                     }}
                 >
                     <h2 style={{ display: "inline-flex", margin: "0 20px" }}>{this.getName("_plural")}</h2>
@@ -624,20 +634,20 @@ export class APIDisplay<T extends APIDisplayProps> extends React.Component<T, {}
                         width: "100%",
                     }}
                 >
-                    <ScrollablePane scrollbarVisibility={ScrollbarVisibility.auto}>
+                    <FocusZone>
                         <List
                             items={this.state.results.items}
                             onRenderCell={this.onRenderCell}
                             style={{ position: "relative" }}
                             getItemCountForPage={getItemCountForPage}
                             getPageHeight={() => {
-                                return 65;
+                                return 76;
                             }}
                             usePageCache={true}
                             renderCount={this.state.results.count || apiConfig.pageSize}
                             onPageAdded={onPageAdded}
                         />
-                    </ScrollablePane>
+                    </FocusZone>
                 </div>
             </Stack>
         );
