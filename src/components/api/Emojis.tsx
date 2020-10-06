@@ -2,10 +2,10 @@ import React from "react";
 import { Text, Shimmer, Image, ImageFit } from "@fluentui/react";
 import { Card } from "@uifabric/react-cards";
 import { RootState } from "../../store";
-import { connect, ConnectedProps } from "react-redux";
+import { connect } from "react-redux";
 import { withTranslation } from "react-i18next";
 import { changeAPIDefinition } from "../../api/actions";
-import { APIDisplay, APIDisplayProps, mapStringStoreToItems } from "./APIDisplay";
+import { APIDisplay, mapStringStoreToItems } from "./APIDisplay";
 import { updateEmojis } from "../../api/emojis/actions";
 import { getTheme } from "../../themes";
 import toast from "../../toast";
@@ -15,18 +15,14 @@ const mapState = (state: RootState) => ({
     locale: null,
     operationID: "listEmojis",
     name: "Emoji",
-    items: mapStringStoreToItems(state.emojis),
+    results: mapStringStoreToItems(state.emojis),
 });
 
 const mapDispatchToProps = { changeAPIDefinition, updateItems: updateEmojis };
 
 const connector = connect(mapState, mapDispatchToProps);
 
-type PropsFromRedux = ConnectedProps<typeof connector>;
-
-type Props = APIDisplayProps & PropsFromRedux;
-
-class Emojis extends APIDisplay<Props> {
+class Emojis extends APIDisplay {
     onCardClick = (event: React.MouseEvent<HTMLElement, MouseEvent> | undefined) => {
         if (event === undefined) {
             return;
@@ -64,7 +60,7 @@ class Emojis extends APIDisplay<Props> {
         return names.trim();
     };
 
-    renderCardImage = (item: any, index: number | undefined) => {
+    renderCardImage = (item: any) => {
         if (item !== undefined) {
             return (
                 <Image
@@ -81,7 +77,7 @@ class Emojis extends APIDisplay<Props> {
         return <div></div>;
     };
 
-    renderCardDetails = (item: any, index: number | undefined) => {
+    renderCardDetails = (item: any) => {
         const loaded = item !== undefined;
 
         return (

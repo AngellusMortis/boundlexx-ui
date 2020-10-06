@@ -1,10 +1,12 @@
+import { OpenAPIV3 } from "openapi-client-axios";
+
 export interface APIDefinition {
-    def: any;
+    def: OpenAPIV3.Document | null;
 }
 
 export const CHANGE_DEFINITION = "CHANGE_DEFINITION";
 
 export interface ChangeDefinitionAction {
     type: typeof CHANGE_DEFINITION;
-    payload: any;
+    payload: OpenAPIV3.Document;
 }

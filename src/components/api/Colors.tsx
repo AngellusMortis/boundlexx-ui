@@ -2,10 +2,10 @@ import React from "react";
 import { Text, Shimmer } from "@fluentui/react";
 import { Card } from "@uifabric/react-cards";
 import { RootState } from "../../store";
-import { connect, ConnectedProps } from "react-redux";
+import { connect } from "react-redux";
 import { withTranslation } from "react-i18next";
 import { changeAPIDefinition } from "../../api/actions";
-import { APIDisplay, APIDisplayProps, mapNumericStoreToItems } from "./APIDisplay";
+import { APIDisplay, mapNumericStoreToItems } from "./APIDisplay";
 import { Components } from "../../api/client";
 import { updateColors } from "../../api/colors/actions";
 import { getTheme } from "../../themes";
@@ -15,7 +15,7 @@ const mapState = (state: RootState) => ({
     locale: state.prefs.language,
     operationID: "listColors",
     name: "Color",
-    items: mapNumericStoreToItems(state.colors),
+    results: mapNumericStoreToItems(state.colors),
     loadAll: true,
 });
 
@@ -23,19 +23,19 @@ const mapDispatchToProps = { changeAPIDefinition, updateItems: updateColors };
 
 const connector = connect(mapState, mapDispatchToProps);
 
-type PropsFromRedux = ConnectedProps<typeof connector>;
+class Colors extends APIDisplay {
+    onCardClick = () => {
+        return;
+    };
 
-type Props = APIDisplayProps & PropsFromRedux;
-
-class Colors extends APIDisplay<Props> {
-    renderCardImage = (item: Components.Schemas.Color, index: number | undefined) => {
+    renderCardImage = (item: Components.Schemas.Color) => {
         if (item !== undefined) {
             return <div className="card-preview" style={{ backgroundColor: item.base_color }}></div>;
         }
         return <div></div>;
     };
 
-    renderCardDetails = (item: Components.Schemas.Color, index: number | undefined) => {
+    renderCardDetails = (item: Components.Schemas.Color) => {
         const loaded = item !== undefined;
         return (
             <Card.Section>

@@ -3,6 +3,7 @@ import React from "react";
 import { RootState } from "../store";
 import { connect, ConnectedProps } from "react-redux";
 import { withTranslation, WithTranslation } from "react-i18next";
+import { Components } from "../api/client";
 
 const mapState = (state: RootState) => ({
     worlds: state.worlds.items || {},
@@ -61,10 +62,12 @@ class WorldSelector extends React.Component<Props> {
                 }
             }
 
-            options.push({
-                key: key,
-                text: `${this.props.worlds[key].text_name!} (ID: ${this.props.worlds[key].id!})`,
-            });
+            if (this.props.worlds[key].text_name !== undefined && this.props.worlds[key].id !== undefined) {
+                options.push({
+                    key: key,
+                    text: `${this.props.worlds[key].text_name} (ID: ${this.props.worlds[key].id})`,
+                });
+            }
         });
 
         return options;
@@ -78,7 +81,7 @@ class WorldSelector extends React.Component<Props> {
     };
 
     onChange = (event: React.FormEvent<IComboBox>, option?: IComboBoxOption) => {
-        let newWorld: any | null = null;
+        let newWorld: Components.Schemas.KindOfSimpleWorld | null = null;
 
         if (option !== undefined) {
             let key = option.key;

@@ -1,3 +1,9 @@
+export interface APIParams {
+    name: string;
+    value: any;
+    in: string;
+}
+
 export interface StringDict<T> {
     [key: string]: T;
 }

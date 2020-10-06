@@ -16,7 +16,7 @@ import { Stack } from "@fluentui/react";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
-function App() {
+function App(): JSX.Element {
     // enforce trailing slash
     if (!window.location.pathname.endsWith("/")) {
         window.history.replaceState(

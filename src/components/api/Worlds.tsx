@@ -1,34 +1,33 @@
 import React from "react";
 import { Text, Shimmer, ImageFit, Image } from "@fluentui/react";
 import { RootState } from "../../store";
-import { connect, ConnectedProps } from "react-redux";
+import { connect } from "react-redux";
 import { withTranslation } from "react-i18next";
 import { changeAPIDefinition } from "../../api/actions";
-import { APIDisplay, APIDisplayProps, mapNumericStoreToItems } from "./APIDisplay";
+import { APIDisplay, mapNumericStoreToItems } from "./APIDisplay";
 import { updateWorlds } from "../../api/worlds/actions";
 import { getTheme } from "../../themes";
+import { StringDict } from "../../types";
 
-const mapState = (state: RootState) => ({
-    theme: getTheme(state.prefs.theme),
-    locale: null,
-    operationID: "listWorldsSimple",
-    name: "World",
-    extraFilters: [{ name: "show_inactive", value: true, in: "query" }],
-    items: mapNumericStoreToItems(state.worlds),
-    loadAll: true,
-});
+const mapState = (state: RootState) => {
+    return {
+        theme: getTheme(state.prefs.theme),
+        locale: null,
+        loadAll: true,
+        results: mapNumericStoreToItems(state.worlds),
+        name: "World",
+        operationID: "listWorldsSimple",
+        extraFilters: [{ name: "show_inactive", value: true, in: "query" }],
+    };
+};
 
 const mapDispatchToProps = { changeAPIDefinition, updateItems: updateWorlds };
 
 const connector = connect(mapState, mapDispatchToProps);
 
-type PropsFromRedux = ConnectedProps<typeof connector>;
-
-type Props = APIDisplayProps & PropsFromRedux;
-
 const TierNameMap = ["Placid", "Temperate", "Rugged", "Inhospitable", "Turbulent", "Fierce", "Savage", "Brutal"];
 
-const TypeNameMap: any = {
+const TypeNameMap: StringDict<string> = {
     LUSH: "Lush",
     METAL: "Metal",
     COAL: "Coal",
@@ -45,8 +44,12 @@ const TypeNameMap: any = {
 
 const SpecialTypeMap = ["", "Color-Cycling"];
 
-class Worlds extends APIDisplay<Props> {
-    renderCardImage = (item: any, index: number | undefined) => {
+class Worlds extends APIDisplay {
+    onCardClick = () => {
+        return;
+    };
+
+    renderCardImage = (item: any) => {
         if (item === undefined) {
             return <div></div>;
         }
@@ -103,7 +106,7 @@ class Worlds extends APIDisplay<Props> {
         return worldClass;
     };
 
-    renderCardDetails = (item: any, index: number | undefined) => {
+    renderCardDetails = (item: any) => {
         const loaded = item !== undefined;
 
         return (
