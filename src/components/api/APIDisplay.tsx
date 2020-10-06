@@ -419,7 +419,7 @@ export class APIDisplay<T extends APIDisplayProps> extends React.Component<T, {}
                 styles={{
                     root: {
                         backgroundColor: this.props.theme.palette.neutralLighter,
-                        margin: 5,
+                        margin: 2,
                         position: "relative",
                         padding: 2,
                         width: 300,
