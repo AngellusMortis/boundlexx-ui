@@ -77,6 +77,10 @@ const mapToItems = (store: BaseItems, mapFunc: CallableFunction): BaseItems | un
         items: [],
     };
 
+    if (store.lang !== undefined) {
+        results.lang = store.lang;
+    }
+
     results.items = mapFunc();
     results.items = generatePlaceholders(results.count, results.items);
     return results;
@@ -435,11 +439,11 @@ export abstract class APIDisplay extends React.Component<APIDisplayProps> {
         }
 
         // add placeholder cards
-        let results = this.state.results.items;
-        if (results.length < apiConfig.pageSize) {
-            results = generatePlaceholders(apiConfig.pageSize, results);
+        let items = this.state.results.items;
+        if (items.length < apiConfig.pageSize) {
+            items = generatePlaceholders(apiConfig.pageSize, items);
         }
-        this.setState({ loading: true, error: null, items: { ...this.state.results, results: results } });
+        this.setState({ loading: true, error: null, results: { ...this.state.results, items: items } });
 
         let response: AxiosResponse | null = null;
         try {
@@ -467,7 +471,7 @@ export abstract class APIDisplay extends React.Component<APIDisplayProps> {
                 }
                 response = await this.callOperation(params);
             } else {
-                response = await this.client.get(this.state.results.nextUrl);
+                response = await this.client.get(this.state.results.nextUrl, { paramsSerializer: () => "" });
             }
 
             if (response !== null && response.status >= 300) {

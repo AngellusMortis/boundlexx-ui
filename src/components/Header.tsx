@@ -117,7 +117,7 @@ class Header extends React.Component<Props> {
         let nextURL = this.setDataFromResponse(response, updateMethod, locale);
 
         while (nextURL !== null) {
-            response = await this.client.get(nextURL);
+            response = await this.client.get(nextURL, { paramsSerializer: () => "" });
             nextURL = this.setDataFromResponse(response, updateMethod, locale);
         }
     };
