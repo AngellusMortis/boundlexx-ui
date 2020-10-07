@@ -287,7 +287,9 @@ class Forum extends React.Component<Props> {
                         { key: "true", text: this.props.t("Yes") },
                         { key: "false", text: this.props.t("No") },
                     ]}
-                    defaultSelectedKey={"unknown"}
+                    defaultSelectedKey={
+                        this.state.will_renew === null ? "unknown" : this.state.will_renew ? "true" : "false"
+                    }
                     onChange={this.onUpdateDropDown}
                 ></Dropdown>
                 <Text variant="xSmall" className="help-text">
@@ -302,7 +304,9 @@ class Forum extends React.Component<Props> {
                         { key: "true", text: this.props.t("Yes") },
                         { key: "false", text: this.props.t("No") },
                     ]}
-                    defaultSelectedKey={"unknown"}
+                    defaultSelectedKey={
+                        this.state.compactness === null ? "unknown" : this.state.compactness ? "true" : "false"
+                    }
                     onChange={this.onUpdateDropDown}
                 ></Dropdown>
                 <Text variant="xSmall" className="help-text">
@@ -392,7 +396,7 @@ class Forum extends React.Component<Props> {
         window.history.replaceState(document.title, document.title);
 
         return (
-            <Stack style={{ padding: 50, maxWidth: 700, width: "50vw" }} className="forum-generator">
+            <Stack style={{ padding: 50, maxWidth: 700, width: "100%" }} className="forum-generator">
                 <h2>{page}</h2>
                 {this.renderContent()}
             </Stack>
