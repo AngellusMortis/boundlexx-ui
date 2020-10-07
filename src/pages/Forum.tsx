@@ -218,7 +218,9 @@ class Forum extends React.Component<Props> {
 
         return (
             <Stack style={{ textAlign: "left" }}>
-                <PrimaryButton onClick={this.resetForm}>{this.props.t("Generate Another")}</PrimaryButton>
+                <PrimaryButton onClick={this.resetForm} style={{ marginBottom: 25, width: "50%", margin: "0 auto" }}>
+                    {this.props.t("Generate Another")}
+                </PrimaryButton>
                 <h3>{this.props.t("Title")}</h3>
                 <Stack
                     horizontal
