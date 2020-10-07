@@ -14,7 +14,6 @@ import LanguageSelector from "./LanguageSelector";
 import Link from "./Link";
 import { RootState } from "../store";
 import { connect, ConnectedProps } from "react-redux";
-import { OpenAPIContext } from "react-openapi-client";
 import * as api from "../api";
 import { Client as BoundlexxClient } from "../api/client";
 import { AxiosResponse } from "axios";
@@ -63,8 +62,6 @@ const myStyle1 = mergeStyles(AnimationStyles.fadeIn500);
 const myStyle2 = mergeStyles(AnimationStyles.slideDownIn20);
 
 class Header extends React.Component<Props> {
-    static contextType = OpenAPIContext;
-
     mounted = false;
     client: BoundlexxClient | null = null;
 
@@ -72,7 +69,7 @@ class Header extends React.Component<Props> {
         this.mounted = true;
 
         // load "essential data"
-        this.client = await api.getClient(this.context.api, this.props.changeAPIDefinition);
+        this.client = await api.getClient();
         // get a specific world
         // this.client.retrieveWorld(320);
 

@@ -3,6 +3,9 @@ import { OpenAPIClientAxios, OpenAPIV3 } from "openapi-client-axios";
 import { Client as BoundlexxClient } from "./client";
 import { Mutex } from "async-mutex";
 import msgpack from "msgpack-lite";
+import { AxiosRequestConfig } from "axios";
+import { store } from "../store";
+import { changeAPIDefinition } from "./def";
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 const mapMsgpack = (root: any, key_map: string[]) => {
@@ -32,34 +35,47 @@ const mapMsgpack = (root: any, key_map: string[]) => {
     return mappedData;
 };
 
+const clientConfig: AxiosRequestConfig = {
+    params: {
+        format: "msgpack",
+    },
+    responseType: "arraybuffer",
+    transformResponse: [
+        (data: ArrayBuffer): any => {
+            const unmappedData = msgpack.decode(new Uint8Array(data));
+            return mapMsgpack(unmappedData[0], unmappedData[1]);
+        },
+    ],
+};
+
 export const config = {
     apiBase: process.env.REACT_APP_API_BASE_URL,
     server: process.env.REACT_APP_API_SERVER,
     pageSize: 200,
-    clientConfig: {
-        params: {
-            format: "msgpack",
-        },
-        responseType: "arraybuffer",
-        transformResponse: [
-            (data: ArrayBuffer): any => {
-                const unmappedData = msgpack.decode(new Uint8Array(data));
-                return mapMsgpack(unmappedData[0], unmappedData[1]);
-            },
-        ],
-    },
+    clientConfig: clientConfig,
 };
 /* eslint-enable @typescript-eslint/no-explicit-any */
 
 let client: BoundlexxClient | null = null;
 const lock = new Mutex();
 
-export const getClient = async (
-    api: OpenAPIClientAxios,
-    changeDef?: CallableFunction | undefined,
-): Promise<BoundlexxClient> => {
+const getDefinition = (state: RootState): string | OpenAPIV3.Document => {
+    if (state.api.def === null) {
+        return `${config.apiBase}/schema/?format=openapi-json`;
+    }
+    return state.api.def;
+};
+
+export const getClient = async (): Promise<BoundlexxClient> => {
     if (client !== null) {
         return client;
+    }
+
+    const def = getDefinition(store.getState() as RootState);
+    const api = new OpenAPIClientAxios({ definition: def, axiosConfigDefaults: config.clientConfig });
+
+    if (config.server !== undefined) {
+        api.withServer(config.server);
     }
 
     return await lock.runExclusive(async () => {
@@ -68,18 +84,7 @@ export const getClient = async (
         }
 
         client = await api.getClient<BoundlexxClient>();
-
-        if (changeDef !== undefined) {
-            changeDef(api.document);
-        }
-
+        store.dispatch(changeAPIDefinition(api.document));
         return client;
     });
-};
-
-export const getDefinition = (state: RootState): string | OpenAPIV3.Document => {
-    if (state.api.def === null) {
-        return `${config.apiBase}/schema/?format=openapi-json`;
-    }
-    return state.api.def;
 };

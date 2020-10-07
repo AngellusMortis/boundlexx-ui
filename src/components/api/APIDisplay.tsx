@@ -12,7 +12,6 @@ import {
     ITheme,
 } from "@fluentui/react";
 import { Card } from "@uifabric/react-cards";
-import { OpenAPIContext } from "react-openapi-client";
 import "./APIDisplay.css";
 import { WithTranslation } from "react-i18next";
 import * as api from "../../api";
@@ -139,8 +138,6 @@ export type APIDisplayProps = WithTranslation & BaseProps;
 const SEARCH_TIMEOUT = 1000;
 
 export abstract class APIDisplay extends React.Component<APIDisplayProps> {
-    static contextType = OpenAPIContext;
-
     mounted = false;
     client: BoundlexxClient | null = null;
     searchTimer: NodeJS.Timeout | null = null;
@@ -193,7 +190,7 @@ export abstract class APIDisplay extends React.Component<APIDisplayProps> {
 
     getAPIClient = async (): Promise<void> => {
         try {
-            this.client = await api.getClient(this.context.api, this.props.changeAPIDefinition);
+            this.client = await api.getClient();
         } catch (err) {
             this.setAsyncState({ error: err });
         }
@@ -325,7 +322,7 @@ export abstract class APIDisplay extends React.Component<APIDisplayProps> {
 
     callOperation = async (params: APIParams[]): Promise<AxiosResponse> => {
         if (this.client === null) {
-            this.client = await api.getClient(this.context.api, this.props.changeAPIDefinition);
+            this.client = await api.getClient();
         }
 
         // eslint-disable-next-line

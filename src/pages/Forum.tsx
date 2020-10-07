@@ -20,7 +20,6 @@ import WorldSelector from "../components/WorldSelector";
 import { Components, Client as BoundlexxClient } from "../api/client";
 import { StringDict } from "../types";
 import * as api from "../api";
-import { OpenAPIContext } from "react-openapi-client";
 import { connect, ConnectedProps } from "react-redux";
 import { RootState } from "../store";
 import { getTheme } from "../themes";
@@ -56,8 +55,6 @@ type PropsFromRedux = ConnectedProps<typeof connector>;
 type Props = WithTranslation & PropsFromRedux;
 
 class Forum extends React.Component<Props> {
-    static contextType = OpenAPIContext;
-
     client: BoundlexxClient | null = null;
     state: State = {
         world: null,
@@ -91,7 +88,7 @@ class Forum extends React.Component<Props> {
     }
 
     componentDidMount = async () => {
-        this.client = await api.getClient(this.context.api, this.props.changeAPIDefinition);
+        this.client = await api.getClient();
     };
 
     componentDidUpdate = () => {
