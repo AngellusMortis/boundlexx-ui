@@ -29,7 +29,13 @@ function App(): JSX.Element {
     return (
         <ReactReduxContext.Consumer>
             {(store) => (
-                <OpenAPIProvider definition={getDefinition(store.store.getState())} withServer={apiConfig.server}>
+                <OpenAPIProvider
+                    definition={getDefinition(store.store.getState())}
+                    withServer={apiConfig.server}
+                    // eslint-disable-next-line
+                    // @ts-ignore
+                    axiosConfigDefaults={apiConfig.clientConfig}
+                >
                     <Router>
                         <Header />
                         <Stack

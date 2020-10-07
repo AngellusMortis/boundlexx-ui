@@ -1,10 +1,10 @@
 import React from "react";
 import { Shimmer, Text } from "@fluentui/react";
 import { RootState } from "../../store";
-import { connect, ConnectedProps } from "react-redux";
+import { connect } from "react-redux";
 import { withTranslation } from "react-i18next";
 import { changeAPIDefinition } from "../../api/actions";
-import { APIDisplay, APIDisplayProps, mapNumericStoreToItems } from "./APIDisplay";
+import { APIDisplay, mapNumericStoreToItems } from "./APIDisplay";
 import { Components } from "../../api/client";
 import { updateItems } from "../../api/items/actions";
 import { getTheme } from "../../themes";
