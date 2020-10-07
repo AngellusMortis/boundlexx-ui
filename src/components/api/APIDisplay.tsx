@@ -381,10 +381,13 @@ export abstract class APIDisplay extends React.Component<APIDisplayProps> {
         }
     };
 
+    // eslint-disable-next-line
     abstract renderCardImage(item: any, index: number | undefined): JSX.Element;
 
+    // eslint-disable-next-line
     abstract renderCardDetails(item: any, index: number | undefined): JSX.Element;
 
+    // eslint-disable-next-line
     onRenderCell = (item: any, index: number | undefined) => {
         return (
             <Card
@@ -502,6 +505,7 @@ export abstract class APIDisplay extends React.Component<APIDisplayProps> {
 
         // remove placeholder results, add new results
         const newResults = this.state.results.items
+            // eslint-disable-next-line
             .filter((v: any[]) => {
                 return v !== undefined;
             })

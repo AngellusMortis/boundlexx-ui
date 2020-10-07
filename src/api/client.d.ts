@@ -118,7 +118,7 @@ declare namespace Components {
         }
         export interface Emoji {
             readonly url?: string;
-            readonly names?: string;
+            names: string[];
             image_url: string | null; // binary
         }
         export interface Item {
@@ -289,14 +289,16 @@ declare namespace Components {
              * Does this world still exist (returned by game API)?
              */
             active?: boolean;
+            image_url: string | null; // binary
             display_name: string;
-            text_name?: string | null;
-            html_name?: string | null;
+            text_name: string | null;
+            html_name: string | null;
             /**
              * Tier of the world. Starts at 0.
              */
-            tier?: "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7";
-            world_type?:
+            tier: number;
+            size?: null | number;
+            world_type:
                 | "LUSH"
                 | "METAL"
                 | "COAL"
@@ -309,7 +311,10 @@ declare namespace Components {
                 | "DARKMATTER"
                 | "RIFT"
                 | "BLINK";
-            special_type?: "1";
+            /**
+             * `1` = Color-Cycling
+             */
+            special_type: null | number;
             readonly is_sovereign?: string;
             readonly is_perm?: string;
             readonly is_exo?: string;
@@ -585,9 +590,9 @@ declare namespace Components {
             /**
              * Tier of the world. Starts at 0.
              */
-            tier?: "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7";
+            tier: number;
             size?: null | number;
-            world_type?:
+            world_type:
                 | "LUSH"
                 | "METAL"
                 | "COAL"
@@ -600,7 +605,10 @@ declare namespace Components {
                 | "DARKMATTER"
                 | "RIFT"
                 | "BLINK";
-            special_type?: "1";
+            /**
+             * `1` = Color-Cycling
+             */
+            special_type: null | number;
             /**
              * 'points' are not equal to levels in skill. For more details see <a href="https://forum.playboundless.com/t/28068/4">this forum post</a>.
              */
@@ -860,9 +868,9 @@ declare namespace Components {
             /**
              * Tier of the world. Starts at 0.
              */
-            tier?: "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7";
+            tier: number;
             size?: null | number;
-            world_type?:
+            world_type:
                 | "LUSH"
                 | "METAL"
                 | "COAL"

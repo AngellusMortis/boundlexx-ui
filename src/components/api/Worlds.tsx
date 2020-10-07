@@ -7,6 +7,7 @@ import * as api from "../../api";
 import { APIDisplay, mapNumericStoreToItems } from "./APIDisplay";
 import { getTheme } from "../../themes";
 import { StringDict } from "../../types";
+import { Components } from "../../api/client";
 
 const mapState = (state: RootState) => {
     return {
@@ -48,7 +49,7 @@ class Worlds extends APIDisplay {
         return;
     };
 
-    renderCardImage = (item: any) => {
+    renderCardImage = (item: Components.Schemas.KindOfSimpleWorld) => {
         if (item === undefined) {
             return <div></div>;
         }
@@ -61,7 +62,7 @@ class Worlds extends APIDisplay {
                     shouldFadeIn={true}
                     src="https://cdn.boundlexx.app/worlds/unknown.png"
                     className="card-preview"
-                    alt={item.text_name}
+                    alt={item.text_name || item.display_name}
                 ></Image>
             );
         }
@@ -72,12 +73,12 @@ class Worlds extends APIDisplay {
                 shouldFadeIn={true}
                 src={item.image_url}
                 className="card-preview"
-                alt={item.text_name}
+                alt={item.text_name || item.display_name}
             ></Image>
         );
     };
 
-    getStatusText = (item: any) => {
+    getStatusText = (item: Components.Schemas.KindOfSimpleWorld) => {
         return item.is_locked
             ? this.props.t("Locked")
             : item.active
@@ -85,7 +86,7 @@ class Worlds extends APIDisplay {
             : this.props.t("Inactive");
     };
 
-    getSpecialType = (item: any) => {
+    getSpecialType = (item: Components.Schemas.KindOfSimpleWorld) => {
         let specialType = "";
         if (item.special_type !== null && item.special_type > 0) {
             specialType = `${this.props.t(SpecialTypeMap[item.special_type])} `;
@@ -93,7 +94,7 @@ class Worlds extends APIDisplay {
         return specialType;
     };
 
-    getWorldClass = (item: any) => {
+    getWorldClass = (item: Components.Schemas.KindOfSimpleWorld) => {
         let worldClass = "Homeworld";
         if (item.is_creative) {
             worldClass = "Creative World";
@@ -105,7 +106,7 @@ class Worlds extends APIDisplay {
         return worldClass;
     };
 
-    renderCardDetails = (item: any) => {
+    renderCardDetails = (item: Components.Schemas.KindOfSimpleWorld) => {
         const loaded = item !== undefined;
 
         return (
@@ -113,7 +114,7 @@ class Worlds extends APIDisplay {
                 <Shimmer isDataLoaded={loaded} width={80}>
                     {loaded && (
                         <Text>
-                            <span dangerouslySetInnerHTML={{ __html: item.html_name }}></span>
+                            <span dangerouslySetInnerHTML={{ __html: item.html_name || item.display_name }}></span>
                         </Text>
                     )}
                 </Shimmer>

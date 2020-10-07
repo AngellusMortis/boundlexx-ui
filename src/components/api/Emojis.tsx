@@ -8,6 +8,7 @@ import * as api from "../../api";
 import { APIDisplay, mapStringStoreToItems } from "./APIDisplay";
 import { getTheme } from "../../themes";
 import toast from "../../toast";
+import { Components } from "../../api/client";
 
 const mapState = (state: RootState) => ({
     theme: getTheme(state.prefs.theme),
@@ -46,7 +47,7 @@ class Emojis extends APIDisplay {
         });
     };
 
-    getNames = (item: any) => {
+    getNames = (item: Components.Schemas.Emoji) => {
         let names = "";
         item.names.forEach((element: string, index: number) => {
             if (index === 2) {
@@ -59,8 +60,8 @@ class Emojis extends APIDisplay {
         return names.trim();
     };
 
-    renderCardImage = (item: any) => {
-        if (item !== undefined) {
+    renderCardImage = (item: Components.Schemas.Emoji) => {
+        if (item !== undefined && item.image_url !== null) {
             return (
                 <Image
                     imageFit={ImageFit.centerCover}
@@ -76,7 +77,7 @@ class Emojis extends APIDisplay {
         return <div></div>;
     };
 
-    renderCardDetails = (item: any) => {
+    renderCardDetails = (item: Components.Schemas.Emoji) => {
         const loaded = item !== undefined;
 
         return (
