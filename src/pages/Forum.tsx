@@ -1,6 +1,20 @@
 import React from "react";
 import { withTranslation, WithTranslation } from "react-i18next";
-import { Stack, TextField, Dropdown, Checkbox, Text, PrimaryButton, IDropdownOption } from "@fluentui/react";
+import {
+    Stack,
+    TextField,
+    Dropdown,
+    Checkbox,
+    Text,
+    PrimaryButton,
+    IDropdownOption,
+    TooltipHost,
+    IconButton,
+    Button,
+    BaseButton,
+    Spinner,
+    SpinnerSize,
+} from "@fluentui/react";
 import "./Forum.css";
 import WorldSelector from "../components/WorldSelector";
 import { Components, Client as BoundlexxClient } from "../api/client";
@@ -11,9 +25,11 @@ import { changeAPIDefinition } from "../api/actions";
 import { connect, ConnectedProps } from "react-redux";
 import { RootState } from "../store";
 import { getTheme } from "../themes";
+import toast from "../toast";
 
 const mapState = (state: RootState) => ({
     theme: getTheme(state.prefs.theme),
+    worlds: state.worlds,
 });
 
 interface Template {
@@ -23,6 +39,7 @@ interface Template {
 
 interface State {
     world: Components.Schemas.KindOfSimpleWorld | null;
+    loaded: boolean;
     initalWorldID: number | null;
     will_renew: boolean | null;
     compactness: boolean | null;
@@ -45,6 +62,7 @@ class Forum extends React.Component<Props> {
     client: BoundlexxClient | null = null;
     state: State = {
         world: null,
+        loaded: false,
         initalWorldID: null,
         will_renew: null,
         compactness: null,
@@ -64,10 +82,49 @@ class Forum extends React.Component<Props> {
                 this.state.initalWorldID = worldID;
             }
         }
+
+        if (
+            this.props.worlds.count !== null &&
+            Reflect.ownKeys(this.props.worlds.items).length === this.props.worlds.count
+        ) {
+            this.state.loaded = true;
+        }
     }
 
     componentDidMount = async () => {
         this.client = await getClient(this.context.api, this.props.changeAPIDefinition);
+    };
+
+    componentDidUpdate = () => {
+        if (
+            !this.state.loaded &&
+            this.props.worlds.count !== null &&
+            Reflect.ownKeys(this.props.worlds.items).length === this.props.worlds.count
+        ) {
+            this.setState({ loaded: true });
+        }
+    };
+
+    copyToClipboard = (
+        event: React.MouseEvent<
+            HTMLAnchorElement | HTMLButtonElement | HTMLDivElement | BaseButton | Button | HTMLSpanElement,
+            MouseEvent
+        >,
+    ) => {
+        const button = event.target as HTMLElement;
+        const stack = button.closest(".ms-Stack");
+
+        if (stack === null) {
+            return;
+        }
+
+        const pre = stack.nextSibling;
+
+        if (pre !== null && pre.textContent !== null) {
+            navigator.clipboard.writeText(pre.textContent).then(() => {
+                toast(this.props.theme, `Copied to clipboard!`);
+            });
+        }
     };
 
     onWorldChange = (world: Components.Schemas.KindOfSimpleWorld | null) => {
@@ -155,16 +212,52 @@ class Forum extends React.Component<Props> {
     };
 
     renderTemplate = () => {
+        if (this.state.template === null) {
+            return;
+        }
+
         return (
-            this.state.template !== null && (
-                <Stack style={{ textAlign: "left" }}>
-                    <h3>{this.props.t("Title")}</h3>
-                    <pre>{this.state.template.title}</pre>
-                    <h3>{this.props.t("Body")}</h3>
-                    <pre>{this.state.template.body}</pre>
-                    <PrimaryButton onClick={this.resetForm}>{this.props.t("Generate Another")}</PrimaryButton>
+            <Stack style={{ textAlign: "left" }}>
+                <PrimaryButton onClick={this.resetForm} style={{ marginBottom: 25, width: "50%", margin: "0 auto" }}>
+                    {this.props.t("Generate Another")}
+                </PrimaryButton>
+                <h3>{this.props.t("Title")}</h3>
+                <Stack
+                    horizontal
+                    style={{ verticalAlign: "middle", alignItems: "center", justifyContent: "space-between" }}
+                >
+                    <Text>{this.props.t("Post this in your post 'Title'")}</Text>
+                    <TooltipHost
+                        content={this.props.t("Copy to Clipboard")}
+                        id={"title-copy-tooltip"}
+                        calloutProps={{ gapSpace: 0 }}
+                        styles={{ root: { display: "inline-block" } }}
+                    >
+                        <IconButton iconProps={{ iconName: "Assign" }} onClick={this.copyToClipboard} />
+                    </TooltipHost>
                 </Stack>
-            )
+                <pre style={{ backgroundColor: this.props.theme.palette.neutralLighter }}>
+                    {this.state.template.title}
+                </pre>
+                <h3>{this.props.t("Body")}</h3>
+                <Stack
+                    horizontal
+                    style={{ verticalAlign: "middle", alignItems: "center", justifyContent: "space-between" }}
+                >
+                    <Text>{this.props.t("Post this in your post 'Body'")}</Text>
+                    <TooltipHost
+                        content={this.props.t("Copy to Clipboard")}
+                        id={"body-copy-tooltip"}
+                        calloutProps={{ gapSpace: 0 }}
+                        styles={{ root: { display: "inline-block" } }}
+                    >
+                        <IconButton iconProps={{ iconName: "Assign" }} onClick={this.copyToClipboard} />
+                    </TooltipHost>
+                </Stack>
+                <pre style={{ backgroundColor: this.props.theme.palette.neutralLighter }}>
+                    {this.state.template.body}
+                </pre>
+            </Stack>
         );
     };
 
@@ -243,26 +336,52 @@ class Forum extends React.Component<Props> {
         }
 
         return (
-            this.state.template === null && (
-                <form style={{ textAlign: "left", minWidth: "50vw" }} onSubmit={this.onFormSubmit}>
-                    {this.state.errors.__all__ !== undefined && (
-                        <Text style={{ color: this.props.theme.palette.themePrimary }}>
-                            {this.state.errors.__all__}
-                        </Text>
-                    )}
-                    <WorldSelector
-                        key="world_id"
-                        className="world-select"
-                        onWorldChange={this.onWorldChange}
-                        worldID={worldID}
-                    />
-                    {isSovereign && this.renderSovereignFields()}
-                    <PrimaryButton type="submit" disabled={this.state.submitted}>
-                        {this.props.t("Generate Template")}
-                    </PrimaryButton>
-                </form>
-            )
+            <form style={{ textAlign: "left" }} onSubmit={this.onFormSubmit}>
+                {this.state.errors.__all__ !== undefined && (
+                    <Text style={{ color: this.props.theme.palette.themePrimary }}>{this.state.errors.__all__}</Text>
+                )}
+                <WorldSelector
+                    key="world_id"
+                    className="world-select"
+                    onWorldChange={this.onWorldChange}
+                    worldID={worldID}
+                />
+                {isSovereign && this.renderSovereignFields()}
+                <PrimaryButton type="submit" disabled={this.state.submitted}>
+                    {this.props.t("Generate Template")}
+                </PrimaryButton>
+            </form>
         );
+    };
+
+    renderContent = () => {
+        if (this.state.template !== null) {
+            return this.renderTemplate();
+        }
+
+        if (!this.state.loaded) {
+            return (
+                <Spinner
+                    size={SpinnerSize.large}
+                    style={{ height: "50vh" }}
+                    label={this.props.t("Loading Worlds...")}
+                    ariaLive="assertive"
+                />
+            );
+        }
+
+        if (this.state.submitted) {
+            return (
+                <Spinner
+                    size={SpinnerSize.large}
+                    style={{ height: "50vh" }}
+                    label={this.props.t("Generating Template...")}
+                    ariaLive="assertive"
+                />
+            );
+        }
+
+        return this.renderForm();
     };
 
     render = () => {
@@ -273,10 +392,9 @@ class Forum extends React.Component<Props> {
         window.history.replaceState(document.title, document.title);
 
         return (
-            <Stack style={{ padding: 50 }}>
+            <Stack style={{ padding: 50, maxWidth: 700, width: "50vw" }}>
                 <h2>{page}</h2>
-                {this.renderForm()}
-                {this.renderTemplate()}
+                {this.renderContent()}
             </Stack>
         );
     };

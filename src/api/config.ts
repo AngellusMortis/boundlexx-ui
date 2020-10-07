@@ -61,7 +61,7 @@ const lock = new Mutex();
 
 export const getClient = async (
     api: OpenAPIClientAxios,
-    changeDef: CallableFunction | undefined,
+    changeDef?: CallableFunction | undefined,
 ): Promise<BoundlexxClient> => {
     if (client !== null) {
         return client;
