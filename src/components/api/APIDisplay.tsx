@@ -15,7 +15,7 @@ import { Card } from "@uifabric/react-cards";
 import { OpenAPIContext } from "react-openapi-client";
 import "./APIDisplay.css";
 import { WithTranslation } from "react-i18next";
-import { getClient, apiConfig } from "../../api/config";
+import * as api from "../../api";
 import { Client as BoundlexxClient } from "../../api/client";
 import { StringAPIItems, NumericAPIItems, BaseItems, StringDict, APIParams } from "../../types";
 import { AxiosResponse } from "axios";
@@ -50,7 +50,7 @@ interface BaseProps {
 
 const generatePlaceholders = (targetCount: number | null, items?: BaseItems[]) => {
     if (targetCount === null) {
-        targetCount = apiConfig.pageSize;
+        targetCount = api.config.pageSize;
     }
 
     if (items === undefined) {
@@ -153,7 +153,7 @@ export abstract class APIDisplay extends React.Component<APIDisplayProps> {
             queryParams: "",
         },
         results: {
-            items: generatePlaceholders(apiConfig.pageSize),
+            items: generatePlaceholders(api.config.pageSize),
             count: null,
             nextUrl: null,
         },
@@ -193,7 +193,7 @@ export abstract class APIDisplay extends React.Component<APIDisplayProps> {
 
     getAPIClient = async (): Promise<void> => {
         try {
-            this.client = await getClient(this.context.api, this.props.changeAPIDefinition);
+            this.client = await api.getClient(this.context.api, this.props.changeAPIDefinition);
         } catch (err) {
             this.setAsyncState({ error: err });
         }
@@ -325,7 +325,7 @@ export abstract class APIDisplay extends React.Component<APIDisplayProps> {
 
     callOperation = async (params: APIParams[]): Promise<AxiosResponse> => {
         if (this.client === null) {
-            this.client = await getClient(this.context.api, this.props.changeAPIDefinition);
+            this.client = await api.getClient(this.context.api, this.props.changeAPIDefinition);
         }
 
         // eslint-disable-next-line
@@ -440,8 +440,8 @@ export abstract class APIDisplay extends React.Component<APIDisplayProps> {
 
         // add placeholder cards
         let items = this.state.results.items;
-        if (items.length < apiConfig.pageSize) {
-            items = generatePlaceholders(apiConfig.pageSize, items);
+        if (items.length < api.config.pageSize) {
+            items = generatePlaceholders(api.config.pageSize, items);
         }
         this.setState({ loading: true, error: null, results: { ...this.state.results, items: items } });
 
@@ -450,7 +450,7 @@ export abstract class APIDisplay extends React.Component<APIDisplayProps> {
             // initial request, or lang change
             if (this.state.results.nextUrl === null) {
                 const queryParams: StringDict<string> = {};
-                let params: APIParams[] = [{ name: "limit", value: apiConfig.pageSize, in: "query" }];
+                let params: APIParams[] = [{ name: "limit", value: api.config.pageSize, in: "query" }];
 
                 if (this.props.locale !== null) {
                     params.push({ name: "lang", value: this.props.locale, in: "query" });
@@ -559,7 +559,7 @@ export abstract class APIDisplay extends React.Component<APIDisplayProps> {
             }
         };
 
-        const actualCount = this.state.results.count || apiConfig.pageSize;
+        const actualCount = this.state.results.count || api.config.pageSize;
         const displayCount = !this.state.initialLoad ? "#" : actualCount.toString();
         const foundName = `${this.getName(" FoundWithCount", true, { count: actualCount })}`.replace(
             actualCount.toString(),
@@ -612,7 +612,7 @@ export abstract class APIDisplay extends React.Component<APIDisplayProps> {
                                 return 76;
                             }}
                             usePageCache={true}
-                            renderCount={this.state.results.count || apiConfig.pageSize}
+                            renderCount={this.state.results.count || api.config.pageSize}
                             onPageAdded={onPageAdded}
                         />
                     </FocusZone>

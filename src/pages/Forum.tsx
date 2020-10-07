@@ -19,9 +19,8 @@ import "./Forum.css";
 import WorldSelector from "../components/WorldSelector";
 import { Components, Client as BoundlexxClient } from "../api/client";
 import { StringDict } from "../types";
-import { getClient } from "../api/config";
+import * as api from "../api";
 import { OpenAPIContext } from "react-openapi-client";
-import { changeAPIDefinition } from "../api/actions";
 import { connect, ConnectedProps } from "react-redux";
 import { RootState } from "../store";
 import { getTheme } from "../themes";
@@ -48,7 +47,7 @@ interface State {
     errors: StringDict<string>;
 }
 
-const mapDispatchToProps = { changeAPIDefinition };
+const mapDispatchToProps = { changeAPIDefinition: api.changeAPIDefinition };
 
 const connector = connect(mapState, mapDispatchToProps);
 
@@ -92,7 +91,7 @@ class Forum extends React.Component<Props> {
     }
 
     componentDidMount = async () => {
-        this.client = await getClient(this.context.api, this.props.changeAPIDefinition);
+        this.client = await api.getClient(this.context.api, this.props.changeAPIDefinition);
     };
 
     componentDidUpdate = () => {

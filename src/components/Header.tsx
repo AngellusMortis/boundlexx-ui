@@ -13,13 +13,9 @@ import ThemeSelector from "./ThemeSelector";
 import LanguageSelector from "./LanguageSelector";
 import Link from "./Link";
 import { RootState } from "../store";
-import { changeAPIDefinition } from "../api/actions";
-import { updateColors } from "../api/colors/actions";
-import { updateItems } from "../api/items/actions";
-import { updateWorlds } from "../api/worlds/actions";
 import { connect, ConnectedProps } from "react-redux";
 import { OpenAPIContext } from "react-openapi-client";
-import { getClient } from "../api/config";
+import * as api from "../api";
 import { Client as BoundlexxClient } from "../api/client";
 import { AxiosResponse } from "axios";
 import { BaseItems, APIParams } from "../types";
@@ -35,7 +31,12 @@ const mapState = (state: RootState) => ({
     theme: getTheme(state.prefs.theme),
 });
 
-const mapDispatchToProps = { changeAPIDefinition, updateColors, updateItems, updateWorlds };
+const mapDispatchToProps = {
+    changeAPIDefinition: api.changeAPIDefinition,
+    updateColors: api.updateColors,
+    updateItems: api.updateItems,
+    updateWorlds: api.updateWorlds,
+};
 
 const connector = connect(mapState, mapDispatchToProps);
 
@@ -71,7 +72,7 @@ class Header extends React.Component<Props> {
         this.mounted = true;
 
         // load "essential data"
-        this.client = await getClient(this.context.api, this.props.changeAPIDefinition);
+        this.client = await api.getClient(this.context.api, this.props.changeAPIDefinition);
         // get a specific world
         // this.client.retrieveWorld(320);
 
@@ -107,6 +108,12 @@ class Header extends React.Component<Props> {
         if (results.count !== null && Reflect.ownKeys(results.items).length >= results.count) {
             return;
         }
+
+        if (params === undefined) {
+            params = [];
+        }
+
+        params.push({ name: "limit", value: api.config.pageSize * 2, in: "query" });
 
         console.log(`Preloading ${operationID}...`);
         // eslint-disable-next-line

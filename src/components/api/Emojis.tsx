@@ -4,9 +4,8 @@ import { Card } from "@uifabric/react-cards";
 import { RootState } from "../../store";
 import { connect } from "react-redux";
 import { withTranslation } from "react-i18next";
-import { changeAPIDefinition } from "../../api/actions";
+import * as api from "../../api";
 import { APIDisplay, mapStringStoreToItems } from "./APIDisplay";
-import { updateEmojis } from "../../api/emojis/actions";
 import { getTheme } from "../../themes";
 import toast from "../../toast";
 
@@ -18,7 +17,7 @@ const mapState = (state: RootState) => ({
     results: mapStringStoreToItems(state.emojis),
 });
 
-const mapDispatchToProps = { changeAPIDefinition, updateItems: updateEmojis };
+const mapDispatchToProps = { changeAPIDefinition: api.changeAPIDefinition, updateItems: api.updateEmojis };
 
 const connector = connect(mapState, mapDispatchToProps);
 

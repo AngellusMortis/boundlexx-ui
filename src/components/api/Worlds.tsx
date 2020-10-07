@@ -3,9 +3,8 @@ import { Text, Shimmer, ImageFit, Image } from "@fluentui/react";
 import { RootState } from "../../store";
 import { connect } from "react-redux";
 import { withTranslation } from "react-i18next";
-import { changeAPIDefinition } from "../../api/actions";
+import * as api from "../../api";
 import { APIDisplay, mapNumericStoreToItems } from "./APIDisplay";
-import { updateWorlds } from "../../api/worlds/actions";
 import { getTheme } from "../../themes";
 import { StringDict } from "../../types";
 
@@ -21,7 +20,7 @@ const mapState = (state: RootState) => {
     };
 };
 
-const mapDispatchToProps = { changeAPIDefinition, updateItems: updateWorlds };
+const mapDispatchToProps = { changeAPIDefinition: api.changeAPIDefinition, updateItems: api.updateWorlds };
 
 const connector = connect(mapState, mapDispatchToProps);
 

@@ -22,7 +22,6 @@ initializeIcons();
 
 document.documentElement.style.background = darkTheme.palette.white;
 ReactDOM.render(
-    // renderLoader(),
     <React.Suspense fallback={renderLoader()}>
         <Provider store={store}>
             <PersistGate loading={renderLoader()} persistor={persistor}>

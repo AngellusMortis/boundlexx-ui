@@ -1,7 +1,7 @@
 import React from "react";
 import "./App.css";
 import { OpenAPIProvider } from "react-openapi-client";
-import { apiConfig, getDefinition } from "./api/config";
+import * as api from "./api";
 import { ReactReduxContext } from "react-redux";
 import Header from "./components/Header";
 import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
@@ -30,11 +30,11 @@ function App(): JSX.Element {
         <ReactReduxContext.Consumer>
             {(store) => (
                 <OpenAPIProvider
-                    definition={getDefinition(store.store.getState())}
-                    withServer={apiConfig.server}
+                    definition={api.getDefinition(store.store.getState())}
+                    withServer={api.config.server}
                     // eslint-disable-next-line
                     // @ts-ignore
-                    axiosConfigDefaults={apiConfig.clientConfig}
+                    axiosConfigDefaults={api.config.clientConfig}
                 >
                     <Router>
                         <Header />

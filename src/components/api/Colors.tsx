@@ -4,10 +4,9 @@ import { Card } from "@uifabric/react-cards";
 import { RootState } from "../../store";
 import { connect } from "react-redux";
 import { withTranslation } from "react-i18next";
-import { changeAPIDefinition } from "../../api/actions";
+import * as api from "../../api";
 import { APIDisplay, mapNumericStoreToItems } from "./APIDisplay";
 import { Components } from "../../api/client";
-import { updateColors } from "../../api/colors/actions";
 import { getTheme } from "../../themes";
 
 const mapState = (state: RootState) => ({
@@ -19,7 +18,7 @@ const mapState = (state: RootState) => ({
     loadAll: true,
 });
 
-const mapDispatchToProps = { changeAPIDefinition, updateItems: updateColors };
+const mapDispatchToProps = { changeAPIDefinition: api.changeAPIDefinition, updateItems: api.updateColors };
 
 const connector = connect(mapState, mapDispatchToProps);
 

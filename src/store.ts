@@ -1,10 +1,6 @@
 import { prefsReducer } from "./prefs/reducers";
-import { defReducer } from "./api/reducers";
+import * as api from "./api";
 import { combineReducers, createStore } from "redux";
-import { colorsReducer } from "./api/colors/reducers";
-import { emojisReducer } from "./api/emojis/reducers";
-import { worldsReducer } from "./api/worlds/reducers";
-import { itemsReducer } from "./api/items/reducers";
 import { persistStore, persistReducer } from "redux-persist";
 import storage from "redux-persist/lib/storage";
 // eslint-disable-next-line
@@ -13,11 +9,11 @@ import expireReducer from "redux-persist-expire";
 
 const rootReducer = combineReducers({
     prefs: prefsReducer,
-    api: defReducer,
-    colors: colorsReducer,
-    emojis: emojisReducer,
-    worlds: worldsReducer,
-    items: itemsReducer,
+    api: api.defReducer,
+    colors: api.colorsReducer,
+    emojis: api.emojisReducer,
+    worlds: api.worldsReducer,
+    items: api.itemsReducer,
 });
 
 const persistConfig = {
@@ -32,7 +28,7 @@ const persistConfig = {
             // (Required) Seconds after which store will be expired
             expireSeconds: 14400, // 12 hours
             // (Optional) State to be used for resetting e.g. provide initial reducer state
-            expiredState: { def: null },
+            expiredState: api.defInitialState,
             // (Optional) Use it if you don't want to manually set the time in the reducer i.e. at `persistedAtKey`
             // and want the store to  be automatically expired if the record is not updated in the `expireSeconds` time
             autoExpire: true,
@@ -46,7 +42,7 @@ const persistConfig = {
             // (Required) Seconds after which store will be expired
             expireSeconds: 2592000, // 30 days
             // (Optional) State to be used for resetting e.g. provide initial reducer state
-            expiredState: { count: null, nextUrl: null, results: [], lang: "english" },
+            expiredState: api.colorsInitialState,
             // (Optional) Use it if you don't want to manually set the time in the reducer i.e. at `persistedAtKey`
             // and want the store to  be automatically expired if the record is not updated in the `expireSeconds` time
             autoExpire: true,
@@ -60,7 +56,7 @@ const persistConfig = {
             // (Required) Seconds after which store will be expired
             expireSeconds: 2592000, // 30 days
             // (Optional) State to be used for resetting e.g. provide initial reducer state
-            expiredState: { count: null, nextUrl: null, results: [] },
+            expiredState: api.emojisInitialState,
             // (Optional) Use it if you don't want to manually set the time in the reducer i.e. at `persistedAtKey`
             // and want the store to  be automatically expired if the record is not updated in the `expireSeconds` time
             autoExpire: true,
@@ -74,7 +70,7 @@ const persistConfig = {
             // (Required) Seconds after which store will be expired
             expireSeconds: 2592000, // 30 days
             // (Optional) State to be used for resetting e.g. provide initial reducer state
-            expiredState: { count: null, nextUrl: null, results: [], lang: "english" },
+            expiredState: api.itemsInitialState,
             // (Optional) Use it if you don't want to manually set the time in the reducer i.e. at `persistedAtKey`
             // and want the store to  be automatically expired if the record is not updated in the `expireSeconds` time
             autoExpire: true,
@@ -88,7 +84,7 @@ const persistConfig = {
             // (Required) Seconds after which store will be expired
             expireSeconds: 3600, // 1 hour
             // (Optional) State to be used for resetting e.g. provide initial reducer state
-            expiredState: { count: null, nextUrl: null, results: [], lang: "english" },
+            expiredState: api.worldsInitialState,
             // (Optional) Use it if you don't want to manually set the time in the reducer i.e. at `persistedAtKey`
             // and want the store to  be automatically expired if the record is not updated in the `expireSeconds` time
             autoExpire: true,

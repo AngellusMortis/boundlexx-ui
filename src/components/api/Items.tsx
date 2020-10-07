@@ -3,10 +3,9 @@ import { Shimmer, Text } from "@fluentui/react";
 import { RootState } from "../../store";
 import { connect } from "react-redux";
 import { withTranslation } from "react-i18next";
-import { changeAPIDefinition } from "../../api/actions";
+import * as api from "../../api";
 import { APIDisplay, mapNumericStoreToItems } from "./APIDisplay";
 import { Components } from "../../api/client";
-import { updateItems } from "../../api/items/actions";
 import { getTheme } from "../../themes";
 
 const mapState = (state: RootState) => ({
@@ -18,7 +17,7 @@ const mapState = (state: RootState) => ({
     loadAll: true,
 });
 
-const mapDispatchToProps = { changeAPIDefinition, updateItems: updateItems };
+const mapDispatchToProps = { changeAPIDefinition: api.changeAPIDefinition, updateItems: api.updateItems };
 
 const connector = connect(mapState, mapDispatchToProps);
 

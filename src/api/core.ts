@@ -4,6 +4,7 @@ import { Client as BoundlexxClient } from "./client";
 import { Mutex } from "async-mutex";
 import msgpack from "msgpack-lite";
 
+/* eslint-disable @typescript-eslint/no-explicit-any */
 const mapMsgpack = (root: any, key_map: string[]) => {
     const mappedData: any = root instanceof Array ? [] : {};
 
@@ -31,7 +32,7 @@ const mapMsgpack = (root: any, key_map: string[]) => {
     return mappedData;
 };
 
-export const apiConfig = {
+export const config = {
     apiBase: process.env.REACT_APP_API_BASE_URL,
     server: process.env.REACT_APP_API_SERVER,
     pageSize: 200,
@@ -48,13 +49,7 @@ export const apiConfig = {
         ],
     },
 };
-
-export const getDefinition = (state: RootState): string | OpenAPIV3.Document => {
-    if (state.api.def === null) {
-        return `${apiConfig.apiBase}/schema/?format=openapi-json`;
-    }
-    return state.api.def;
-};
+/* eslint-enable @typescript-eslint/no-explicit-any */
 
 let client: BoundlexxClient | null = null;
 const lock = new Mutex();
@@ -80,4 +75,11 @@ export const getClient = async (
 
         return client;
     });
+};
+
+export const getDefinition = (state: RootState): string | OpenAPIV3.Document => {
+    if (state.api.def === null) {
+        return `${config.apiBase}/schema/?format=openapi-json`;
+    }
+    return state.api.def;
 };
