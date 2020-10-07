@@ -10,3 +10,9 @@
 .world-select {
     margin-bottom: 25px;
 }
+
+.ms-Stack pre {
+    overflow-x: auto;
+    padding: 10px;
+    margin-top: 10px !important;
+}
