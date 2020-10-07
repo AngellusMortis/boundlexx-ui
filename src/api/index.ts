@@ -4,3 +4,6 @@ export { itemsInitialState, updateItems, itemsReducer } from "./items";
 export { emojisInitialState, updateEmojis, emojisReducer } from "./emojis";
 export { colorsInitialState, updateColors, colorsReducer } from "./colors";
 export { config, getClient } from "./core";
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export type updateItems = (results: any[], count?: number | null, nextUrl?: string | null, lang?: string) => unknown;

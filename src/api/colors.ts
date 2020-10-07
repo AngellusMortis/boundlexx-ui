@@ -48,8 +48,8 @@ export function colorsReducer(state = colorsInitialState, action: UpdateColorsAc
 
 export function updateColors(
     items: Components.Schemas.Color[],
-    count?: number,
-    nextUrl?: string,
+    count?: number | null,
+    nextUrl?: string | null,
     lang?: string,
 ): UpdateColorsAction {
     const mapped: NumberDict<Components.Schemas.Color> = {};

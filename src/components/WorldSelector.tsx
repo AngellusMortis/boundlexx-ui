@@ -11,7 +11,7 @@ const mapState = (state: RootState) => ({
 
 interface BaseProps extends ISelectableDroppableTextProps<IComboBox, IComboBox> {
     worldID?: number | null;
-    onWorldChange?: CallableFunction;
+    onWorldChange?: (world: Components.Schemas.KindOfSimpleWorld | null) => void;
 }
 
 const connector = connect(mapState);

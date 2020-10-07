@@ -93,7 +93,7 @@ class Header extends React.Component<Props> {
     loadAll = async (
         results: BaseItems,
         operationID: string,
-        updateMethod: CallableFunction,
+        updateMethod: api.updateItems,
         locale?: string,
         params?: APIParams[],
     ) => {
@@ -126,7 +126,7 @@ class Header extends React.Component<Props> {
         }
     };
 
-    setDataFromResponse(response: AxiosResponse, updateMethod: CallableFunction, locale?: string) {
+    setDataFromResponse(response: AxiosResponse, updateMethod: api.updateItems, locale?: string) {
         let nextURL: string | null = null;
 
         if (this.mounted) {

@@ -48,8 +48,8 @@ export function itemsReducer(state = itemsInitialState, action: UpdateItemsActio
 
 export function updateItems(
     results: Components.Schemas.Item[],
-    count?: number,
-    nextUrl?: string,
+    count?: number | null,
+    nextUrl?: string | null,
     lang?: string,
 ): UpdateItemsAction {
     const mapped: NumberDict<Components.Schemas.Item> = {};

@@ -13,8 +13,14 @@ export interface NumberDict<T> {
 }
 
 export interface BaseItems {
-    // eslint-disable-next-line
-    items: any;
+    items: NumberDict<unknown> | StringDict<unknown>;
+    nextUrl: string | null;
+    count: number | null;
+    lang?: string;
+}
+
+export interface BaseItemsAsArray {
+    items: unknown[];
     nextUrl: string | null;
     count: number | null;
     lang?: string;
@@ -25,21 +31,17 @@ export interface LocalizedBaseItems extends BaseItems {
 }
 
 export interface NumericAPIItems extends BaseItems {
-    // eslint-disable-next-line
-    items: NumberDict<any>;
+    items: NumberDict<unknown>;
 }
 
 export interface LocalizedNumericAPIItems extends LocalizedBaseItems {
-    // eslint-disable-next-line
-    items: NumberDict<any>;
+    items: NumberDict<unknown>;
 }
 
 export interface StringAPIItems extends BaseItems {
-    // eslint-disable-next-line
-    items: StringDict<any>;
+    items: StringDict<unknown>;
 }
 
 export interface LocalizedStringAPIItems extends LocalizedBaseItems {
-    // eslint-disable-next-line
-    items: StringDict<any>;
+    items: StringDict<unknown>;
 }

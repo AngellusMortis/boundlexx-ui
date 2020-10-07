@@ -37,8 +37,8 @@ export function worldsReducer(state = worldsInitialState, action: UpdateWorldsAc
 
 export function updateWorlds(
     results: Components.Schemas.KindOfSimpleWorld[],
-    count?: number,
-    nextUrl?: string,
+    count?: number | null,
+    nextUrl?: string | null,
 ): UpdateWorldsAction {
     const mapped: NumberDict<Components.Schemas.KindOfSimpleWorld> = {};
 

@@ -16,8 +16,9 @@ import "./APIDisplay.css";
 import { WithTranslation } from "react-i18next";
 import * as api from "../../api";
 import { Client as BoundlexxClient } from "../../api/client";
-import { StringAPIItems, NumericAPIItems, BaseItems, StringDict, APIParams } from "../../types";
+import { StringAPIItems, NumericAPIItems, BaseItemsAsArray, BaseItems, StringDict, APIParams } from "../../types";
 import { AxiosResponse } from "axios";
+import { OpenAPIV3 } from "openapi-client-axios";
 
 export interface Filters {
     search: string | null;
@@ -29,7 +30,7 @@ interface State {
     loadedFromStore: boolean;
     loading: boolean;
     filters: Filters;
-    results: BaseItems;
+    results: BaseItemsAsArray;
     error?: Error;
 }
 
@@ -37,17 +38,17 @@ interface BaseProps {
     theme: ITheme;
     locale: string | null;
     loadAll?: boolean;
-    results?: BaseItems;
+    results?: BaseItemsAsArray;
     name?: string;
     operationID?: string;
     extraFilters?: APIParams[];
     extraQSKeys?: string[];
 
-    changeAPIDefinition?: CallableFunction;
-    updateItems?: CallableFunction;
+    changeAPIDefinition?: (definition: OpenAPIV3.Document) => unknown;
+    updateItems?: api.updateItems;
 }
 
-const generatePlaceholders = (targetCount: number | null, items?: BaseItems[]) => {
+const generatePlaceholders = (targetCount: number | null, items?: unknown[]): unknown[] => {
     if (targetCount === null) {
         targetCount = api.config.pageSize;
     }
@@ -65,12 +66,12 @@ const generatePlaceholders = (targetCount: number | null, items?: BaseItems[]) =
     return items;
 };
 
-const mapToItems = (store: BaseItems, mapFunc: CallableFunction): BaseItems | undefined => {
+const mapToItems = (store: BaseItems, mapFunc: () => unknown[]): BaseItemsAsArray | undefined => {
     if (store.items === undefined) {
         return;
     }
 
-    const results: BaseItems = {
+    const results: BaseItemsAsArray = {
         count: store.count,
         nextUrl: store.nextUrl,
         items: [],
@@ -85,9 +86,9 @@ const mapToItems = (store: BaseItems, mapFunc: CallableFunction): BaseItems | un
     return results;
 };
 
-export const mapNumericStoreToItems = (store: NumericAPIItems): BaseItems | undefined => {
-    return mapToItems(store, () => {
-        const results: BaseItems[] = [];
+export const mapNumericStoreToItems = (store: NumericAPIItems): BaseItemsAsArray | undefined => {
+    return mapToItems(store, (): unknown[] => {
+        const results: unknown[] = [];
 
         let ids: number[] = [];
         Reflect.ownKeys(store.items).forEach((key) => {
@@ -114,9 +115,9 @@ export const mapNumericStoreToItems = (store: NumericAPIItems): BaseItems | unde
     });
 };
 
-export const mapStringStoreToItems = (store: StringAPIItems): BaseItems | undefined => {
-    return mapToItems(store, () => {
-        const results: BaseItems[] = [];
+export const mapStringStoreToItems = (store: StringAPIItems): BaseItemsAsArray | undefined => {
+    return mapToItems(store, (): unknown[] => {
+        const results: unknown[] = [];
 
         let ids: string[] = [];
         Reflect.ownKeys(store.items).forEach((key) => {
@@ -220,7 +221,11 @@ export abstract class APIDisplay extends React.Component<APIDisplayProps> {
 
     resetStore = (): void => {
         if (this.props.updateItems !== undefined) {
-            this.props.updateItems([], null, null, this.props.locale);
+            if (this.props.locale === null) {
+                this.props.updateItems([], null, null);
+            } else {
+                this.props.updateItems([], null, null, this.props.locale);
+            }
         }
     };
 
@@ -381,14 +386,11 @@ export abstract class APIDisplay extends React.Component<APIDisplayProps> {
         }
     };
 
-    // eslint-disable-next-line
-    abstract renderCardImage(item: any, index: number | undefined): JSX.Element;
+    abstract renderCardImage(item: unknown, index: number | undefined): JSX.Element;
 
-    // eslint-disable-next-line
-    abstract renderCardDetails(item: any, index: number | undefined): JSX.Element;
+    abstract renderCardDetails(item: unknown, index: number | undefined): JSX.Element;
 
-    // eslint-disable-next-line
-    onRenderCell = (item: any, index: number | undefined) => {
+    onRenderCell = (item: unknown, index: number | undefined): JSX.Element => {
         return (
             <Card
                 data-is-focusable
@@ -505,13 +507,12 @@ export abstract class APIDisplay extends React.Component<APIDisplayProps> {
 
         // remove placeholder results, add new results
         const newResults = this.state.results.items
-            // eslint-disable-next-line
-            .filter((v: any[]) => {
+            .filter((v: unknown) => {
                 return v !== undefined;
             })
             .concat(response.data.results);
 
-        const newItems: BaseItems = {
+        const newItems: BaseItemsAsArray = {
             items: newResults.concat(generatePlaceholders(response.data.count - newResults.length)),
             count: response.data.count,
             nextUrl: response.data.next,

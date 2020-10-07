@@ -35,7 +35,11 @@ export function emojisReducer(state = emojisInitialState, action: UpdateEmojisAc
     return state;
 }
 
-export function updateEmojis(items: Components.Schemas.Emoji[], count?: number, nextUrl?: string): UpdateEmojisAction {
+export function updateEmojis(
+    items: Components.Schemas.Emoji[],
+    count?: number | null,
+    nextUrl?: string | null,
+): UpdateEmojisAction {
     const mapped: StringDict<Components.Schemas.Emoji> = {};
 
     items.forEach((item) => {
