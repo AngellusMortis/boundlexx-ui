@@ -72,6 +72,8 @@ class Header extends React.Component<Props> {
 
         // load "essential data"
         this.client = await getClient(this.context.api, this.props.changeAPIDefinition);
+        // get a specific world
+        // this.client.retrieveWorld(320);
 
         if (window.location.pathname !== "/worlds/") {
             await this.loadAll(this.props.worlds, "listWorldsSimple", this.props.updateWorlds, undefined, [

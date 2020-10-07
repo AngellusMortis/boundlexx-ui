@@ -1,17 +1,17 @@
-.sovereign-details {
+.forum-generator .sovereign-details {
     border: 0;
 }
 
-.help-text {
+.forum-generator .help-text {
     display: inline-block;
     margin-bottom: 10px;
 }
 
-.world-select {
+.forum-generator .world-select {
     margin-bottom: 25px;
 }
 
-.ms-Stack pre {
+.forum-generator .ms-Stack pre {
     overflow-x: auto;
     padding: 10px;
     margin-top: 10px !important;

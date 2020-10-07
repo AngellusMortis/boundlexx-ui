@@ -392,7 +392,7 @@ class Forum extends React.Component<Props> {
         window.history.replaceState(document.title, document.title);
 
         return (
-            <Stack style={{ padding: 50, maxWidth: 700, width: "50vw" }}>
+            <Stack style={{ padding: 50, maxWidth: 700, width: "50vw" }} className="forum-generator">
                 <h2>{page}</h2>
                 {this.renderContent()}
             </Stack>
