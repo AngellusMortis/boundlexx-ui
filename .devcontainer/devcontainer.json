@@ -38,8 +38,7 @@
         "editor.renderWhitespace": "boundary",
         "editor.codeActionsOnSave": {
             "source.fixAll.eslint": true
-        },
-        "typescript.updateImportsOnFileMove.enabled": "always"
+        }
     },
     // Add the IDs of extensions you want installed when the container is created.
     "extensions": [

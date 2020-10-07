@@ -5,7 +5,7 @@ const initialState: APIDefinition = {
 };
 
 export function defReducer(state = initialState, action: ChangeDefinitionAction): APIDefinition {
-    if (action.type == CHANGE_DEFINITION) {
+    if (action.type === CHANGE_DEFINITION) {
         return { ...state, def: action.payload };
     }
     return state;

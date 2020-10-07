@@ -132,7 +132,7 @@ class Forum extends React.Component<Props> {
         }
 
         try {
-            const response = await this.client.post("/api/v1/forum/", data);
+            const response = await this.client.post("/forum/", data);
 
             if (response.status === 200) {
                 this.setState({ template: response.data });
@@ -174,7 +174,7 @@ class Forum extends React.Component<Props> {
                 <legend>{this.props.t("Sovereign Details")}</legend>
                 <TextField required={true} key="username" name="username" label={this.props.t("Username")}></TextField>
                 <Text variant="xSmall" className="help-text">
-                    {this.props.t("Your Boundless Username")}
+                    {this.props.t("Your Boundless Forums Username")}
                 </Text>
                 <TextField
                     required={true}
