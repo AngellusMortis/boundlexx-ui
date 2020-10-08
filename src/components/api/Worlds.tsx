@@ -109,7 +109,7 @@ class Worlds extends APIDisplay {
         } else if (item.is_exo) {
             worldClass = "Exoworld";
         }
-        return worldClass;
+        return this.props.t(worldClass);
     };
 
     renderCardDetails = (item: Components.Schemas.KindOfSimpleWorld) => {
