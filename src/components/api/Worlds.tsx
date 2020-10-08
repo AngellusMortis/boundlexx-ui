@@ -6,7 +6,7 @@ import { withTranslation } from "react-i18next";
 import * as api from "../../api";
 import { APIDisplay, mapNumericStoreToItems } from "./APIDisplay";
 import { getTheme } from "../../themes";
-import { StringDict } from "../../types";
+import { NumberDict, StringDict } from "../../types";
 import { Components } from "../../api/client";
 
 const mapState = (state: RootState) => {
@@ -40,6 +40,12 @@ const TypeNameMap: StringDict<string> = {
     DARKMATTER: "Umbris",
     RIFT: "Rift",
     BLINK: "Blink",
+};
+
+const SizeMap: NumberDict<string> = {
+    192: "3km",
+    288: "4.5km",
+    384: "6km",
 };
 
 const SpecialTypeMap = ["", "Color-Cycling"];
@@ -130,7 +136,7 @@ class Worlds extends APIDisplay {
                 <Shimmer isDataLoaded={loaded} width={60}>
                     {loaded && (
                         <Text variant="tiny">
-                            {this.props.t("ID")}: {item.id}, {this.getStatusText(item)}
+                            {this.props.t("ID")}: {item.id}, {SizeMap[item.size]}, {this.getStatusText(item)}
                         </Text>
                     )}
                 </Shimmer>

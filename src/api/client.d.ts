@@ -18,7 +18,7 @@ declare namespace Components {
             };
             world: {
                 readonly url?: string;
-                readonly id?: number;
+                id: number;
                 /**
                  * Does this world still exist (returned by game API)?
                  */
@@ -51,7 +51,7 @@ declare namespace Components {
             days_since_transform_exo: null | number;
             first_world: {
                 readonly url?: string;
-                readonly id?: number;
+                id: number;
                 /**
                  * Does this world still exist (returned by game API)?
                  */
@@ -62,7 +62,7 @@ declare namespace Components {
             } | null;
             last_exo: {
                 readonly url?: string;
-                readonly id?: number;
+                id: number;
                 /**
                  * Does this world still exist (returned by game API)?
                  */
@@ -73,7 +73,7 @@ declare namespace Components {
             } | null;
             transform_first_world: {
                 readonly url?: string;
-                readonly id?: number;
+                id: number;
                 /**
                  * Does this world still exist (returned by game API)?
                  */
@@ -84,7 +84,7 @@ declare namespace Components {
             } | null;
             transform_last_exo: {
                 readonly url?: string;
-                readonly id?: number;
+                id: number;
                 /**
                  * Does this world still exist (returned by game API)?
                  */
@@ -190,7 +190,7 @@ declare namespace Components {
             days_since_transform_exo: null | number;
             first_world: {
                 readonly url?: string;
-                readonly id?: number;
+                id: number;
                 /**
                  * Does this world still exist (returned by game API)?
                  */
@@ -201,7 +201,7 @@ declare namespace Components {
             } | null;
             last_exo: {
                 readonly url?: string;
-                readonly id?: number;
+                id: number;
                 /**
                  * Does this world still exist (returned by game API)?
                  */
@@ -212,7 +212,7 @@ declare namespace Components {
             } | null;
             transform_first_world: {
                 readonly url?: string;
-                readonly id?: number;
+                id: number;
                 /**
                  * Does this world still exist (returned by game API)?
                  */
@@ -223,7 +223,7 @@ declare namespace Components {
             } | null;
             transform_last_exo: {
                 readonly url?: string;
-                readonly id?: number;
+                id: number;
                 /**
                  * Does this world still exist (returned by game API)?
                  */
@@ -238,7 +238,7 @@ declare namespace Components {
             readonly item_url?: string;
             world: {
                 readonly url?: string;
-                readonly id?: number;
+                id: number;
                 /**
                  * Does this world still exist (returned by game API)?
                  */
@@ -258,7 +258,7 @@ declare namespace Components {
             readonly item_url?: string;
             world: {
                 readonly url?: string;
-                readonly id?: number;
+                id: number;
                 /**
                  * Does this world still exist (returned by game API)?
                  */
@@ -284,11 +284,8 @@ declare namespace Components {
         }
         export interface KindOfSimpleWorld {
             readonly url?: string;
-            readonly id?: number;
-            /**
-             * Does this world still exist (returned by game API)?
-             */
-            active?: boolean;
+            id: number;
+            active: boolean;
             image_url: string | null; // binary
             display_name: string;
             text_name: string | null;
@@ -297,7 +294,7 @@ declare namespace Components {
              * Tier of the world. Starts at 0.
              */
             tier: number;
-            size?: null | number;
+            size: number;
             world_type:
                 | "LUSH"
                 | "METAL"
@@ -315,17 +312,11 @@ declare namespace Components {
              * `1` = Color-Cycling
              */
             special_type: null | number;
-            readonly is_sovereign?: string;
-            readonly is_perm?: string;
-            readonly is_exo?: string;
-            /**
-             * If the world is a creative one
-             */
-            is_creative?: boolean | null;
-            /**
-             * If this world is locked (only `true` for Soverign worlds)
-             */
-            is_locked?: boolean | null;
+            is_sovereign: boolean;
+            is_perm: boolean;
+            is_exo: boolean;
+            is_creative: boolean;
+            is_locked: boolean;
         }
         export interface PossibleColor {
             color: {
@@ -426,7 +417,7 @@ declare namespace Components {
             location: string;
             world: {
                 readonly url?: string;
-                readonly id?: number;
+                id: number;
                 /**
                  * Does this world still exist (returned by game API)?
                  */
@@ -446,7 +437,7 @@ declare namespace Components {
             location: string;
             world: {
                 readonly url?: string;
-                readonly id?: number;
+                id: number;
                 /**
                  * Does this world still exist (returned by game API)?
                  */
@@ -463,7 +454,7 @@ declare namespace Components {
         }
         export interface SimpleWorld {
             readonly url?: string;
-            readonly id?: number;
+            id: number;
             /**
              * Does this world still exist (returned by game API)?
              */
@@ -560,21 +551,18 @@ declare namespace Components {
             next_request_basket_update: string | null; // date-time
             readonly shop_stands_url?: string | null;
             next_shop_stand_update: string | null; // date-time
-            readonly id?: number;
-            /**
-             * Does this world still exist (returned by game API)?
-             */
-            active?: boolean;
-            name?: string | null;
+            id: number;
+            active: boolean;
+            name: string;
             display_name: string;
-            text_name?: string | null;
-            html_name?: string | null;
-            address?: string | null;
+            text_name: string | null;
+            html_name: string | null;
+            address: string;
             image_url: string | null; // binary
-            forum_url: string | null; // uri ^(?:[a-z0-9.+-]*)://(?:[^\s:@/]+(?::[^\s:@/]*)?@)?(?:(?:25[0-5]|2[0-4]\d|[0-1]?\d?\d)(?:\.(?:25[0-5]|2[0-4]\d|[0-1]?\d?\d)){3}|\[[0-9a-f:.]+\]|([a-z¡-￿0-9](?:[a-z¡-￿0-9-]{0,61}[a-z¡-￿0-9])?(?:\.(?!-)[a-z¡-￿0-9-]{1,63}(?<!-))*\.(?!-)(?:[a-z¡-￿-]{2,63}|xn--[a-z0-9]{1,59})(?<!-)\.?|localhost))(?::\d{2,5})?(?:[/?#][^\s]*)?\z
+            forum_url: string | null;
             assignment: {
                 readonly url?: string;
-                readonly id?: number;
+                id: number;
                 /**
                  * Does this world still exist (returned by game API)?
                  */
@@ -582,16 +570,13 @@ declare namespace Components {
                 display_name: string;
                 text_name?: string | null;
                 html_name?: string | null;
-            };
-            /**
-             * Server Region
-             */
-            region?: "use" | "usw" | "euc" | "aus" | "sandbox";
+            } | null;
+            region: "use" | "usw" | "euc" | "aus" | "sandbox";
             /**
              * Tier of the world. Starts at 0.
              */
             tier: number;
-            size?: null | number;
+            size: number;
             world_type:
                 | "LUSH"
                 | "METAL"
@@ -618,31 +603,22 @@ declare namespace Components {
                 name: string;
             };
             time_offset?: string | null; // date-time
-            readonly is_sovereign?: string;
-            readonly is_perm?: string;
-            readonly is_exo?: string;
-            /**
-             * If the world is a creative one
-             */
-            is_creative?: boolean | null;
-            /**
-             * If this world is locked (only `true` for Soverign worlds)
-             */
-            is_locked?: boolean | null;
-            /**
-             * If this world is public
-             */
-            is_public?: boolean | null;
-            is_public_edit?: boolean | null;
-            is_public_claim?: boolean | null;
-            is_finalized?: boolean | null;
-            number_of_regions?: null | number;
-            start?: string | null; // date-time
-            end?: string | null; // date-time
+            is_sovereign: boolean;
+            is_perm: boolean;
+            is_exo: boolean;
+            is_creative: boolean;
+            is_locked: boolean;
+            is_public: boolean;
+            is_public_edit: boolean | null;
+            is_public_claim: boolean | null;
+            is_finalized: boolean | null;
+            number_of_regions: number;
+            start: string | null; // date-time
+            end: string | null; // date-time
             readonly atmosphere_color?: string;
             readonly water_color?: string;
-            readonly surface_liquid?: string;
-            readonly core_liquid?: string;
+            surface_liquid: string;
+            core_liquid: string;
             bows: {
                 best: string[];
                 neutral: string[];
@@ -686,7 +662,7 @@ declare namespace Components {
                 days_since_transform_exo: null | number;
                 first_world: {
                     readonly url?: string;
-                    readonly id?: number;
+                    id: number;
                     /**
                      * Does this world still exist (returned by game API)?
                      */
@@ -697,7 +673,7 @@ declare namespace Components {
                 } | null;
                 last_exo: {
                     readonly url?: string;
-                    readonly id?: number;
+                    id: number;
                     /**
                      * Does this world still exist (returned by game API)?
                      */
@@ -708,7 +684,7 @@ declare namespace Components {
                 } | null;
                 transform_first_world: {
                     readonly url?: string;
-                    readonly id?: number;
+                    id: number;
                     /**
                      * Does this world still exist (returned by game API)?
                      */
@@ -719,7 +695,7 @@ declare namespace Components {
                 } | null;
                 transform_last_exo: {
                     readonly url?: string;
-                    readonly id?: number;
+                    id: number;
                     /**
                      * Does this world still exist (returned by game API)?
                      */
@@ -734,7 +710,7 @@ declare namespace Components {
             color: string;
             world: {
                 readonly url?: string;
-                readonly id?: number;
+                id: number;
                 /**
                  * Does this world still exist (returned by game API)?
                  */
@@ -767,7 +743,7 @@ declare namespace Components {
             days_since_transform_exo: null | number;
             first_world: {
                 readonly url?: string;
-                readonly id?: number;
+                id: number;
                 /**
                  * Does this world still exist (returned by game API)?
                  */
@@ -778,7 +754,7 @@ declare namespace Components {
             } | null;
             last_exo: {
                 readonly url?: string;
-                readonly id?: number;
+                id: number;
                 /**
                  * Does this world still exist (returned by game API)?
                  */
@@ -789,7 +765,7 @@ declare namespace Components {
             } | null;
             transform_first_world: {
                 readonly url?: string;
-                readonly id?: number;
+                id: number;
                 /**
                  * Does this world still exist (returned by game API)?
                  */
@@ -800,7 +776,7 @@ declare namespace Components {
             } | null;
             transform_last_exo: {
                 readonly url?: string;
-                readonly id?: number;
+                id: number;
                 /**
                  * Does this world still exist (returned by game API)?
                  */
@@ -813,7 +789,7 @@ declare namespace Components {
         export interface WorldDistance {
             world_source: {
                 readonly url?: string;
-                readonly id?: number;
+                id: number;
                 /**
                  * Does this world still exist (returned by game API)?
                  */
@@ -824,7 +800,7 @@ declare namespace Components {
             };
             world_dest: {
                 readonly url?: string;
-                readonly id?: number;
+                id: number;
                 /**
                  * Does this world still exist (returned by game API)?
                  */
@@ -840,19 +816,16 @@ declare namespace Components {
             min_conduits: null | number;
         }
         export interface WorldDump {
-            readonly id?: number;
-            /**
-             * Does this world still exist (returned by game API)?
-             */
-            active?: boolean;
-            name?: string | null;
+            id: number;
+            active: boolean;
+            name: string;
             display_name: string;
-            address?: string | null;
+            address: string;
             image_url: string | null; // binary
-            forum_url: string | null; // uri ^(?:[a-z0-9.+-]*)://(?:[^\s:@/]+(?::[^\s:@/]*)?@)?(?:(?:25[0-5]|2[0-4]\d|[0-1]?\d?\d)(?:\.(?:25[0-5]|2[0-4]\d|[0-1]?\d?\d)){3}|\[[0-9a-f:.]+\]|([a-z¡-￿0-9](?:[a-z¡-￿0-9-]{0,61}[a-z¡-￿0-9])?(?:\.(?!-)[a-z¡-￿0-9-]{1,63}(?<!-))*\.(?!-)(?:[a-z¡-￿-]{2,63}|xn--[a-z0-9]{1,59})(?<!-)\.?|localhost))(?::\d{2,5})?(?:[/?#][^\s]*)?\z
+            forum_url: string | null;
             assignment: {
                 readonly url?: string;
-                readonly id?: number;
+                id: number;
                 /**
                  * Does this world still exist (returned by game API)?
                  */
@@ -860,16 +833,13 @@ declare namespace Components {
                 display_name: string;
                 text_name?: string | null;
                 html_name?: string | null;
-            };
-            /**
-             * Server Region
-             */
-            region?: "use" | "usw" | "euc" | "aus" | "sandbox";
+            } | null;
+            region: "use" | "usw" | "euc" | "aus" | "sandbox";
             /**
              * Tier of the world. Starts at 0.
              */
             tier: number;
-            size?: null | number;
+            size: number;
             world_type:
                 | "LUSH"
                 | "METAL"
@@ -892,28 +862,19 @@ declare namespace Components {
                 name: string;
             };
             time_offset?: string | null; // date-time
-            readonly is_sovereign?: string;
-            readonly is_perm?: string;
-            readonly is_exo?: string;
-            /**
-             * If the world is a creative one
-             */
-            is_creative?: boolean | null;
-            /**
-             * If this world is locked (only `true` for Soverign worlds)
-             */
-            is_locked?: boolean | null;
-            /**
-             * If this world is public
-             */
-            is_public?: boolean | null;
-            number_of_regions?: null | number;
-            start?: string | null; // date-time
-            end?: string | null; // date-time
+            is_sovereign: boolean;
+            is_perm: boolean;
+            is_exo: boolean;
+            is_creative: boolean;
+            is_locked: boolean;
+            is_public: boolean;
+            number_of_regions: number;
+            start: string | null; // date-time
+            end: string | null; // date-time
             readonly atmosphere_color?: string;
             readonly water_color?: string;
-            readonly surface_liquid?: string;
-            readonly core_liquid?: string;
+            surface_liquid: string;
+            core_liquid: string;
             block_colors: {
                 item: {
                     readonly url?: string;
@@ -949,7 +910,7 @@ declare namespace Components {
                 days_since_transform_exo: null | number;
                 first_world: {
                     readonly url?: string;
-                    readonly id?: number;
+                    id: number;
                     /**
                      * Does this world still exist (returned by game API)?
                      */
@@ -960,7 +921,7 @@ declare namespace Components {
                 } | null;
                 last_exo: {
                     readonly url?: string;
-                    readonly id?: number;
+                    id: number;
                     /**
                      * Does this world still exist (returned by game API)?
                      */
@@ -971,7 +932,7 @@ declare namespace Components {
                 } | null;
                 transform_first_world: {
                     readonly url?: string;
-                    readonly id?: number;
+                    id: number;
                     /**
                      * Does this world still exist (returned by game API)?
                      */
@@ -982,7 +943,7 @@ declare namespace Components {
                 } | null;
                 transform_last_exo: {
                     readonly url?: string;
-                    readonly id?: number;
+                    id: number;
                     /**
                      * Does this world still exist (returned by game API)?
                      */
@@ -997,7 +958,7 @@ declare namespace Components {
                 readonly time?: string; // date-time
                 world: {
                     readonly url?: string;
-                    readonly id?: number;
+                    id: number;
                     /**
                      * Does this world still exist (returned by game API)?
                      */
@@ -1039,7 +1000,7 @@ declare namespace Components {
             readonly time?: string; // date-time
             world: {
                 readonly url?: string;
-                readonly id?: number;
+                id: number;
                 /**
                  * Does this world still exist (returned by game API)?
                  */
