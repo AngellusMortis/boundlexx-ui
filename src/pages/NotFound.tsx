@@ -1,6 +1,7 @@
 import React from "react";
 import { withTranslation, WithTranslation } from "react-i18next";
 import { Stack, Text, Link } from "@fluentui/react";
+import { config } from "../api";
 
 class NotFound extends React.Component<WithTranslation> {
     render() {
@@ -22,7 +23,9 @@ class NotFound extends React.Component<WithTranslation> {
                 <h1>{boundlexx}</h1>
                 <h2>{page}</h2>
                 <Text variant="large">
-                    <Link href="https://api.boundlexx.app/api/v1/">{this.props.t("API Documentation")}</Link>
+                    <Link href={config.apiBase} target="_blank">
+                        {this.props.t("API Documentation")}
+                    </Link>
                 </Text>
             </Stack>
         );
