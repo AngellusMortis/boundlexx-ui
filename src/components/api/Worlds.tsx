@@ -16,7 +16,7 @@ const mapState = (state: RootState) => {
         loadAll: true,
         results: mapNumericStoreToItems(state.worlds),
         name: "World",
-        operationID: "listWorldsSimple",
+        operationID: "listWorlds",
         extraFilters: [{ name: "show_inactive", value: true, in: "query" }],
     };
 };
@@ -55,7 +55,7 @@ class Worlds extends APIDisplay {
         return;
     };
 
-    renderCardImage = (item: Components.Schemas.KindOfSimpleWorld) => {
+    renderCardImage = (item: Components.Schemas.SimpleWorld) => {
         if (item === undefined) {
             return <div></div>;
         }
@@ -84,7 +84,7 @@ class Worlds extends APIDisplay {
         );
     };
 
-    getStatusText = (item: Components.Schemas.KindOfSimpleWorld) => {
+    getStatusText = (item: Components.Schemas.SimpleWorld) => {
         return item.is_locked
             ? this.props.t("Locked")
             : item.active
@@ -92,7 +92,7 @@ class Worlds extends APIDisplay {
             : this.props.t("Inactive");
     };
 
-    getSpecialType = (item: Components.Schemas.KindOfSimpleWorld) => {
+    getSpecialType = (item: Components.Schemas.SimpleWorld) => {
         let specialType = "";
         if (item.special_type !== null && item.special_type > 0) {
             specialType = `${this.props.t(SpecialTypeMap[item.special_type])} `;
@@ -100,7 +100,7 @@ class Worlds extends APIDisplay {
         return specialType;
     };
 
-    getWorldClass = (item: Components.Schemas.KindOfSimpleWorld) => {
+    getWorldClass = (item: Components.Schemas.SimpleWorld) => {
         let worldClass = "Homeworld";
         if (item.is_creative) {
             worldClass = "Creative World";
@@ -112,7 +112,7 @@ class Worlds extends APIDisplay {
         return this.props.t(worldClass);
     };
 
-    renderCardDetails = (item: Components.Schemas.KindOfSimpleWorld) => {
+    renderCardDetails = (item: Components.Schemas.SimpleWorld) => {
         const loaded = item !== undefined;
 
         return (

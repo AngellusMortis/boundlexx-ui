@@ -14,7 +14,7 @@
     // Set *default* container specific settings.json values on container create.
     "settings": {
         "terminal.integrated.shell.linux": "/bin/bash",
-        "tslint.configFile": "${workspaceFolder}/boundlexx-ui.tsoncif.json",
+        "tslint.configFile": "${workspaceFolder}/tsconfig.json",
         "tslint.jsEnable": true,
         "eslint.validate": ["javascript", "javascriptreact", "typescript", "typescriptreact"],
         "[javascriptreact]": {
@@ -45,7 +45,8 @@
         "dbaeumer.vscode-eslint",
         "esbenp.prettier-vscode",
         "ms-vscode.vscode-typescript-tslint-plugin",
-        "msjsdiag.debugger-for-chrome"
+        "ms-edgedevtools.vscode-edge-devtools",
+        "msjsdiag.debugger-for-edge"
     ],
     // Uncomment the next line if you want start specific services in your Docker Compose config.
     "runServices": ["web"],

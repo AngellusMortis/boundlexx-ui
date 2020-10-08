@@ -1,0 +1,19 @@
+{
+    // See https://go.microsoft.com/fwlink/?LinkId=733558
+    // for the documentation about the tasks.json format
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Generate OpenAPI Client Type Bindings (Prod)",
+            "type": "shell",
+            "command": "${workspaceFolder}/bin/typegen.sh https://api.boundlexx.app/api/v2/schema/?format=openapi-json",
+            "problemMatcher": []
+        },
+        {
+            "label": "Generate OpenAPI Client Type Bindings (Local)",
+            "type": "shell",
+            "command": "${workspaceFolder}/bin/typegen.sh https://local-boundlexx.wl.mort.is/api/v2/schema/?format=openapi-json",
+            "problemMatcher": []
+        }
+    ]
+}

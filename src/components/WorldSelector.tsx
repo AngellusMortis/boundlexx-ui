@@ -11,7 +11,7 @@ const mapState = (state: RootState) => ({
 
 interface BaseProps extends ISelectableDroppableTextProps<IComboBox, IComboBox> {
     worldID?: number | null;
-    onWorldChange?: (world: Components.Schemas.KindOfSimpleWorld | null) => void;
+    onWorldChange?: (world: Components.Schemas.SimpleWorld | null) => void;
 }
 
 const connector = connect(mapState);
@@ -81,7 +81,7 @@ class WorldSelector extends React.Component<Props> {
     };
 
     onChange = (event: React.FormEvent<IComboBox>, option?: IComboBoxOption) => {
-        let newWorld: Components.Schemas.KindOfSimpleWorld | null = null;
+        let newWorld: Components.Schemas.SimpleWorld | null = null;
 
         if (option !== undefined) {
             let key = option.key;
