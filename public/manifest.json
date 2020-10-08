@@ -1,10 +1,15 @@
 {
     "short_name": "Boundlexx",
     "name": "Boundlexx - A Boundless Lexicon",
+    "description": "A Website that provides infromation about the MMO sandbox game Boundless",
+    "categories": ["games", "entertainment"],
+    "orientation": "portrait-primary",
     "icons": [
         {
             "src": "https://cdn.boundlexx.app/logos/logo.svg",
-            "type": "image/svg+xml"
+            "type": "image/svg+xml",
+            "sizes": "256x256 512x512 1024x1024",
+            "purpose": "any maskable"
         },
         {
             "src": "https://cdn.boundlexx.app/logos/logo.png",
@@ -13,11 +18,46 @@
             "purpose": "any maskable"
         },
         {
-            "src": "https://cdn.boundlexx.app/logos/logo.ico"
+            "src": "https://cdn.boundlexx.app/logos/logo.ico",
+            "sizes": "16x16 24x24 32x32 48x48 64x64 96x96 128x128 192x192 256x256",
+            "purpose": "any maskable"
         }
     ],
     "start_url": ".",
+    "scope": "/",
     "display": "standalone",
     "theme_color": "#ec375e",
-    "background_color": "#18181a"
+    "background_color": "#18181a",
+    "shortcuts": [
+        {
+            "name": "Open Worlds",
+            "short_name": "Worlds",
+            "description": "Open Worlds Page",
+            "url": "/worlds/"
+        },
+        {
+            "name": "Open Items",
+            "short_name": "Items",
+            "description": "Open Items Page",
+            "url": "/items/"
+        },
+        {
+            "name": "Open Colors",
+            "short_name": "Colors",
+            "description": "Open Colors Page",
+            "url": "/colors/"
+        },
+        {
+            "name": "Open Emojis",
+            "short_name": "Emojis",
+            "description": "Open Emojis Page",
+            "url": "/emojis/"
+        },
+        {
+            "name": "Open Forum Generator",
+            "short_name": "Forum Generator",
+            "description": "Open Forum Generator Page",
+            "url": "/forum/"
+        }
+    ]
 }

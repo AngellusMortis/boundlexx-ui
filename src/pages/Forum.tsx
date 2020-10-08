@@ -118,7 +118,7 @@ class Forum extends React.Component<Props> {
 
         if (pre !== null && pre.textContent !== null) {
             navigator.clipboard.writeText(pre.textContent).then(() => {
-                toast(this.props.theme, `Copied to clipboard!`);
+                toast(`Copied to clipboard!`);
             });
         }
     };

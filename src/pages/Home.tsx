@@ -22,7 +22,9 @@ class Home extends React.Component<WithTranslation> {
                 <h1>{boundlexx}</h1>
                 <h2>{page}</h2>
                 <Text variant="large">
-                    <Link href="https://api.boundlexx.app/api/v1/">{this.props.t("API Documentation")}</Link>
+                    <Link href="https://api.boundlexx.app/api/v1/" target="_blank">
+                        {this.props.t("API Documentation")}
+                    </Link>
                 </Text>
             </Stack>
         );

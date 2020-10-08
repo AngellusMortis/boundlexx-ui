@@ -1,22 +1,26 @@
 import { toast as sendToast, ToastContent, ToastOptions } from "react-toastify";
-import { ITheme } from "@fluentui/react";
-import { darkTheme } from "./themes";
+import { isDark, getTheme } from "./themes";
 
-const toast = (theme: ITheme, message: string): void => {
+const toast = (message: string | JSX.Element, options?: ToastOptions): void => {
     let toastFunc: (content: ToastContent, options: ToastOptions) => void = sendToast;
+    const theme = getTheme();
 
-    if (theme === darkTheme) {
+    if (isDark()) {
         toastFunc = sendToast.dark;
     }
 
-    toastFunc(message, {
-        style: {
-            fontFamily: theme.fonts.medium.fontFamily,
-        },
-        progressStyle: {
-            background: theme.palette.themePrimary,
-        },
-    });
+    if (options === undefined) {
+        options = {};
+    }
+
+    options.style = {
+        fontFamily: theme.fonts.medium.fontFamily,
+    };
+    options.progressStyle = {
+        background: theme.palette.themePrimary,
+    };
+
+    toastFunc(message, options);
 };
 
 export default toast;

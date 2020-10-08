@@ -43,7 +43,7 @@ class Emojis extends APIDisplay {
         const names = pre.innerHTML.split(" ");
         const name = names[names.length - 1];
         navigator.clipboard.writeText(name).then(() => {
-            toast(this.props.theme, `Emoji (${name}) copied to clipboard!`);
+            toast(`Emoji (${name}) copied to clipboard!`);
         });
     };
 

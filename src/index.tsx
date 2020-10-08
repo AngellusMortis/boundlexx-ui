@@ -1,13 +1,14 @@
 import React from "react";
 import ReactDOM from "react-dom";
 import "./index.css";
-import "./i18n";
+import i18n from "./i18n";
 import * as serviceWorker from "./serviceWorker";
-import { Fabric, initializeIcons } from "@fluentui/react";
+import { Fabric, initializeIcons, loadTheme, Text } from "@fluentui/react";
 import { darkTheme } from "./themes";
 import { store, persistor } from "./store";
 import { Provider } from "react-redux";
 import { PersistGate } from "redux-persist/integration/react";
+import toast from "./toast";
 
 const App = React.lazy(() => import("./App"));
 
@@ -19,6 +20,7 @@ const renderLoader = () => (
 );
 
 initializeIcons();
+loadTheme(darkTheme);
 
 document.documentElement.style.background = darkTheme.palette.white;
 ReactDOM.render(
@@ -37,4 +39,33 @@ ReactDOM.render(
 // If you want your app to work offline and load faster, you can change
 // unregister() to register() below. Note this comes with some pitfalls.
 // Learn more about service workers: https://bit.ly/CRA-PWA
-serviceWorker.register();
+serviceWorker.register({
+    onUpdate: (registration: ServiceWorkerRegistration) => {
+        const updateServiceWorker = () => {
+            if (registration.waiting) {
+                registration.waiting.postMessage({ type: "SKIP_WAITING" });
+
+                registration.waiting.addEventListener("statechange", (ev: Event) => {
+                    const target = ev.target as ServiceWorker;
+
+                    if (target !== null && target.state === "activated") {
+                        window.location.reload();
+                    }
+                });
+            }
+        };
+
+        const message = (
+            <div>
+                <Text style={{ display: "block" }}>{i18n.t("There is a new version of Boundlexx UI.")}</Text>
+                <Text variant="small" style={{ display: "block" }}>
+                    {i18n.t("Click here to update.")}
+                </Text>
+            </div>
+        );
+
+        toast(message, {
+            onClick: updateServiceWorker,
+        });
+    },
+});

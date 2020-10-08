@@ -104,6 +104,8 @@ const resources = {
             Exoworld: "Exoworld",
             "Creative World": "Creative World",
             "Sovereign World": "Sovereign World",
+            "There is a new version of Boundlexx UI.": "There is a new version of Boundlexx UI.",
+            "Click here to update.": "Click here to update.",
         },
     },
     fr: {
@@ -206,6 +208,8 @@ const resources = {
             Exoworld: "Exoworld",
             "Creative World": "Creative World",
             "Sovereign World": "Sovereign World",
+            "There is a new version of Boundlexx UI.": "There is a new version of Boundlexx UI.",
+            "Click here to update.": "Click here to update.",
         },
     },
     de: {
@@ -308,6 +312,8 @@ const resources = {
             Exoworld: "Exoworld",
             "Creative World": "Creative World",
             "Sovereign World": "Sovereign World",
+            "There is a new version of Boundlexx UI.": "There is a new version of Boundlexx UI.",
+            "Click here to update.": "Click here to update.",
         },
     },
     it: {
@@ -411,6 +417,8 @@ const resources = {
             Exoworld: "Exoworld",
             "Creative World": "Creative World",
             "Sovereign World": "Sovereign World",
+            "There is a new version of Boundlexx UI.": "C'è una uova versione di Boundlexx UI.",
+            "Click here to update.": "Clicca qui per aggiornare.",
         },
     },
     es: {
@@ -513,6 +521,8 @@ const resources = {
             Exoworld: "Exoworld",
             "Creative World": "Creative World",
             "Sovereign World": "Sovereign World",
+            "There is a new version of Boundlexx UI.": "There is a new version of Boundlexx UI.",
+            "Click here to update.": "Click here to update.",
         },
     },
 };
