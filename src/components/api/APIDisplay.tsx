@@ -19,6 +19,7 @@ import { Client as BoundlexxClient } from "../../api/client";
 import { StringAPIItems, NumericAPIItems, BaseItemsAsArray, BaseItems, StringDict, APIParams } from "../../types";
 import { AxiosResponse } from "axios";
 import { OpenAPIV3 } from "openapi-client-axios";
+import { RouteComponentProps } from "react-router-dom";
 
 export interface Filters {
     search: string | null;
@@ -134,7 +135,7 @@ export const mapStringStoreToItems = (store: StringAPIItems): BaseItemsAsArray |
     });
 };
 
-export type APIDisplayProps = WithTranslation & BaseProps;
+export type APIDisplayProps = RouteComponentProps & WithTranslation & BaseProps;
 
 const SEARCH_TIMEOUT = 1000;
 

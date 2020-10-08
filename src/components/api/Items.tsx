@@ -7,6 +7,7 @@ import * as api from "../../api";
 import { APIDisplay, mapNumericStoreToItems } from "./APIDisplay";
 import { Components } from "../../api/client";
 import { getTheme } from "../../themes";
+import { withRouter } from "react-router-dom";
 
 const mapState = (state: RootState) => ({
     theme: getTheme(state.prefs.theme),
@@ -49,4 +50,4 @@ class Items extends APIDisplay {
     };
 }
 
-export default connector(withTranslation()(Items));
+export default connector(withRouter(withTranslation()(Items)));

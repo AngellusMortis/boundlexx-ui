@@ -8,6 +8,7 @@ import { APIDisplay, mapNumericStoreToItems } from "./APIDisplay";
 import { getTheme } from "../../themes";
 import { NumberDict, StringDict } from "../../types";
 import { Components } from "../../api/client";
+import { withRouter } from "react-router-dom";
 
 const mapState = (state: RootState) => {
     return {
@@ -51,8 +52,30 @@ const SizeMap: NumberDict<string> = {
 const SpecialTypeMap = ["", "Color-Cycling"];
 
 class Worlds extends APIDisplay {
-    onCardClick = () => {
-        return;
+    onCardClick = (event: React.MouseEvent<HTMLElement, MouseEvent> | undefined) => {
+        if (event === undefined) {
+            return;
+        }
+
+        const card = (event.target as HTMLElement).closest(".ms-List-cell");
+
+        if (card === null) {
+            return;
+        }
+
+        const details = card.querySelector(".world-card");
+
+        if (details === null) {
+            return;
+        }
+
+        const id = details.getAttribute("data-world-id");
+
+        if (id === null) {
+            return;
+        }
+
+        this.props.history.push(`/worlds/${id}/`);
     };
 
     renderCardImage = (item: Components.Schemas.KindOfSimpleWorld) => {
@@ -60,24 +83,12 @@ class Worlds extends APIDisplay {
             return <div></div>;
         }
 
-        if (item.image_url === null) {
-            return (
-                <Image
-                    imageFit={ImageFit.centerCover}
-                    maximizeFrame={true}
-                    shouldFadeIn={true}
-                    src="https://cdn.boundlexx.app/worlds/unknown.png"
-                    className="card-preview"
-                    alt={item.text_name || item.display_name}
-                ></Image>
-            );
-        }
         return (
             <Image
                 imageFit={ImageFit.centerCover}
                 maximizeFrame={true}
                 shouldFadeIn={true}
-                src={item.image_url}
+                src={item.image_url || "https://cdn.boundlexx.app/worlds/unknown.png"}
                 className="card-preview"
                 alt={item.text_name || item.display_name}
             ></Image>
@@ -116,7 +127,7 @@ class Worlds extends APIDisplay {
         const loaded = item !== undefined;
 
         return (
-            <div>
+            <div className="world-card" data-world-id={item.id}>
                 <Shimmer isDataLoaded={loaded} width={80}>
                     {loaded && (
                         <Text>
@@ -145,4 +156,4 @@ class Worlds extends APIDisplay {
     };
 }
 
-export default connector(withTranslation()(Worlds));
+export default connector(withRouter(withTranslation()(Worlds)));

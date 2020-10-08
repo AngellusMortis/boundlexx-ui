@@ -9,6 +9,7 @@ import { APIDisplay, mapStringStoreToItems } from "./APIDisplay";
 import { getTheme } from "../../themes";
 import toast from "../../toast";
 import { Components } from "../../api/client";
+import { withRouter } from "react-router-dom";
 
 const mapState = (state: RootState) => ({
     theme: getTheme(state.prefs.theme),
@@ -101,4 +102,4 @@ class Emojis extends APIDisplay {
     };
 }
 
-export default connector(withTranslation()(Emojis));
+export default connector(withRouter(withTranslation()(Emojis)));
