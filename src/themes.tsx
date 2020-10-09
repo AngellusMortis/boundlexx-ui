@@ -34,12 +34,12 @@ export const darkTheme = createTheme({
 // Primary Color: #ec375e
 // Text Color: #191a21
 // Background Color: #f6f7fb
-// changed themePrimary from ec375e to 505466
+// changed themePrimary from ec375e to BB0000
 // changed neutralLighter from f6f7fa to a5a7b4
 // changed neutralTertiaryAlt from f8f9fc to d1d2d6
 export const lightTheme = createTheme({
     palette: {
-        themePrimary: "#505466",
+        themePrimary: "#BB0000",
         themeLighterAlt: "#090204",
         themeLighter: "#26090f",
         themeLight: "#47101c",

@@ -12,6 +12,7 @@ import Forum from "./pages/Forum";
 import { Stack } from "@fluentui/react";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import WorldDetails from "./pages/WorldDetails";
 
 function App(): JSX.Element {
     // enforce trailing slash
@@ -35,12 +36,6 @@ function App(): JSX.Element {
                 style={{ height: "calc(100vh - 119px)", textAlign: "center" }}
             >
                 <Switch>
-                    <Route path="/worlds/" exact strict>
-                        <Worlds />
-                    </Route>
-                    <Route path="/items/" exact strict>
-                        <Items />
-                    </Route>
                     <Route path="/colors/" exact strict>
                         <Colors />
                     </Route>
@@ -49,6 +44,18 @@ function App(): JSX.Element {
                     </Route>
                     <Route path="/forum/" exact strict>
                         <Forum />
+                    </Route>
+                    <Route path="/items/" exact strict>
+                        <Items />
+                    </Route>
+                    <Route
+                        path="/worlds/:id(\d+)/"
+                        exact
+                        strict
+                        render={(props) => <WorldDetails id={props.match.params.id} />}
+                    />
+                    <Route path="/worlds/" exact strict>
+                        <Worlds />
                     </Route>
                     <Route path="/" exact strict>
                         <Home />
