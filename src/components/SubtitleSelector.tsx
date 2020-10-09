@@ -6,12 +6,12 @@ import { withTranslation, WithTranslation } from "react-i18next";
 import { Components } from "../api/client";
 
 const mapState = (state: RootState) => ({
-    worlds: state.worlds.items || {},
+    items: state.items.items || {},
 });
 
 interface BaseProps extends ISelectableDroppableTextProps<IComboBox, IComboBox> {
-    worldID?: number | null;
-    onWorldChange?: (world: Components.Schemas.SimpleWorld | null) => void;
+    subtitleID?: number | null;
+    onSubtitleChange?: (item: Components.Schemas.SimpleItem | null) => void;
 }
 
 const connector = connect(mapState);
@@ -22,7 +22,7 @@ interface State {
 
 type Props = WithTranslation & BaseProps & ConnectedProps<typeof connector>;
 
-class WorldSelector extends React.Component<Props> {
+class SubtitleSelector extends React.Component<Props> {
     state: State;
 
     constructor(props: Props) {
@@ -33,17 +33,21 @@ class WorldSelector extends React.Component<Props> {
         };
 
         // Pass inital world back up
-        if (this.props.worldID !== null && this.props.worldID !== undefined && this.props.onWorldChange !== undefined) {
-            const world = this.getWorldFromID(this.props.worldID);
+        if (
+            this.props.subtitleID !== null &&
+            this.props.subtitleID !== undefined &&
+            this.props.onSubtitleChange !== undefined
+        ) {
+            const item = this.getItemFromSubtitleID(this.props.subtitleID);
 
-            if (world !== null) {
-                this.props.onWorldChange(world);
+            if (item !== null) {
+                this.props.onSubtitleChange(item);
             }
         }
     }
 
     componentDidUpdate = (prevProps: Props) => {
-        if (Reflect.ownKeys(this.props.worlds).length !== Reflect.ownKeys(prevProps.worlds).length) {
+        if (Reflect.ownKeys(this.props.items).length !== Reflect.ownKeys(prevProps.items).length) {
             this.setState({ options: this.optionsFromProps() });
         }
     };
@@ -51,7 +55,8 @@ class WorldSelector extends React.Component<Props> {
     optionsFromProps = () => {
         const options: IComboBoxOption[] = [];
 
-        Reflect.ownKeys(this.props.worlds).forEach((key) => {
+        const subtitleIDs: number[] = [];
+        Reflect.ownKeys(this.props.items).forEach((key) => {
             if (typeof key !== "number") {
                 if (typeof key === "string") {
                     key = parseInt(key);
@@ -62,10 +67,13 @@ class WorldSelector extends React.Component<Props> {
                 }
             }
 
-            if (this.props.worlds[key].text_name !== undefined && this.props.worlds[key].id !== undefined) {
+            const item = this.props.items[key];
+            if (subtitleIDs.indexOf(item.item_subtitle.id) <= -1) {
+                subtitleIDs.push(item.item_subtitle.id);
+
                 options.push({
-                    key: key,
-                    text: `${this.props.worlds[key].text_name} (ID: ${this.props.worlds[key].id})`,
+                    key: item.item_subtitle.id,
+                    text: item.item_subtitle.localization[0].name,
                 });
             }
         });
@@ -73,15 +81,18 @@ class WorldSelector extends React.Component<Props> {
         return options;
     };
 
-    getWorldFromID = (id: number) => {
-        if (id in this.props.worlds) {
-            return this.props.worlds[id];
+    getItemFromSubtitleID = (id: number): Components.Schemas.SimpleItem | null => {
+        for (const index in this.props.items) {
+            const item = this.props.items[index];
+            if (item.item_subtitle.id === id) {
+                return item;
+            }
         }
         return null;
     };
 
     onChange = (event: React.FormEvent<IComboBox>, option?: IComboBoxOption) => {
-        let newWorld: Components.Schemas.SimpleWorld | null = null;
+        let newItem: Components.Schemas.SimpleItem | null = null;
 
         if (option !== undefined) {
             let key = option.key;
@@ -89,11 +100,11 @@ class WorldSelector extends React.Component<Props> {
                 key = parseInt(key);
             }
 
-            newWorld = this.getWorldFromID(key);
+            newItem = this.getItemFromSubtitleID(key);
         }
 
-        if (this.props.onWorldChange !== undefined) {
-            this.props.onWorldChange(newWorld);
+        if (this.props.onSubtitleChange !== undefined) {
+            this.props.onSubtitleChange(newItem);
         }
     };
 
@@ -113,7 +124,7 @@ class WorldSelector extends React.Component<Props> {
     };
 
     render() {
-        const label = this.props.label || "World";
+        const label = this.props.label || "Subtitle";
         return (
             <ComboBox
                 placeholder={this.props.t(`Select ${label}`)}
@@ -122,11 +133,11 @@ class WorldSelector extends React.Component<Props> {
                 allowFreeform
                 options={this.state.options}
                 onChange={this.onChange}
-                text={this.getValueFromID(this.props.worldID)}
+                text={this.getValueFromID(this.props.subtitleID)}
                 {...this.props}
             ></ComboBox>
         );
     }
 }
 
-export default connector(withTranslation()(WorldSelector));
+export default connector(withTranslation()(SubtitleSelector));

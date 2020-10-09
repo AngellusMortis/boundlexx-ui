@@ -9,6 +9,7 @@ import { Components } from "../../api/client";
 import { getTheme } from "../../themes";
 import { withRouter } from "react-router-dom";
 import { StringDict } from "../../types";
+import SubtitleSelector from "../SubtitleSelector";
 
 const mapState = (state: RootState) => ({
     theme: getTheme(state.prefs.theme),
@@ -25,6 +26,10 @@ const mapState = (state: RootState) => ({
         {
             name: "is_resource",
             type: "boolean",
+        },
+        {
+            name: "item_subtitle_id",
+            type: "number",
         },
     ],
 });
@@ -59,8 +64,15 @@ class Items extends APIDisplay {
         }
     };
 
+    onUpdateSubtitle = (item: Components.Schemas.SimpleItem | null) => {
+        const id = item === null ? null : item.item_subtitle.id.toString();
+
+        this.resetState(this.updateQueryParam({ item_subtitle_id: id }));
+    };
+
     renderFilters = (): JSX.Element => {
         const filters: StringDict<string> = this.state.filters.extraFilters || {};
+        const subtitleID = filters["item_subtitle_id"] === undefined ? null : parseInt(filters["item_subtitle_id"]);
 
         return (
             <Stack horizontal wrap horizontalAlign="center" verticalAlign="center">
@@ -92,6 +104,9 @@ class Items extends APIDisplay {
                         onChange={this.onUpdateFilter}
                     ></Dropdown>
                 </Stack.Item>
+                <Stack.Item styles={{ root: { margin: "5px 20px" } }}>
+                    <SubtitleSelector label="Type" subtitleID={subtitleID} onSubtitleChange={this.onUpdateSubtitle} />
+                </Stack.Item>
             </Stack>
         );
     };
@@ -111,9 +126,12 @@ class Items extends APIDisplay {
                 <Shimmer isDataLoaded={loaded} width={100}>
                     {loaded && <Text>{item.localization[0].name}</Text>}
                 </Shimmer>
+                <Shimmer isDataLoaded={loaded} width={100}>
+                    {loaded && <Text variant="small">{item.item_subtitle.localization[0].name}</Text>}
+                </Shimmer>
                 <Shimmer isDataLoaded={loaded} width={60}>
                     {loaded && (
-                        <Text variant="small">
+                        <Text variant="xSmall">
                             {this.props.t("ID")}: {item.game_id}
                         </Text>
                     )}

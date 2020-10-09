@@ -1,5 +1,5 @@
 import React from "react";
-import { Text, Shimmer, Image, ImageFit } from "@fluentui/react";
+import { Text, Shimmer, Image, ImageFit, Stack, Dropdown, IDropdownOption } from "@fluentui/react";
 import { Card } from "@uifabric/react-cards";
 import { RootState } from "../../store";
 import { connect } from "react-redux";
@@ -10,6 +10,7 @@ import { getTheme } from "../../themes";
 import toast from "../../toast";
 import { Components } from "../../api/client";
 import { withRouter } from "react-router-dom";
+import { StringDict } from "../../types";
 
 const mapState = (state: RootState) => ({
     theme: getTheme(state.prefs.theme),
@@ -17,6 +18,12 @@ const mapState = (state: RootState) => ({
     operationID: "listEmojis",
     name: "Emoji",
     results: mapStringStoreToItems(state.emojis),
+    extraFilterKeys: [
+        {
+            name: "is_boundless_only",
+            type: "boolean",
+        },
+    ],
 });
 
 const mapDispatchToProps = { changeAPIDefinition: api.changeAPIDefinition, updateItems: api.updateEmojis };
@@ -48,8 +55,44 @@ class Emojis extends APIDisplay {
         });
     };
 
+    onUpdateFilter = (event: React.FormEvent<HTMLDivElement>, option?: IDropdownOption | undefined) => {
+        if (option !== undefined) {
+            const dropdown = event.target as HTMLDivElement;
+            const key = dropdown.getAttribute("data-filter-name");
+
+            if (key !== null && ["is_boundless_only"].indexOf(key) > -1) {
+                const params: StringDict<string | null> = {};
+                params[key] = option.key.toString();
+                params[key] = params[key] === "" ? null : params[key];
+
+                this.resetState(this.updateQueryParam(params));
+            }
+        }
+    };
+
     renderFilters = (): JSX.Element => {
-        return <div></div>;
+        const filters: StringDict<string> = this.state.filters.extraFilters || {};
+
+        return (
+            <Stack horizontal wrap horizontalAlign="center" verticalAlign="center">
+                <Stack.Item styles={{ root: { margin: "5px 20px" } }}>
+                    <Dropdown
+                        styles={{ dropdown: { width: 100 } }}
+                        label={this.props.t("Boundless Specific")}
+                        data-filter-name="is_boundless_only"
+                        options={[
+                            { key: "", text: this.props.t("No Value") },
+                            { key: "true", text: this.props.t("Yes") },
+                            { key: "false", text: this.props.t("No") },
+                        ]}
+                        defaultSelectedKey={
+                            filters["is_boundless_only"] === undefined ? "" : filters["is_boundless_only"]
+                        }
+                        onChange={this.onUpdateFilter}
+                    ></Dropdown>
+                </Stack.Item>
+            </Stack>
+        );
     };
 
     getNames = (item: Components.Schemas.Emoji) => {

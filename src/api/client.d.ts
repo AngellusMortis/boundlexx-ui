@@ -27,6 +27,7 @@ declare namespace Components {
         }
         export interface Emoji {
             names: string[];
+            is_boundless_only: boolean;
             image_url: string | null; // binary
         }
         export interface Item {
@@ -40,6 +41,7 @@ declare namespace Components {
                 name: string;
             }[];
             item_subtitle: {
+                id: number;
                 localization: {
                     lang: string;
                     name: string;
@@ -71,6 +73,13 @@ declare namespace Components {
                 lang: string;
                 name: string;
             }[];
+            item_subtitle: {
+                id: number;
+                localization: {
+                    lang: string;
+                    name: string;
+                }[];
+            };
         }
         export interface SimpleWorld {
             id: number;
@@ -221,7 +230,7 @@ declare namespace Components {
             is_public_edit: boolean | null;
             is_public_claim: boolean | null;
             is_finalized: boolean | null;
-            number_of_regions: number;
+            number_of_regions: null | number;
             start: string | null; // date-time
             end: string | null; // date-time
             atmosphere_color: string;
@@ -307,6 +316,7 @@ declare namespace Paths {
     }
     namespace ListEmojis {
         namespace Parameters {
+            export type IsBoundlessOnly = string;
             export type Limit = number;
             export type Offset = number;
             export type Ordering = string;
@@ -315,6 +325,7 @@ declare namespace Paths {
         export interface QueryParameters {
             limit?: Parameters.Limit;
             offset?: Parameters.Offset;
+            is_boundless_only?: Parameters.IsBoundlessOnly;
             search?: Parameters.Search;
             ordering?: Parameters.Ordering;
         }
@@ -343,6 +354,7 @@ declare namespace Paths {
         namespace Parameters {
             export type HasColors = string;
             export type IsResource = string;
+            export type ItemSubtitleId = string;
             export type Lang = "english" | "french" | "german" | "italian" | "spanish" | "none" | "all";
             export type Limit = number;
             export type Offset = number;
@@ -354,6 +366,7 @@ declare namespace Paths {
             limit?: Parameters.Limit;
             offset?: Parameters.Offset;
             string_id?: Parameters.StringId;
+            item_subtitle_id?: Parameters.ItemSubtitleId;
             lang?: Parameters.Lang;
             has_colors?: Parameters.HasColors;
             is_resource?: Parameters.IsResource;
@@ -563,6 +576,7 @@ declare namespace Paths {
     }
     namespace RetrieveEmoji {
         namespace Parameters {
+            export type IsBoundlessOnly = string;
             export type Name = string;
             export type Ordering = string;
             export type Search = string;
@@ -571,6 +585,7 @@ declare namespace Paths {
             name: Parameters.Name;
         }
         export interface QueryParameters {
+            is_boundless_only?: Parameters.IsBoundlessOnly;
             search?: Parameters.Search;
             ordering?: Parameters.Ordering;
         }
@@ -583,6 +598,7 @@ declare namespace Paths {
             export type GameId = string;
             export type HasColors = string;
             export type IsResource = string;
+            export type ItemSubtitleId = string;
             export type Lang = "english" | "french" | "german" | "italian" | "spanish" | "none" | "all";
             export type Ordering = string;
             export type Search = string;
@@ -593,6 +609,7 @@ declare namespace Paths {
         }
         export interface QueryParameters {
             string_id?: Parameters.StringId;
+            item_subtitle_id?: Parameters.ItemSubtitleId;
             lang?: Parameters.Lang;
             has_colors?: Parameters.HasColors;
             is_resource?: Parameters.IsResource;
