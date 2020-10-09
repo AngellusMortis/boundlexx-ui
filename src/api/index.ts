@@ -3,6 +3,7 @@ export { worldsInitialState, updateWorlds, worldsReducer } from "./worlds";
 export { itemsInitialState, updateItems, itemsReducer } from "./items";
 export { emojisInitialState, updateEmojis, emojisReducer } from "./emojis";
 export { colorsInitialState, updateColors, colorsReducer } from "./colors";
+export { TierNameMap, TypeNameMap, SizeMap, RegionNameMap, getStatusText, getSpecialType, getWorldClass } from "./data";
 export { config, getClient } from "./core";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any

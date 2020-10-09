@@ -6,7 +6,6 @@ import { withTranslation } from "react-i18next";
 import * as api from "../../api";
 import { APIDisplay, mapNumericStoreToItems } from "./APIDisplay";
 import { getTheme } from "../../themes";
-import { NumberDict, StringDict } from "../../types";
 import { Components } from "../../api/client";
 import { withRouter } from "react-router-dom";
 
@@ -25,31 +24,6 @@ const mapState = (state: RootState) => {
 const mapDispatchToProps = { changeAPIDefinition: api.changeAPIDefinition, updateItems: api.updateWorlds };
 
 const connector = connect(mapState, mapDispatchToProps);
-
-const TierNameMap = ["Placid", "Temperate", "Rugged", "Inhospitable", "Turbulent", "Fierce", "Savage", "Brutal"];
-
-const TypeNameMap: StringDict<string> = {
-    LUSH: "Lush",
-    METAL: "Metal",
-    COAL: "Coal",
-    CORROSIVE: "Corrosive",
-    SHOCK: "Shock",
-    BLAST: "Blast",
-    TOXIC: "Toxic",
-    CHILL: "Chill",
-    BURN: "Burn",
-    DARKMATTER: "Umbris",
-    RIFT: "Rift",
-    BLINK: "Blink",
-};
-
-const SizeMap: NumberDict<string> = {
-    192: "3km",
-    288: "4.5km",
-    384: "6km",
-};
-
-const SpecialTypeMap = ["", "Color-Cycling"];
 
 class Worlds extends APIDisplay {
     onCardClick = (event: React.MouseEvent<HTMLElement, MouseEvent> | undefined) => {
@@ -95,39 +69,16 @@ class Worlds extends APIDisplay {
         );
     };
 
-    getStatusText = (item: Components.Schemas.SimpleWorld) => {
-        return item.is_locked
-            ? this.props.t("Locked")
-            : item.active
-            ? this.props.t("Active")
-            : this.props.t("Inactive");
-    };
-
-    getSpecialType = (item: Components.Schemas.SimpleWorld) => {
-        let specialType = "";
-        if (item.special_type !== null && item.special_type > 0) {
-            specialType = `${this.props.t(SpecialTypeMap[item.special_type])} `;
-        }
-        return specialType;
-    };
-
-    getWorldClass = (item: Components.Schemas.SimpleWorld) => {
-        let worldClass = "Homeworld";
-        if (item.is_creative) {
-            worldClass = "Creative World";
-        } else if (item.is_sovereign) {
-            worldClass = "Sovereign World";
-        } else if (item.is_exo) {
-            worldClass = "Exoworld";
-        }
-        return this.props.t(worldClass);
-    };
-
     renderCardDetails = (item: Components.Schemas.SimpleWorld) => {
         const loaded = item !== undefined;
 
+        let specialType = null;
+        if (loaded) {
+            specialType = api.getSpecialType(item);
+        }
+
         return (
-            <div className="world-card" data-world-id={item.id}>
+            <div className="world-card" data-world-id={loaded ? item.id : ""}>
                 <Shimmer isDataLoaded={loaded} width={80}>
                     {loaded && (
                         <Text>
@@ -138,16 +89,17 @@ class Worlds extends APIDisplay {
                 <Shimmer isDataLoaded={loaded} width={150}>
                     {loaded && (
                         <Text variant="xSmall">
-                            T{item.tier + 1} - {this.props.t(TierNameMap[item.tier])}{" "}
-                            {this.props.t(TypeNameMap[item.world_type])} {this.getSpecialType(item)}{" "}
-                            {this.getWorldClass(item)}
+                            T{item.tier + 1} - {this.props.t(api.TierNameMap[item.tier])}{" "}
+                            {this.props.t(api.TypeNameMap[item.world_type])}{" "}
+                            {specialType == null ? "" : specialType + " "} {this.props.t(api.getWorldClass(item))}
                         </Text>
                     )}
                 </Shimmer>
                 <Shimmer isDataLoaded={loaded} width={60}>
                     {loaded && (
                         <Text variant="tiny">
-                            {this.props.t("ID")}: {item.id}, {SizeMap[item.size]}, {this.getStatusText(item)}
+                            {this.props.t("ID")}: {item.id}, {api.SizeMap[item.size]},{" "}
+                            {this.props.t(api.getStatusText(item))}
                         </Text>
                     )}
                 </Shimmer>
