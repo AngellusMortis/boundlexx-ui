@@ -11,6 +11,7 @@ import toast from "../../toast";
 import { Components } from "../../api/client";
 import { withRouter } from "react-router-dom";
 import { StringDict } from "../../types";
+import { Mutex } from "async-mutex";
 
 const mapState = (state: RootState) => ({
     theme: getTheme(state.prefs.theme),
@@ -31,6 +32,8 @@ const mapDispatchToProps = { changeAPIDefinition: api.changeAPIDefinition, updat
 const connector = connect(mapState, mapDispatchToProps);
 
 class Emojis extends APIDisplay {
+    copyLock = new Mutex();
+
     onCardClick = (event: React.MouseEvent<HTMLElement, MouseEvent> | undefined) => {
         if (event === undefined) {
             return;
@@ -48,11 +51,21 @@ class Emojis extends APIDisplay {
             return;
         }
 
-        const names = pre.innerHTML.split(" ");
-        const name = names[names.length - 1];
-        navigator.clipboard.writeText(name).then(() => {
-            toast(`Emoji (${name}) copied to clipboard!`);
-        });
+        if (!this.copyLock.isLocked()) {
+            this.copyLock.runExclusive(async () => {
+                const names = pre.innerHTML.split(" ");
+                const name = names[names.length - 1];
+                await navigator.clipboard.writeText(name);
+
+                const message = (
+                    <Text>
+                        Emoji (<pre style={{ display: "inline" }}>{name}</pre>) copied to clipboard!
+                    </Text>
+                );
+
+                toast(message);
+            });
+        }
     };
 
     onUpdateFilter = (event: React.FormEvent<HTMLDivElement>, option?: IDropdownOption | undefined) => {
