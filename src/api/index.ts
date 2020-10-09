@@ -14,7 +14,7 @@ export {
     getWorldClass,
     PointsToLevelsMap,
 } from "./data";
-export { config, getClient } from "./core";
+export { config, getClient, throttle } from "./core";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type updateItems = (results: any[], count?: number | null, nextUrl?: string | null, lang?: string) => unknown;

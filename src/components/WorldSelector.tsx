@@ -97,6 +97,21 @@ class WorldSelector extends React.Component<Props> {
         }
     };
 
+    getValueFromID = (worldID?: number | null | undefined) => {
+        if (worldID === null || worldID === undefined) {
+            return "";
+        }
+
+        for (const index in this.state.options) {
+            const option = this.state.options[index];
+            if (worldID === option.key) {
+                return option.text;
+            }
+        }
+
+        return "";
+    };
+
     render() {
         return (
             <ComboBox
@@ -106,6 +121,7 @@ class WorldSelector extends React.Component<Props> {
                 options={this.state.options}
                 onChange={this.onChange}
                 defaultSelectedKey={this.props.worldID || ""}
+                text={this.getValueFromID(this.props.worldID)}
                 {...this.props}
             ></ComboBox>
         );

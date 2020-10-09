@@ -52,26 +52,35 @@ export const config = {
     apiBase: process.env.REACT_APP_API_BASE_URL,
     server: process.env.REACT_APP_API_SERVER,
     pageSize: 200,
+    throttle: 200,
     clientConfig: clientConfig,
 };
 /* eslint-enable @typescript-eslint/no-explicit-any */
 
+export const throttle = () => {
+    return new Promise((resolve) => setTimeout(resolve, config.throttle));
+};
+
 let client: BoundlexxClient | null = null;
 const lock = new Mutex();
 
-const getDefinition = (state: RootState): string | OpenAPIV3.Document => {
-    if (state.api.def === null) {
+const getDefinition = (state: RootState, force?: boolean): string | OpenAPIV3.Document => {
+    if (state.api.def === null || force) {
         return `${config.apiBase}/schema/?format=openapi-json`;
     }
     return state.api.def;
 };
 
-export const getClient = async (): Promise<BoundlexxClient> => {
-    if (client !== null) {
+export const getClient = async (force?: boolean): Promise<BoundlexxClient> => {
+    if (client !== null && !force) {
         return client;
     }
 
-    const def = getDefinition(store.getState() as RootState);
+    if (force) {
+        console.warn("Could not find operation. Force reloading OpenAPI Client...");
+    }
+
+    const def = getDefinition(store.getState() as RootState, force);
     const api = new OpenAPIClientAxios({ definition: def, axiosConfigDefaults: config.clientConfig });
 
     if (config.server !== undefined) {

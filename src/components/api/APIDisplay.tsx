@@ -10,6 +10,8 @@ import {
     DefaultButton,
     FocusZone,
     ITheme,
+    IconButton,
+    TeachingBubble,
 } from "@fluentui/react";
 import { Card } from "@uifabric/react-cards";
 import "./APIDisplay.css";
@@ -21,14 +23,16 @@ import { AxiosResponse } from "axios";
 import { OpenAPIV3 } from "openapi-client-axios";
 import { RouteComponentProps } from "react-router-dom";
 
-export interface Filter {
+export interface FilterValidator {
     name: string;
-    value: string;
+    type: string;
+    choices?: string[];
+    validate?: (value: string) => boolean;
 }
 
 export interface Filters {
     search: string | null;
-    extraFilters?: Filter[];
+    extraFilters?: StringDict<string>;
     queryParams: string;
 }
 
@@ -37,6 +41,8 @@ interface State {
     loadedFromStore: boolean;
     loading: boolean;
     filters: Filters;
+    filtersVisible: boolean;
+    filtersHelp: boolean;
     results: BaseItemsAsArray;
     error?: Error;
 }
@@ -49,7 +55,7 @@ interface BaseProps {
     name?: string;
     operationID?: string;
     extraDefaultFilters?: APIParams[];
-    extraFilterKeys?: string[];
+    extraFilterKeys?: FilterValidator[];
 
     changeAPIDefinition?: (definition: OpenAPIV3.Document) => unknown;
     updateItems?: api.updateItems;
@@ -157,6 +163,8 @@ export abstract class APIDisplay extends React.Component<APIDisplayProps> {
             search: null,
             queryParams: "",
         },
+        filtersVisible: false,
+        filtersHelp: false,
         results: {
             items: generatePlaceholders(api.config.pageSize),
             count: null,
@@ -168,6 +176,7 @@ export abstract class APIDisplay extends React.Component<APIDisplayProps> {
 
         const filters = this.updateQueryParam(this.getParamsDict(window.location.search), true);
         if (filters !== null) {
+            this.state.filtersVisible = true;
             this.state.filters = filters;
         } else if (props.results !== undefined) {
             if (props.locale === null || props.locale === props.results.lang) {
@@ -212,7 +221,7 @@ export abstract class APIDisplay extends React.Component<APIDisplayProps> {
         if (this.props.locale !== prevProps.locale) {
             // lang changed, clear stored items
             this.resetStore();
-            this.resetState();
+            this.resetState(this.state.filters);
         }
     }
 
@@ -238,7 +247,7 @@ export abstract class APIDisplay extends React.Component<APIDisplayProps> {
             };
 
             if (this.props.extraFilterKeys !== undefined && this.props.extraFilterKeys.length > 0) {
-                filters.extraFilters = [];
+                filters.extraFilters = {};
             }
         }
 
@@ -270,7 +279,7 @@ export abstract class APIDisplay extends React.Component<APIDisplayProps> {
         });
     };
 
-    getParamsDict = (queryString: string) => {
+    getParamsDict = (queryString: string): StringDict<string> => {
         const urlParams = new URLSearchParams(queryString);
         const params: StringDict<string> = {};
         urlParams.forEach((value, key) => {
@@ -280,9 +289,60 @@ export abstract class APIDisplay extends React.Component<APIDisplayProps> {
         return params;
     };
 
-    abstract validateParam(paramName: string, paramValue: string): boolean;
+    validateParam = (paramName: string, paramValue: string): boolean => {
+        if (this.props.extraFilterKeys === undefined) {
+            return false;
+        }
 
-    updateQueryParam = (params: StringDict<string>, replace?: boolean): Filters | null => {
+        let filterKey: FilterValidator | null = null;
+        for (const index in this.props.extraFilterKeys) {
+            const filter = this.props.extraFilterKeys[index];
+            if (filter.name === paramName) {
+                filterKey = filter;
+                break;
+            }
+        }
+
+        if (filterKey === null) {
+            return false;
+        }
+
+        if (filterKey.choices !== undefined) {
+            return filterKey.choices.indexOf(paramValue) > -1;
+        }
+
+        switch (filterKey.type) {
+            case "boolean":
+                if (paramValue !== "true" && paramValue !== "false") {
+                    return false;
+                }
+                break;
+            case "number":
+                if (isNaN(parseInt(paramValue))) {
+                    return false;
+                }
+                break;
+            case "date":
+                try {
+                    const date = new Date(paramValue);
+
+                    if (date.toISOString() !== paramValue) {
+                        return false;
+                    }
+                } catch (err) {
+                    return false;
+                }
+                break;
+        }
+
+        if (filterKey.validate !== undefined) {
+            return filterKey.validate(paramValue);
+        }
+
+        return true;
+    };
+
+    updateQueryParam = (params: StringDict<string | null>, replace?: boolean): Filters | null => {
         const existingParams = this.getParamsDict(this.state.filters.queryParams);
 
         if (!replace) {
@@ -292,25 +352,27 @@ export abstract class APIDisplay extends React.Component<APIDisplayProps> {
         let allowedKeys = ["search"];
 
         if (this.props.extraFilterKeys !== undefined) {
-            allowedKeys = allowedKeys.concat(this.props.extraFilterKeys);
+            allowedKeys = allowedKeys.concat(this.props.extraFilterKeys.map((f) => f.name));
         }
 
-        for (const key in Object.keys(params)) {
-            let deleteKey = allowedKeys.indexOf(key) <= -1;
+        const finalParams: StringDict<string> = {};
+        for (const key in params) {
+            const value = params[key];
+            let deleteKey = allowedKeys.indexOf(key) <= -1 || value == null;
 
-            if (!deleteKey && key !== "search") {
-                deleteKey = this.validateParam(key, params[key]);
+            if (!deleteKey && key !== "search" && value !== null) {
+                deleteKey = !this.validateParam(key, value);
             }
 
-            if (deleteKey) {
-                delete params[key];
+            if (!deleteKey && value !== null) {
+                finalParams[key] = value;
             }
         }
 
-        const urlEncoded = new URLSearchParams(params).toString();
+        const urlEncoded = new URLSearchParams(finalParams).toString();
         if (urlEncoded !== this.state.filters.queryParams) {
             this.setQueryParams(urlEncoded);
-            return this.getFiltersFromParams(params, urlEncoded);
+            return this.getFiltersFromParams(finalParams, urlEncoded);
         }
 
         return null;
@@ -329,8 +391,6 @@ export abstract class APIDisplay extends React.Component<APIDisplayProps> {
         );
     };
 
-    abstract getExtraFilters(params: StringDict<string>, urlEncoded: string): Filter[];
-
     getFiltersFromParams = (params: StringDict<string>, urlEncoded: string): Filters => {
         const filters: Filters = {
             search: params["search"] || null,
@@ -338,10 +398,10 @@ export abstract class APIDisplay extends React.Component<APIDisplayProps> {
         };
 
         if (this.props.extraFilterKeys !== undefined && this.props.extraFilterKeys.length > 0) {
-            filters.extraFilters = this.getExtraFilters(params, urlEncoded);
-            this.props.extraFilterKeys.forEach((key) => {
-                if (filters.extraFilters !== undefined) {
-                    filters.extraFilters.push({ name: key, value: params[key] });
+            filters.extraFilters = {};
+            this.props.extraFilterKeys.forEach((filterKey) => {
+                if (filters.extraFilters !== undefined && filterKey.name in params) {
+                    filters.extraFilters[filterKey.name] = params[filterKey.name];
                 }
             });
         }
@@ -380,7 +440,8 @@ export abstract class APIDisplay extends React.Component<APIDisplayProps> {
         const operation = this.client[this.props.operationID];
 
         if (operation === undefined) {
-            throw new Error("Bad Operation ID");
+            this.client = await api.getClient(true);
+            return this.callOperation(params);
         }
 
         return await operation(params);
@@ -394,8 +455,7 @@ export abstract class APIDisplay extends React.Component<APIDisplayProps> {
     };
 
     search = (newSearch: string): void => {
-        const filters = this.updateQueryParam({ search: newSearch });
-        this.resetState(filters);
+        this.resetState(this.updateQueryParam({ search: newSearch }));
     };
 
     clearSearch = (): void => {
@@ -404,8 +464,7 @@ export abstract class APIDisplay extends React.Component<APIDisplayProps> {
             this.clearSearchTimer();
         }, 100);
 
-        this.setQueryParams("");
-        this.resetState();
+        this.resetState(this.updateQueryParam({ search: null }));
     };
 
     onSearchChange = (event: React.ChangeEvent<HTMLInputElement> | undefined, newValue?: string): void => {
@@ -414,6 +473,10 @@ export abstract class APIDisplay extends React.Component<APIDisplayProps> {
         this.searchTimer = setTimeout(() => {
             this.onSearch(event, newValue);
         }, SEARCH_TIMEOUT);
+    };
+
+    onClearFilters = (): void => {
+        this.resetState(this.updateQueryParam({}, true));
     };
 
     onSearch = (event: React.ChangeEvent<HTMLInputElement> | undefined, newValue?: string): void => {
@@ -471,6 +534,23 @@ export abstract class APIDisplay extends React.Component<APIDisplayProps> {
         }
     };
 
+    onFilterToggleClick = (): void => {
+        // do not allow hiding of filters if there are active filters
+        if (
+            this.state.filters.extraFilters !== undefined &&
+            Reflect.ownKeys(this.state.filters.extraFilters).length > 0
+        ) {
+            if (!this.state.filtersVisible) {
+                this.setState({ filtersVisible: true });
+            } else {
+                this.setState({ filtersHelp: true });
+            }
+            return;
+        }
+
+        this.setState({ filtersVisible: !this.state.filtersVisible });
+    };
+
     abstract onCardClick(event: React.MouseEvent<HTMLElement, MouseEvent> | undefined): void;
 
     // eslint-disable-next-line
@@ -514,13 +594,13 @@ export abstract class APIDisplay extends React.Component<APIDisplayProps> {
                 }
 
                 if (this.state.filters.extraFilters !== undefined) {
-                    this.state.filters.extraFilters.forEach((filter) => {
+                    for (const key in this.state.filters.extraFilters) {
                         params.push({
-                            name: filter.name,
-                            value: filter.value,
+                            name: key,
+                            value: this.state.filters.extraFilters[key],
                             in: "query",
                         });
-                    });
+                    }
                 }
 
                 if (this.props.extraDefaultFilters !== undefined) {
@@ -579,9 +659,48 @@ export abstract class APIDisplay extends React.Component<APIDisplayProps> {
 
         this.setAsyncState({ results: newItems, initialLoad: true, loading: false }, () => {
             if (this.props.loadAll && this.state.results.nextUrl !== null) {
-                this.getData();
+                setTimeout(() => {
+                    if (this.mounted) {
+                        this.getData();
+                    }
+                }, api.config.throttle);
             }
         });
+    };
+
+    abstract renderFilters(): JSX.Element;
+
+    onFiltersHelpDismiss = (): void => {
+        this.setState({ filtersHelp: false });
+    };
+
+    renderFiltersToggle = (): JSX.Element => {
+        if (this.props.extraFilterKeys !== undefined && this.props.extraFilterKeys.length > 0) {
+            return (
+                <div>
+                    <IconButton
+                        id="filters-button"
+                        iconProps={{ iconName: "Filter" }}
+                        checked={this.state.filtersVisible}
+                        onClick={this.onFilterToggleClick}
+                    ></IconButton>
+
+                    {this.state.filtersHelp && (
+                        <TeachingBubble
+                            target="#filters-button"
+                            onDismiss={this.onFiltersHelpDismiss}
+                            headline={this.props.t("Hiding Filters")}
+                        >
+                            {this.props.t(
+                                "Filters cannot be hidden when you have active filters. Clear existing filters before hiding them",
+                            )}
+                        </TeachingBubble>
+                    )}
+                </div>
+            );
+        }
+
+        return <span></span>;
     };
 
     render(): JSX.Element {
@@ -616,7 +735,7 @@ export abstract class APIDisplay extends React.Component<APIDisplayProps> {
             }
         };
 
-        const actualCount = this.state.results.count || api.config.pageSize;
+        const actualCount = this.state.results.count == null ? api.config.pageSize : this.state.results.count;
         const displayCount = !this.state.initialLoad ? "#" : actualCount.toString();
         const foundName = `${this.getName(" FoundWithCount", true, { count: actualCount })}`.replace(
             actualCount.toString(),
@@ -629,20 +748,36 @@ export abstract class APIDisplay extends React.Component<APIDisplayProps> {
                 styles={{ root: { width: "100%", height: "100%", textAlign: "left" } }}
                 className="api-display"
             >
-                <div
-                    style={{
-                        display: "flex",
-                        justifyContent: "space-between",
-                        width: "100%",
-                        paddingBottom: 10,
-                        borderBottom: `${this.props.theme.palette.themePrimary} 1px solid`,
+                <Stack.Item
+                    styles={{
+                        root: {
+                            display: "flex",
+                            flexWrap: "wrap",
+                            justifyContent: "space-between",
+                            alignContent: "center",
+                            verticalAlign: "middle",
+                            width: "100%",
+                            paddingBottom: 10,
+                            borderBottom: `${this.props.theme.palette.themePrimary} 1px solid`,
+                        },
                     }}
                 >
                     <h2 style={{ display: "inline-flex", margin: "0 20px" }}>{this.getName("_plural")}</h2>
-                    <div style={{ display: "inline-flex", margin: "0 20px", alignItems: "flex-end" }}>
+                    <div
+                        style={{
+                            display: "inline-flex",
+                            margin: "0 20px",
+                            alignItems: "flex-end",
+                            alignSelf: "center",
+                        }}
+                    >
                         <Text>{foundName}</Text>
                     </div>
-                    <div style={{ display: "inline-flex", margin: "0 20px" }}>
+                    <div
+                        style={{ display: "inline-flex", margin: "0 20px", justifyContent: "center" }}
+                        className="api-display-search"
+                    >
+                        {this.renderFiltersToggle()}
                         <SearchBox
                             placeholder={this.props.t(`Search ${this.getName("", false)}`)}
                             onChange={this.onSearchChange}
@@ -651,12 +786,33 @@ export abstract class APIDisplay extends React.Component<APIDisplayProps> {
                             value={this.state.filters.search || ""}
                         />
                     </div>
-                </div>
-                <div
-                    style={{
-                        position: "relative",
-                        height: "100%",
-                        width: "100%",
+                </Stack.Item>
+                {this.state.filtersVisible && (
+                    <Stack.Item
+                        styles={{
+                            root: {
+                                position: "relative",
+                                width: "100%",
+                                padding: "10px 0",
+                                borderBottom: `${this.props.theme.palette.themePrimary} 1px solid`,
+                            },
+                        }}
+                    >
+                        <Stack horizontal wrap horizontalAlign="center" verticalAlign="center">
+                            <Stack.Item>
+                                <DefaultButton onClick={this.onClearFilters}>{this.props.t("Clear All")}</DefaultButton>
+                            </Stack.Item>
+                            <Stack.Item>{this.renderFilters()}</Stack.Item>
+                        </Stack>
+                    </Stack.Item>
+                )}
+                <Stack.Item
+                    styles={{
+                        root: {
+                            position: "relative",
+                            height: "100%",
+                            width: "100%",
+                        },
                     }}
                 >
                     <FocusZone>
@@ -673,7 +829,7 @@ export abstract class APIDisplay extends React.Component<APIDisplayProps> {
                             onPageAdded={onPageAdded}
                         />
                     </FocusZone>
-                </div>
+                </Stack.Item>
             </Stack>
         );
     }

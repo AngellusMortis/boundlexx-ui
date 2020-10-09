@@ -1,13 +1,14 @@
 import React from "react";
-import { Shimmer, Text } from "@fluentui/react";
+import { Shimmer, Text, Stack, Dropdown, IDropdownOption } from "@fluentui/react";
 import { RootState } from "../../store";
 import { connect } from "react-redux";
 import { withTranslation } from "react-i18next";
 import * as api from "../../api";
-import { APIDisplay, mapNumericStoreToItems, Filter } from "./APIDisplay";
+import { APIDisplay, mapNumericStoreToItems } from "./APIDisplay";
 import { Components } from "../../api/client";
 import { getTheme } from "../../themes";
 import { withRouter } from "react-router-dom";
+import { StringDict } from "../../types";
 
 const mapState = (state: RootState) => ({
     theme: getTheme(state.prefs.theme),
@@ -16,6 +17,16 @@ const mapState = (state: RootState) => ({
     name: "Item",
     results: mapNumericStoreToItems(state.items),
     loadAll: true,
+    extraFilterKeys: [
+        {
+            name: "has_colors",
+            type: "boolean",
+        },
+        {
+            name: "is_resource",
+            type: "boolean",
+        },
+    ],
 });
 
 const mapDispatchToProps = { changeAPIDefinition: api.changeAPIDefinition, updateItems: api.updateItems };
@@ -23,12 +34,66 @@ const mapDispatchToProps = { changeAPIDefinition: api.changeAPIDefinition, updat
 const connector = connect(mapState, mapDispatchToProps);
 
 class Items extends APIDisplay {
-    getExtraFilters = (): Filter[] => {
-        return [];
+    componentDidMount = async () => {
+        this.mounted = true;
+
+        await this.getAPIClient();
+
+        if (!this.state.loadedFromStore) {
+            this.getData();
+        }
     };
 
-    validateParam = (): boolean => {
-        return false;
+    onUpdateFilter = (event: React.FormEvent<HTMLDivElement>, option?: IDropdownOption | undefined) => {
+        if (option !== undefined) {
+            const dropdown = event.target as HTMLDivElement;
+            const key = dropdown.getAttribute("data-filter-name");
+
+            if (key !== null && ["has_colors", "is_resource"].indexOf(key) > -1) {
+                const params: StringDict<string | null> = {};
+                params[key] = option.key.toString();
+                params[key] = params[key] === "" ? null : params[key];
+
+                this.resetState(this.updateQueryParam(params));
+            }
+        }
+    };
+
+    renderFilters = (): JSX.Element => {
+        const filters: StringDict<string> = this.state.filters.extraFilters || {};
+
+        return (
+            <Stack horizontal wrap horizontalAlign="center" verticalAlign="center">
+                <Stack.Item styles={{ root: { margin: "5px 20px" } }}>
+                    <Dropdown
+                        styles={{ dropdown: { width: 100 } }}
+                        label={this.props.t("Has Colors?")}
+                        data-filter-name="has_colors"
+                        options={[
+                            { key: "", text: this.props.t("No Value") },
+                            { key: "true", text: this.props.t("Yes") },
+                            { key: "false", text: this.props.t("No") },
+                        ]}
+                        defaultSelectedKey={filters["has_colors"] === undefined ? "" : filters["has_colors"]}
+                        onChange={this.onUpdateFilter}
+                    ></Dropdown>
+                </Stack.Item>
+                <Stack.Item styles={{ root: { margin: 5 } }}>
+                    <Dropdown
+                        styles={{ dropdown: { width: 100 } }}
+                        label={this.props.t("Is Resource?")}
+                        data-filter-name="is_resource"
+                        options={[
+                            { key: "", text: this.props.t("No Value") },
+                            { key: "true", text: this.props.t("Yes") },
+                            { key: "false", text: this.props.t("No") },
+                        ]}
+                        defaultSelectedKey={filters["is_resource"] === undefined ? "" : filters["is_resource"]}
+                        onChange={this.onUpdateFilter}
+                    ></Dropdown>
+                </Stack.Item>
+            </Stack>
+        );
     };
 
     onCardClick = () => {

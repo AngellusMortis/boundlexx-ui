@@ -100,7 +100,7 @@ class Header extends React.Component<Props> {
         updateMethod: api.updateItems,
         locale?: string,
         params?: APIParams[],
-    ) => {
+    ): Promise<void> => {
         if (this.client === null || !this.mounted) {
             return;
         }
@@ -125,12 +125,22 @@ class Header extends React.Component<Props> {
         // @ts-ignore
         const operation = this.client[operationID];
 
+        if (operation === undefined) {
+            this.client = await api.getClient(true);
+            await this.loadAll(results, operationID, updateMethod, locale, params);
+            return;
+        }
+
         let response = await operation(params);
         let nextURL = this.setDataFromResponse(response, updateMethod, locale);
 
         while (nextURL !== null) {
-            response = await this.client.get(nextURL, { paramsSerializer: () => "" });
-            nextURL = this.setDataFromResponse(response, updateMethod, locale);
+            await api.throttle();
+
+            if (this.mounted && this.client !== null && nextURL !== null) {
+                response = await this.client.get(nextURL, { paramsSerializer: () => "" });
+                nextURL = this.setDataFromResponse(response, updateMethod, locale);
+            }
         }
     };
 
