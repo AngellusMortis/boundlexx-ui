@@ -282,3 +282,68 @@ class Page extends React.Component<Props> {
 }
 
 export default connector(withTranslation()(Page));
+
+/*
+const { DefaultPalette, Slider, Stack, IStackStyles, IStackTokens, Fabric, initializeIcons, GroupedList, SelectionMode, GroupHeader } = window.Fabric;
+
+// Initialize icons in case this example uses them
+initializeIcons();
+
+const sectionStackTokens: IStackTokens = { childrenGap: 10 };
+
+const HorizontalStackWrapExample: React.FunctionComponent = () => {
+  const onRenderCell = () => { return <div></div> }
+
+  const onRenderHeader = (props) => {
+    const headerCountStyle = { display: "none" };
+    const checkButtonStyle = { display: "none" };
+
+    const onToggleSelectGroup = () => {
+      props.onToggleCollapse(props.group);
+    };
+
+    return (
+      <GroupHeader
+        styles={{ check: checkButtonStyle, headerCount: headerCountStyle }}
+        {...props}
+        onToggleSelectGroup={onToggleSelectGroup}
+      />
+    );
+  }
+
+  return (
+    <Stack tokens={sectionStackTokens} styles={{root: {maxWidth: 1000, width: "50vw", margin: "0 auto"}}}>
+      <div style={{display: "grid", gridGap: "10px", gridAutoRows: "minmax(500px, auto)", gridTemplateColumns: "repeat(auto-fill, 475px)", flexWrap: "wrap" }}>
+        <div style={{backgroundColor: "rgba(233,171,88,.5)"}}>Image</div>
+        <div style={{display: "grid", gridGap: "1px", gridAutoRows: "minmax(100px, auto)", gridTemplateColumns: "repeat(auto-fill, 250px)", flexWrap: "wrap" }}>
+            <div style={{backgroundColor: "rgba(233,171,88,.5)", gridColumn: "1/3"}}>Title</div>
+            <div style={{backgroundColor: "rgba(233,171,88,.5)"}}>1</div>
+            <div style={{backgroundColor: "rgba(233,171,88,.5)"}}>2</div>
+            <div style={{backgroundColor: "rgba(233,171,88,.5)"}}>3</div>
+            <div style={{backgroundColor: "rgba(233,171,88,.5)"}}>4</div>
+            <div style={{backgroundColor: "rgba(233,171,88,.5)"}}>5</div>
+            <div style={{backgroundColor: "rgba(233,171,88,.5)"}}>6</div>
+            <div style={{backgroundColor: "rgba(233,171,88,.5)"}}>7</div>
+            <div style={{backgroundColor: "rgba(233,171,88,.5)"}}>8</div>
+        </div>
+      </div>
+      <div style={{display: "grid", gridGap: "1px", gridAutoRows: "minmax(100px, auto)", gridTemplateColumns: "repeat(auto-fill, 239.5px)", flexWrap: "wrap" }}>
+       <div style={{backgroundColor: "rgba(233,171,88,.5)"}}>9</div>
+       <div style={{backgroundColor: "rgba(233,171,88,.5)"}}>10</div>
+       <div style={{backgroundColor: "rgba(233,171,88,.5)"}}>11</div>
+       <div style={{backgroundColor: "rgba(233,171,88,.5)"}}>12</div>
+      </div>
+      <GroupedList
+        items={[]}
+        onRenderCell={onRenderCell}
+        selectionMode={SelectionMode.none}
+        groups={[{key: "default-colors", name: "Default Colors", children: [], count: 1, isCollapsed: true, level: 0}, {key: "current-colors", name: "Current Colors", children: [], count: 1, isCollapsed: true, level: 0}, {key: "initial-resources", name: "Initial Resources", children: [], count: 1, isCollapsed: true, level: 0}, {key: "current-resources", name: "Current Resources", children: [], count: 1, isCollapsed: true, level: 0}]}
+        groupProps={{onRenderHeader: onRenderHeader}}
+      />
+    </Stack>
+  );
+};
+
+const HorizontalStackWrapExampleWrapper = () => <Fabric><HorizontalStackWrapExample /></Fabric>;
+ReactDOM.render(<HorizontalStackWrapExampleWrapper />, document.getElementById('content'))
+*/
