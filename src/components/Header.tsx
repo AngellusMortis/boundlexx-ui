@@ -74,7 +74,7 @@ class Header extends React.Component<Props> {
         // this.client.retrieveWorld(320);
 
         if (window.location.pathname !== "/worlds/") {
-            await this.loadAll(this.props.worlds, "listWorldsSimple", this.props.updateWorlds, undefined, [
+            await this.loadAll(this.props.worlds, "listWorlds", this.props.updateWorlds, undefined, [
                 { name: "show_inactive", value: true, in: "query" },
             ]);
         }

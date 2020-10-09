@@ -2,7 +2,7 @@ import { Components } from "./client";
 import { NumberDict, NumericAPIItems } from "../types";
 
 interface Worlds extends NumericAPIItems {
-    items: NumberDict<Components.Schemas.KindOfSimpleWorld>;
+    items: NumberDict<Components.Schemas.SimpleWorld>;
 }
 
 export const worldsInitialState: Worlds = {
@@ -12,7 +12,7 @@ export const worldsInitialState: Worlds = {
 };
 
 export type WorldsPayload = {
-    items: NumberDict<Components.Schemas.KindOfSimpleWorld>;
+    items: NumberDict<Components.Schemas.SimpleWorld>;
     nextUrl?: string | null;
     count?: number | null;
 };
@@ -36,11 +36,11 @@ export function worldsReducer(state = worldsInitialState, action: UpdateWorldsAc
 }
 
 export function updateWorlds(
-    results: Components.Schemas.KindOfSimpleWorld[],
+    results: Components.Schemas.SimpleWorld[],
     count?: number | null,
     nextUrl?: string | null,
 ): UpdateWorldsAction {
-    const mapped: NumberDict<Components.Schemas.KindOfSimpleWorld> = {};
+    const mapped: NumberDict<Components.Schemas.SimpleWorld> = {};
 
     results.forEach((result) => {
         if (result.id === undefined) {

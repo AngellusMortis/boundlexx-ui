@@ -27,11 +27,11 @@ class Items extends APIDisplay {
         return;
     };
 
-    renderCardImage = (item: Components.Schemas.Item) => {
+    renderCardImage = (item: Components.Schemas.SimpleItem) => {
         return <div></div>;
     };
 
-    renderCardDetails = (item: Components.Schemas.Item) => {
+    renderCardDetails = (item: Components.Schemas.SimpleItem) => {
         const loaded = item !== undefined;
         return (
             <div>

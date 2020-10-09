@@ -2,7 +2,7 @@ import { Components } from "./client";
 import { NumberDict, LocalizedNumericAPIItems } from "../types";
 
 interface Items extends LocalizedNumericAPIItems {
-    items: NumberDict<Components.Schemas.Item>;
+    items: NumberDict<Components.Schemas.SimpleItem>;
 }
 
 export const itemsInitialState: Items = {
@@ -13,7 +13,7 @@ export const itemsInitialState: Items = {
 };
 
 export type ItemsPayload = {
-    items: NumberDict<Components.Schemas.Item>;
+    items: NumberDict<Components.Schemas.SimpleItem>;
     nextUrl?: string | null;
     count?: number | null;
     lang?: string;
@@ -47,12 +47,12 @@ export function itemsReducer(state = itemsInitialState, action: UpdateItemsActio
 }
 
 export function updateItems(
-    results: Components.Schemas.Item[],
+    results: Components.Schemas.SimpleItem[],
     count?: number | null,
     nextUrl?: string | null,
     lang?: string,
 ): UpdateItemsAction {
-    const mapped: NumberDict<Components.Schemas.Item> = {};
+    const mapped: NumberDict<Components.Schemas.SimpleItem> = {};
 
     results.forEach((result) => {
         mapped[result.game_id] = result;

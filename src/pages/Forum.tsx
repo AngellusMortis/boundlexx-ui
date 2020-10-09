@@ -36,7 +36,7 @@ interface Template {
 }
 
 interface State {
-    world: Components.Schemas.KindOfSimpleWorld | null;
+    world: Components.Schemas.SimpleWorld | null;
     loaded: boolean;
     initalWorldID: number | null;
     will_renew: boolean | null;
@@ -123,7 +123,7 @@ class Forum extends React.Component<Props> {
         }
     };
 
-    onWorldChange = (world: Components.Schemas.KindOfSimpleWorld | null) => {
+    onWorldChange = (world: Components.Schemas.SimpleWorld | null) => {
         this.setState({ world: world });
     };
 
