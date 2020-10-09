@@ -5,7 +5,7 @@ import { RootState } from "../../store";
 import { connect } from "react-redux";
 import { withTranslation } from "react-i18next";
 import * as api from "../../api";
-import { APIDisplay, mapNumericStoreToItems } from "./APIDisplay";
+import { APIDisplay, mapNumericStoreToItems, Filter } from "./APIDisplay";
 import { Components } from "../../api/client";
 import { getTheme } from "../../themes";
 import { withRouter } from "react-router-dom";
@@ -24,6 +24,14 @@ const mapDispatchToProps = { changeAPIDefinition: api.changeAPIDefinition, updat
 const connector = connect(mapState, mapDispatchToProps);
 
 class Colors extends APIDisplay {
+    getExtraFilters = (): Filter[] => {
+        return [];
+    };
+
+    validateParam = (): boolean => {
+        return false;
+    };
+
     onCardClick = () => {
         return;
     };

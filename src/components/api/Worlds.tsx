@@ -4,7 +4,7 @@ import { RootState } from "../../store";
 import { connect } from "react-redux";
 import { withTranslation } from "react-i18next";
 import * as api from "../../api";
-import { APIDisplay, mapNumericStoreToItems } from "./APIDisplay";
+import { APIDisplay, mapNumericStoreToItems, Filter } from "./APIDisplay";
 import { getTheme } from "../../themes";
 import { Components } from "../../api/client";
 import { withRouter } from "react-router-dom";
@@ -26,6 +26,14 @@ const mapDispatchToProps = { changeAPIDefinition: api.changeAPIDefinition, updat
 const connector = connect(mapState, mapDispatchToProps);
 
 class Worlds extends APIDisplay {
+    getExtraFilters = (): Filter[] => {
+        return [];
+    };
+
+    validateParam = (): boolean => {
+        return false;
+    };
+
     onCardClick = (event: React.MouseEvent<HTMLElement, MouseEvent> | undefined) => {
         if (event === undefined) {
             return;
@@ -49,7 +57,7 @@ class Worlds extends APIDisplay {
             return;
         }
 
-        this.props.history.push(`/worlds/${id}/`);
+        // this.props.history.push(`/worlds/${id}/`);
     };
 
     renderCardImage = (item: Components.Schemas.SimpleWorld) => {

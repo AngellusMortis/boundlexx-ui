@@ -166,7 +166,7 @@ export abstract class APIDisplay extends React.Component<APIDisplayProps> {
     constructor(props: APIDisplayProps) {
         super(props);
 
-        const filters = this.updateQueryParam(this.getParamsDict(window.location.search));
+        const filters = this.updateQueryParam(this.getParamsDict(window.location.search), true);
         if (filters !== null) {
             this.state.filters = filters;
         } else if (props.results !== undefined) {
@@ -329,7 +329,7 @@ export abstract class APIDisplay extends React.Component<APIDisplayProps> {
         );
     };
 
-    abstract getExtraFilters(params: StringDict<string>, urlEncoded: string): Filters;
+    abstract getExtraFilters(params: StringDict<string>, urlEncoded: string): Filter[];
 
     getFiltersFromParams = (params: StringDict<string>, urlEncoded: string): Filters => {
         const filters: Filters = {
@@ -338,7 +338,7 @@ export abstract class APIDisplay extends React.Component<APIDisplayProps> {
         };
 
         if (this.props.extraFilterKeys !== undefined && this.props.extraFilterKeys.length > 0) {
-            filters.extraFilters = [];
+            filters.extraFilters = this.getExtraFilters(params, urlEncoded);
             this.props.extraFilterKeys.forEach((key) => {
                 if (filters.extraFilters !== undefined) {
                     filters.extraFilters.push({ name: key, value: params[key] });

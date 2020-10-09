@@ -32,6 +32,14 @@ export const SizeMap: NumberDict<string> = {
     384: "6km",
 };
 
+export const PointsToLevelsMap: NumberDict<number> = {
+    1: 1,
+    3: 3,
+    5: 4,
+    7: 5,
+    10: 6,
+};
+
 const SpecialTypeMap = ["", "Color-Cycling"];
 
 export const getSpecialType = (world: Components.Schemas.World | Components.Schemas.SimpleWorld): string | null => {
@@ -42,7 +50,7 @@ export const getSpecialType = (world: Components.Schemas.World | Components.Sche
     return specialType;
 };
 
-export const getStatusText = (item: Components.Schemas.SimpleWorld) => {
+export const getStatusText = (item: Components.Schemas.SimpleWorld): string => {
     return item.is_locked ? "Locked" : item.active ? "Active" : "Inactive";
 };
 

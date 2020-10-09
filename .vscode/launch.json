@@ -5,14 +5,28 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Launch Browser (Local)",
+            "name": "Launch Debug Edge (Local)",
+            "request": "launch",
+            "type": "pwa-msedge",
+            "url": "http://localhost:3000",
+            "webRoot": "${workspaceFolder}/src"
+        },
+        {
+            "name": "Launch Debug Edge (Remote)",
+            "request": "launch",
+            "type": "pwa-msedge",
+            "url": "https://local-boundlexx.wl.mort.is/",
+            "webRoot": "${workspaceFolder}/src"
+        },
+        {
+            "name": "Launch Edge (Local)",
             "type": "vscode-edge-devtools.debug",
             "request": "launch",
             "url": "http://localhost:3000",
             "webRoot": "${workspaceFolder}"
         },
         {
-            "name": "Launch Browser (Remote)",
+            "name": "Launch Edge (Remote)",
             "request": "launch",
             "type": "vscode-edge-devtools.debug",
             "url": "https://local-boundlexx.wl.mort.is/"

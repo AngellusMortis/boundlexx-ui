@@ -5,7 +5,7 @@ import { RootState } from "../../store";
 import { connect } from "react-redux";
 import { withTranslation } from "react-i18next";
 import * as api from "../../api";
-import { APIDisplay, mapStringStoreToItems } from "./APIDisplay";
+import { APIDisplay, mapStringStoreToItems, Filter } from "./APIDisplay";
 import { getTheme } from "../../themes";
 import toast from "../../toast";
 import { Components } from "../../api/client";
@@ -24,6 +24,14 @@ const mapDispatchToProps = { changeAPIDefinition: api.changeAPIDefinition, updat
 const connector = connect(mapState, mapDispatchToProps);
 
 class Emojis extends APIDisplay {
+    getExtraFilters = (): Filter[] => {
+        return [];
+    };
+
+    validateParam = (): boolean => {
+        return false;
+    };
+
     onCardClick = (event: React.MouseEvent<HTMLElement, MouseEvent> | undefined) => {
         if (event === undefined) {
             return;

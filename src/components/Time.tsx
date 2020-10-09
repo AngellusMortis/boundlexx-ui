@@ -1,5 +1,7 @@
 import React from "react";
 import { withTranslation, WithTranslation } from "react-i18next";
+import { TooltipHost, Text, FontIcon } from "@fluentui/react";
+import { useId } from "@uifabric/react-hooks";
 import { StringDict } from "../types";
 
 interface BaseProps {
@@ -18,11 +20,11 @@ const units: StringDict<number> = {
     second: 1000,
 };
 
-class Time extends React.Component<Props> {
-    getRealtive = () => {
+const Time: React.FunctionComponent<Props> = (props) => {
+    const getRealtive = () => {
         const format = new Intl.RelativeTimeFormat(undefined, { numeric: "auto" });
         const now = new Date();
-        const diff = this.props.date.getTime() - now.getTime();
+        const diff = props.date.getTime() - now.getTime();
 
         for (const u in units) {
             if (Math.abs(diff) > units[u] || u === "second") {
@@ -33,13 +35,18 @@ class Time extends React.Component<Props> {
         }
     };
 
-    render() {
-        return (
-            <span>
-                {this.getRealtive()} - {this.props.date.toLocaleString()}
-            </span>
-        );
-    }
-}
+    return (
+        <TooltipHost
+            content={props.date.toLocaleString()}
+            id={useId("tooltip")}
+            calloutProps={{ gapSpace: 0 }}
+            styles={{ root: { display: "inline-block" } }}
+        >
+            <Text variant="medium">
+                <FontIcon iconName="Clock" /> {getRealtive()}
+            </Text>
+        </TooltipHost>
+    );
+};
 
 export default withTranslation()(Time);

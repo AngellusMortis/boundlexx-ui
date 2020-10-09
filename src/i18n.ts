@@ -106,6 +106,10 @@ const resources = {
             "Sovereign World": "Sovereign World",
             "There is a new version of Boundlexx UI.": "There is a new version of Boundlexx UI.",
             "Click here to update.": "Click here to update.",
+
+            "Requires # Level in Skill": "Requires {{ count }} Level in Skill",
+            "Requires # Level in Skill_plural": "Requires {{ count }} Levels in Skill",
+            "Requires # Level in Skill and a Pie_plural": "Requires {{ count }} Levels in Skill and a Pie",
         },
     },
     fr: {

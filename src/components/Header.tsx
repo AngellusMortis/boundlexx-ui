@@ -26,6 +26,7 @@ const mapState = (state: RootState) => ({
     colors: state.colors,
     worlds: state.worlds,
     items: state.items,
+    skills: state.skills,
     locale: state.prefs.language,
     theme: getTheme(state.prefs.theme),
 });
@@ -35,6 +36,7 @@ const mapDispatchToProps = {
     updateColors: api.updateColors,
     updateItems: api.updateItems,
     updateWorlds: api.updateWorlds,
+    updateSkills: api.updateSkills,
 };
 
 const connector = connect(mapState, mapDispatchToProps);
@@ -84,6 +86,8 @@ class Header extends React.Component<Props> {
         if (window.location.pathname !== "/items/") {
             await this.loadAll(this.props.items, "listItems", this.props.updateItems, this.props.locale);
         }
+
+        await this.loadAll(this.props.skills, "listSkills", this.props.updateSkills, this.props.locale);
     };
 
     componentWillUnmount = () => {
@@ -111,6 +115,10 @@ class Header extends React.Component<Props> {
         }
 
         params.push({ name: "limit", value: api.config.pageSize * 2, in: "query" });
+
+        if (locale !== undefined) {
+            params.push({ name: "lang", value: locale, in: "query" });
+        }
 
         console.log(`Preloading ${operationID}...`);
         // eslint-disable-next-line

@@ -6,7 +6,10 @@ import { ICardTokens } from "@uifabric/react-cards";
 import { Image, Stack, Text, Spinner, SpinnerSize, Link } from "@fluentui/react";
 import NotFound from "../components/NotFound";
 import Time from "../components/Time";
+import Atmosphere from "../components/Atmosphere";
 import { getTheme } from "../themes";
+import { RootState } from "../store";
+import { connect, ConnectedProps } from "react-redux";
 
 interface BaseProps {
     id: number;
@@ -17,7 +20,16 @@ interface State {
     loaded: boolean;
 }
 
-type Props = BaseProps & WithTranslation;
+const mapState = (state: RootState) => ({
+    worlds: state.worlds,
+    skills: state.skills,
+});
+
+const connector = connect(mapState);
+
+type PropsFromRedux = ConnectedProps<typeof connector>;
+
+type Props = BaseProps & WithTranslation & PropsFromRedux;
 
 class Page extends React.Component<Props> {
     state: State = {
@@ -42,12 +54,29 @@ class Page extends React.Component<Props> {
                 return;
             }
 
-            this.setState({
-                world: response.data,
-                loaded: true,
-            });
+            this.setState(
+                {
+                    world: response.data,
+                },
+                this.checkLoaded,
+            );
         } catch (err) {
-            if (err.response.status === 404) {
+            if (err.response !== undefined && err.response.status === 404) {
+                this.setState({ loaded: true });
+            }
+        }
+    };
+
+    checkLoaded = () => {
+        if (!this.state.loaded && this.state.world !== null) {
+            const worldsLoaded =
+                this.props.worlds.count !== null &&
+                Reflect.ownKeys(this.props.worlds.items).length === this.props.worlds.count;
+            const skillsLoaded =
+                this.props.skills.count !== null &&
+                Reflect.ownKeys(this.props.skills.items).length === this.props.skills.count;
+
+            if (worldsLoaded && skillsLoaded) {
                 this.setState({ loaded: true });
             }
         }
@@ -55,6 +84,10 @@ class Page extends React.Component<Props> {
 
     componentWillUnmount = () => {
         this.mounted = false;
+    };
+
+    componentDidUpdate = () => {
+        this.checkLoaded();
     };
 
     getBows() {
@@ -148,6 +181,17 @@ class Page extends React.Component<Props> {
                         </Text>
                         <Text variant="medium">{this.props.t(api.TypeNameMap[this.state.world.world_type])}</Text>
                     </Stack>
+                    {this.state.world.protection_points !== null && this.state.world.protection_skill !== null && (
+                        <Stack>
+                            <Text variant="large" style={{ color: theme.palette.themePrimary, fontWeight: "bold" }}>
+                                Atmosphere:
+                            </Text>
+                            <Atmosphere
+                                points={this.state.world.protection_points}
+                                skill={this.props.skills.items[this.state.world.protection_skill.id]}
+                            />
+                        </Stack>
+                    )}
                     <Stack>
                         <Text variant="large" style={{ color: theme.palette.themePrimary, fontWeight: "bold" }}>
                             Status:
@@ -237,4 +281,4 @@ class Page extends React.Component<Props> {
     }
 }
 
-export default withTranslation()(Page);
+export default connector(withTranslation()(Page));
