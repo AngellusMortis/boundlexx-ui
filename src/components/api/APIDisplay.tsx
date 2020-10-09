@@ -692,7 +692,7 @@ export abstract class APIDisplay extends React.Component<APIDisplayProps> {
                             headline={this.props.t("Hiding Filters")}
                         >
                             {this.props.t(
-                                "Filters cannot be hidden when you have active filters. Clear existing filters before hiding them",
+                                "Filters cannot be hidden when you have active filters. Clear existing filters before hiding them.",
                             )}
                         </TeachingBubble>
                     )}

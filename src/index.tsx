@@ -49,6 +49,7 @@ serviceWorker.register({
                     const target = ev.target as ServiceWorker;
 
                     if (target !== null && target.state === "activated") {
+                        localStorage.removeItem("persist:root");
                         window.location.reload();
                     }
                 });
