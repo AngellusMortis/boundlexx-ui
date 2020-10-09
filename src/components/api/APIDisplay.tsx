@@ -20,8 +20,14 @@ import { StringAPIItems, NumericAPIItems, BaseItemsAsArray, BaseItems, StringDic
 import { AxiosResponse } from "axios";
 import { OpenAPIV3 } from "openapi-client-axios";
 
+export interface Filter {
+    name: string;
+    value: string;
+}
+
 export interface Filters {
     search: string | null;
+    extraFilters?: Filter[];
     queryParams: string;
 }
 
@@ -41,8 +47,8 @@ interface BaseProps {
     results?: BaseItemsAsArray;
     name?: string;
     operationID?: string;
-    extraFilters?: APIParams[];
-    extraQSKeys?: string[];
+    extraDefaultFilters?: APIParams[];
+    extraFilterKeys?: string[];
 
     changeAPIDefinition?: (definition: OpenAPIV3.Document) => unknown;
     updateItems?: api.updateItems;
@@ -159,13 +165,7 @@ export abstract class APIDisplay extends React.Component<APIDisplayProps> {
     constructor(props: APIDisplayProps) {
         super(props);
 
-        const urlParams = new URLSearchParams(window.location.search);
-        const params: StringDict<string> = {};
-        urlParams.forEach((value, key) => {
-            params[key] = value;
-        });
-
-        const filters = this.updateQueryParam(params);
+        const filters = this.updateQueryParam(this.getParamsDict(window.location.search));
         if (filters !== null) {
             this.state.filters = filters;
         } else if (props.results !== undefined) {
@@ -230,11 +230,19 @@ export abstract class APIDisplay extends React.Component<APIDisplayProps> {
     };
 
     resetState = (filters?: Filters | null): void => {
-        const newState: Partial<State> = {
-            filters: filters || {
+        if (filters === undefined || filters === null) {
+            filters = {
                 search: null,
                 queryParams: "",
-            },
+            };
+
+            if (this.props.extraFilterKeys !== undefined && this.props.extraFilterKeys.length > 0) {
+                filters.extraFilters = [];
+            }
+        }
+
+        const newState: Partial<State> = {
+            filters: filters,
         };
 
         // reload items from props if that is where they came from
@@ -261,21 +269,44 @@ export abstract class APIDisplay extends React.Component<APIDisplayProps> {
         });
     };
 
-    updateQueryParam = (params: StringDict<string>): Filters | null => {
+    getParamsDict = (queryString: string) => {
+        const urlParams = new URLSearchParams(queryString);
+        const params: StringDict<string> = {};
+        urlParams.forEach((value, key) => {
+            params[key] = value;
+        });
+
+        return params;
+    };
+
+    abstract validateParam(paramName: string, paramValue: string): boolean;
+
+    updateQueryParam = (params: StringDict<string>, replace?: boolean): Filters | null => {
+        const existingParams = this.getParamsDict(this.state.filters.queryParams);
+
+        if (!replace) {
+            params = { ...existingParams, ...params };
+        }
+
         let allowedKeys = ["search"];
 
-        if (this.props.extraQSKeys !== undefined) {
-            allowedKeys = allowedKeys.concat(this.props.extraQSKeys);
+        if (this.props.extraFilterKeys !== undefined) {
+            allowedKeys = allowedKeys.concat(this.props.extraFilterKeys);
         }
 
         for (const key in Object.keys(params)) {
-            if (allowedKeys.indexOf(key) <= -1) {
+            let deleteKey = allowedKeys.indexOf(key) <= -1;
+
+            if (!deleteKey && key !== "search") {
+                deleteKey = this.validateParam(key, params[key]);
+            }
+
+            if (deleteKey) {
                 delete params[key];
             }
         }
 
         const urlEncoded = new URLSearchParams(params).toString();
-
         if (urlEncoded !== this.state.filters.queryParams) {
             this.setQueryParams(urlEncoded);
             return this.getFiltersFromParams(params, urlEncoded);
@@ -297,11 +328,24 @@ export abstract class APIDisplay extends React.Component<APIDisplayProps> {
         );
     };
 
+    abstract getExtraFilters(params: StringDict<string>, urlEncoded: string): Filters;
+
     getFiltersFromParams = (params: StringDict<string>, urlEncoded: string): Filters => {
-        return {
+        const filters: Filters = {
             search: params["search"] || null,
             queryParams: urlEncoded,
         };
+
+        if (this.props.extraFilterKeys !== undefined && this.props.extraFilterKeys.length > 0) {
+            filters.extraFilters = [];
+            this.props.extraFilterKeys.forEach((key) => {
+                if (filters.extraFilters !== undefined) {
+                    filters.extraFilters.push({ name: key, value: params[key] });
+                }
+            });
+        }
+
+        return filters;
     };
 
     // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types, @typescript-eslint/no-explicit-any
@@ -468,8 +512,18 @@ export abstract class APIDisplay extends React.Component<APIDisplayProps> {
                     queryParams["search"] = this.state.filters.search;
                 }
 
-                if (this.props.extraFilters !== undefined) {
-                    params = params.concat(this.props.extraFilters);
+                if (this.state.filters.extraFilters !== undefined) {
+                    this.state.filters.extraFilters.forEach((filter) => {
+                        params.push({
+                            name: filter.name,
+                            value: filter.value,
+                            in: "query",
+                        });
+                    });
+                }
+
+                if (this.props.extraDefaultFilters !== undefined) {
+                    params = params.concat(this.props.extraDefaultFilters);
                 }
                 response = await this.callOperation(params);
             } else {
