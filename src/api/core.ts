@@ -57,7 +57,7 @@ export const config = {
 };
 /* eslint-enable @typescript-eslint/no-explicit-any */
 
-export const throttle = () => {
+export const throttle = (): Promise<void> => {
     return new Promise((resolve) => setTimeout(resolve, config.throttle));
 };
 

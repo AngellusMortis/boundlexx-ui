@@ -1,11 +1,22 @@
+import { Version } from "../types";
+
 export interface UserPreferences {
     theme: string;
     language: string;
+    version: string | null;
+    showUpdates: boolean;
+    newChanges?: Version[];
+    serviceWorker?: ServiceWorkerRegistration;
+}
+
+export interface OnUpdatePayload {
+    newChanges: Version[];
+    serviceWorker?: ServiceWorkerRegistration;
 }
 
 export const CHANGE_THEME = "CHANGE_THEME";
 
-interface ChagneThemeAction {
+interface ChangeThemeAction {
     type: typeof CHANGE_THEME;
     payload: string;
 }
@@ -17,4 +28,30 @@ interface ChangeLanguageAction {
     payload: string;
 }
 
-export type PerfsActionsType = ChagneThemeAction | ChangeLanguageAction;
+export const CHANGE_VERSION = "CHANGE_VERSION";
+
+interface ChangeVersionAction {
+    type: typeof CHANGE_VERSION;
+    payload: string | null;
+}
+
+export const CHANGE_SHOW_VERSION = "CHANGE_SHOW_VERSION";
+
+interface ChangeShowUpdatesAction {
+    type: typeof CHANGE_SHOW_VERSION;
+    payload: boolean;
+}
+
+export const ON_UPDATE = "ON_UPDATE";
+
+interface OnUpdateAction {
+    type: typeof ON_UPDATE;
+    payload: OnUpdatePayload;
+}
+
+export type PerfsActionsType =
+    | ChangeThemeAction
+    | ChangeLanguageAction
+    | ChangeVersionAction
+    | OnUpdateAction
+    | ChangeShowUpdatesAction;

@@ -21,8 +21,13 @@ const isLocalhost = Boolean(
 );
 
 type Config = {
-    onSuccess?: (registration: ServiceWorkerRegistration) => void;
-    onUpdate?: (registration: ServiceWorkerRegistration) => void;
+    onSuccess?: (registration: ServiceWorkerRegistration, version: string) => void;
+    onUpdate?: (registration: ServiceWorkerRegistration, versions?: Version[]) => void;
+};
+
+type Version = {
+    date: string;
+    changelogs: string[];
 };
 
 export function register(config?: Config) {
@@ -78,7 +83,13 @@ function registerValidSW(swUrl: string, config?: Config) {
 
                             // Execute callback
                             if (config && config.onUpdate) {
-                                config.onUpdate(registration);
+                                fetch("/updates.json")
+                                    .then((response) => response.json())
+                                    .then((versions) => {
+                                        if (config && config.onUpdate) {
+                                            config.onUpdate(registration, versions);
+                                        }
+                                    });
                             }
                         } else {
                             // At this point, everything has been precached.
@@ -87,8 +98,15 @@ function registerValidSW(swUrl: string, config?: Config) {
                             console.log("Content is cached for offline use.");
 
                             // Execute callback
+                            console.log(config);
                             if (config && config.onSuccess) {
-                                config.onSuccess(registration);
+                                fetch("/updates.json")
+                                    .then((response) => response.json())
+                                    .then((data) => {
+                                        if (config && config.onSuccess) {
+                                            config.onSuccess(registration, data[0].date);
+                                        }
+                                    });
                             }
                         }
                     }

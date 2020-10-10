@@ -15,8 +15,6 @@ const mapDispatchToProps = { changeTheme };
 
 const connector = connect(mapState, mapDispatchToProps);
 
-const myStyle1 = mergeStyles(AnimationStyles.fadeIn500);
-
 type Props = WithTranslation & ConnectedProps<typeof connector>;
 
 class ThemeSelector extends React.Component<Props> {
@@ -57,7 +55,7 @@ class ThemeSelector extends React.Component<Props> {
 
         return (
             <CollapsibleInput
-                icon={{ className: myStyle1, iconName: "Personalize" }}
+                icon={{ className: mergeStyles(AnimationStyles.fadeIn500), iconName: "Personalize" }}
                 name={this.props.t("Change Theme")}
             >
                 <Dropdown
