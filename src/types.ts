@@ -26,6 +26,11 @@ export interface BaseItemsAsArray {
     lang?: string;
 }
 
+export type Version = {
+    date: string;
+    changelogs: string[];
+};
+
 export interface LocalizedBaseItems extends BaseItems {
     lang: string;
 }

@@ -8,6 +8,8 @@ import {
     IContextualMenuItem,
     AnimationStyles,
     mergeStyles,
+    TooltipHost,
+    IconButton,
 } from "@fluentui/react";
 import ThemeSelector from "./ThemeSelector";
 import LanguageSelector from "./LanguageSelector";
@@ -21,6 +23,7 @@ import { BaseItems, APIParams } from "../types";
 import "./Header.css";
 import { getTheme } from "../themes";
 import { RouteComponentProps, withRouter } from "react-router-dom";
+import { changeShowUpdates } from "../prefs/actions";
 
 const mapState = (state: RootState) => ({
     colors: state.colors,
@@ -29,6 +32,7 @@ const mapState = (state: RootState) => ({
     skills: state.skills,
     locale: state.prefs.language,
     theme: getTheme(state.prefs.theme),
+    hasUpdate: state.prefs.newChanges !== undefined && state.prefs.newChanges.length > 0,
 });
 
 const mapDispatchToProps = {
@@ -37,6 +41,7 @@ const mapDispatchToProps = {
     updateItems: api.updateItems,
     updateWorlds: api.updateWorlds,
     updateSkills: api.updateSkills,
+    changeShowUpdates: changeShowUpdates,
 };
 
 const connector = connect(mapState, mapDispatchToProps);
@@ -159,6 +164,10 @@ class Header extends React.Component<Props> {
         return nextURL;
     }
 
+    onClickUpdates = () => {
+        this.props.changeShowUpdates(true);
+    };
+
     onClick = (
         event?: React.MouseEvent<HTMLElement, MouseEvent> | React.KeyboardEvent<HTMLElement> | undefined,
         item?: IContextualMenuItem | undefined,
@@ -170,6 +179,7 @@ class Header extends React.Component<Props> {
     };
 
     render = () => {
+        const updateButtonText = this.props.t("See Updates");
         const items: ICommandBarItemProps[] = [];
         links.forEach((link) => {
             items.push({
@@ -228,6 +238,22 @@ class Header extends React.Component<Props> {
                         </Text>
                     </Link>
                     <Stack horizontal verticalAlign="center" style={{ height: 50 }}>
+                        {this.props.hasUpdate && (
+                            <TooltipHost
+                                content={updateButtonText}
+                                id={"update-button"}
+                                calloutProps={{ gapSpace: 0 }}
+                                styles={{ root: { display: "inline-block" } }}
+                            >
+                                <IconButton
+                                    iconProps={{ iconName: "AlertSolid" }}
+                                    title={updateButtonText}
+                                    ariaLabel={updateButtonText}
+                                    onClick={this.onClickUpdates}
+                                />
+                            </TooltipHost>
+                        )}
+
                         <ThemeSelector />
                         <LanguageSelector />
                     </Stack>

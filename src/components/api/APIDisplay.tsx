@@ -289,6 +289,8 @@ export abstract class APIDisplay extends React.Component<APIDisplayProps> {
         return params;
     };
 
+    // TODO:
+    // eslint-disable-next-line
     validateParam = (paramName: string, paramValue: string): boolean => {
         if (this.props.extraFilterKeys === undefined) {
             return false;
@@ -553,6 +555,7 @@ export abstract class APIDisplay extends React.Component<APIDisplayProps> {
 
     abstract onCardClick(event: React.MouseEvent<HTMLElement, MouseEvent> | undefined): void;
 
+    // TODO:
     // eslint-disable-next-line
     getData = async (): Promise<void> => {
         // do not double load

@@ -8,7 +8,9 @@ import { darkTheme } from "./themes";
 import { store, persistor } from "./store";
 import { Provider } from "react-redux";
 import { PersistGate } from "redux-persist/integration/react";
+import { changeVersion, onUpdate, changeShowUpdates } from "./prefs/actions";
 import toast from "./toast";
+import { Version } from "./types";
 
 const App = React.lazy(() => import("./App"));
 
@@ -40,27 +42,37 @@ ReactDOM.render(
 // unregister() to register() below. Note this comes with some pitfalls.
 // Learn more about service workers: https://bit.ly/CRA-PWA
 serviceWorker.register({
-    onUpdate: (registration: ServiceWorkerRegistration) => {
+    onUpdate: (registration: ServiceWorkerRegistration, versions?: Version[]) => {
         const updateServiceWorker = () => {
-            if (registration.waiting) {
-                registration.waiting.postMessage({ type: "SKIP_WAITING" });
-
-                registration.waiting.addEventListener("statechange", (ev: Event) => {
-                    const target = ev.target as ServiceWorker;
-
-                    if (target !== null && target.state === "activated") {
-                        localStorage.removeItem("persist:root");
-                        window.location.reload();
-                    }
-                });
-            }
+            store.dispatch(changeShowUpdates(true));
         };
+
+        const state = store.getState();
+        let newVersions: Version[] = [];
+
+        if (versions !== undefined) {
+            if (state.prefs.version === null) {
+                newVersions = versions;
+            } else {
+                for (let index = 0; index < versions.length; index++) {
+                    const version = versions[index];
+
+                    if (version.date === state.prefs.version) {
+                        break;
+                    }
+
+                    newVersions.push(version);
+                }
+            }
+        }
+
+        store.dispatch(onUpdate(newVersions, registration));
 
         const message = (
             <div>
                 <Text style={{ display: "block" }}>{i18n.t("There is a new version of Boundlexx UI.")}</Text>
                 <Text variant="small" style={{ display: "block" }}>
-                    {i18n.t("Click here to update.")}
+                    {i18n.t("Click here to see what changed.")}
                 </Text>
             </div>
         );
@@ -68,5 +80,8 @@ serviceWorker.register({
         toast(message, {
             onClick: updateServiceWorker,
         });
+    },
+    onSuccess: (registration: ServiceWorkerRegistration, version: string) => {
+        store.dispatch(changeVersion(version));
     },
 });

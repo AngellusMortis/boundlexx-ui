@@ -21,9 +21,21 @@ const isLocalhost = Boolean(
 );
 
 type Config = {
-    onSuccess?: (registration: ServiceWorkerRegistration) => void;
-    onUpdate?: (registration: ServiceWorkerRegistration) => void;
+    onSuccess?: (registration: ServiceWorkerRegistration, version: string) => void;
+    onUpdate?: (registration: ServiceWorkerRegistration, versions?: Version[]) => void;
 };
+
+type Version = {
+    date: string;
+    changelogs: string[];
+};
+
+const versions: Version[] = [
+    {
+        date: "2020-10-10T02:00:00",
+        changelogs: ["Adds patch updates to updates"],
+    },
+];
 
 export function register(config?: Config) {
     if (process.env.NODE_ENV === "production" && "serviceWorker" in navigator) {
@@ -78,7 +90,7 @@ function registerValidSW(swUrl: string, config?: Config) {
 
                             // Execute callback
                             if (config && config.onUpdate) {
-                                config.onUpdate(registration);
+                                config.onUpdate(registration, versions);
                             }
                         } else {
                             // At this point, everything has been precached.
@@ -88,7 +100,7 @@ function registerValidSW(swUrl: string, config?: Config) {
 
                             // Execute callback
                             if (config && config.onSuccess) {
-                                config.onSuccess(registration);
+                                config.onSuccess(registration, versions[0].date);
                             }
                         }
                     }
