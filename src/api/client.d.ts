@@ -505,7 +505,7 @@ declare namespace Components {
                 best: string[];
                 neutral: string[];
                 lucent: string[];
-            };
+            } | null;
             next_request_basket_update: string | null; // date-time
             next_shop_stand_update: string | null; // date-time
         }

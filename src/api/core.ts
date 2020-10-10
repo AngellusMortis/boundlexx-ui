@@ -57,8 +57,8 @@ export const config = {
 };
 /* eslint-enable @typescript-eslint/no-explicit-any */
 
-export const throttle = (): Promise<void> => {
-    return new Promise((resolve) => setTimeout(resolve, config.throttle));
+export const throttle = (ms?: number): Promise<void> => {
+    return new Promise((resolve) => setTimeout(resolve, ms || config.throttle));
 };
 
 let client: BoundlexxClient | null = null;
@@ -77,6 +77,7 @@ export const getClient = async (force?: boolean): Promise<BoundlexxClient> => {
     }
 
     if (force) {
+        await throttle(3000);
         console.warn("Could not find operation. Force reloading OpenAPI Client...");
     }
 

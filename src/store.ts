@@ -15,6 +15,7 @@ const rootReducer = combineReducers({
     worlds: api.worldsReducer,
     items: api.itemsReducer,
     skills: api.skillsReducer,
+    recipeGroups: api.recipeGroupsReducer,
 });
 
 const persistConfig = {
@@ -72,6 +73,20 @@ const persistConfig = {
             expireSeconds: 2592000, // 30 days
             // (Optional) State to be used for resetting e.g. provide initial reducer state
             expiredState: api.itemsInitialState,
+            // (Optional) Use it if you don't want to manually set the time in the reducer i.e. at `persistedAtKey`
+            // and want the store to  be automatically expired if the record is not updated in the `expireSeconds` time
+            autoExpire: true,
+        }),
+
+        // Create a transformer by passing the reducer key and configuration. Values
+        // shown below are the available configurations with default values
+        expireReducer("recipeGroups", {
+            // (Optional) Key to be used for the time relative to which store is to be expired
+            persistedAtKey: "__persisted_at",
+            // (Required) Seconds after which store will be expired
+            expireSeconds: 2592000, // 30 days
+            // (Optional) State to be used for resetting e.g. provide initial reducer state
+            expiredState: api.recipeGroupsInitialState,
             // (Optional) Use it if you don't want to manually set the time in the reducer i.e. at `persistedAtKey`
             // and want the store to  be automatically expired if the record is not updated in the `expireSeconds` time
             autoExpire: true,

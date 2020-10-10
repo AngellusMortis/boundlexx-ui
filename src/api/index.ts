@@ -1,6 +1,7 @@
 export { defInitialState, changeAPIDefinition, defReducer } from "./def";
 export { worldsInitialState, updateWorlds, worldsReducer } from "./worlds";
 export { itemsInitialState, updateItems, itemsReducer } from "./items";
+export { recipeGroupsInitialState, updateRecipeGroups, recipeGroupsReducer } from "./recipeGroups";
 export { skillsInitialState, updateSkills, skillsReducer } from "./skills";
 export { emojisInitialState, updateEmojis, emojisReducer } from "./emojis";
 export { colorsInitialState, updateColors, colorsReducer } from "./colors";

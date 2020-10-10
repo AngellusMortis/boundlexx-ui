@@ -30,16 +30,16 @@ const connector = connect(mapState, mapDispatchToProps);
 type Props = WithTranslation & ConnectedProps<typeof connector>;
 
 class UpdateModal extends React.Component<Props> {
-    constructor(props: Props) {
-        super(props);
+    // constructor(props: Props) {
+    //     super(props);
 
-        // this.props.changeShowUpdates(true);
-        // this.props.onUpdate([
-        //     { date: "2020-01-01T00:00:00", changelogs: ["Test 1", "Test 2"] },
-        //     { date: "2020-02-01T00:00:00", changelogs: ["Test 1"] },
-        //     { date: "2020-03-01T00:00:00", changelogs: ["Test 1", "Test 2", "Test 3"] },
-        // ]);
-    }
+    //     this.props.changeShowUpdates(true);
+    //     this.props.onUpdate([
+    //         { date: "2020-01-01T00:00:00", changelogs: ["Test 1", "Test 2"] },
+    //         { date: "2020-02-01T00:00:00", changelogs: ["Test 1"] },
+    //         { date: "2020-03-01T00:00:00", changelogs: ["Test 1", "Test 2", "Test 3"] },
+    //     ]);
+    // }
 
     onUpdatesDismiss = (): void => {
         this.props.changeShowUpdates(false);

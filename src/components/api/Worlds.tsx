@@ -133,7 +133,7 @@ class Worlds extends APIDisplay {
             return;
         }
 
-        // this.props.history.push(`/worlds/${id}/`);
+        this.props.history.push(`/worlds/${id}/`);
     };
 
     onUpdateFilterDropdown = (event: React.FormEvent<HTMLDivElement>, option?: IDropdownOption | undefined) => {

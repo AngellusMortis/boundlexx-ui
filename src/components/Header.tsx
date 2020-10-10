@@ -29,6 +29,7 @@ const mapState = (state: RootState) => ({
     colors: state.colors,
     worlds: state.worlds,
     items: state.items,
+    recipeGroups: state.recipeGroups,
     skills: state.skills,
     locale: state.prefs.language,
     theme: getTheme(state.prefs.theme),
@@ -40,6 +41,7 @@ const mapDispatchToProps = {
     updateColors: api.updateColors,
     updateItems: api.updateItems,
     updateWorlds: api.updateWorlds,
+    updateRecipeGroups: api.updateRecipeGroups,
     updateSkills: api.updateSkills,
     changeShowUpdates: changeShowUpdates,
 };
@@ -92,6 +94,12 @@ class Header extends React.Component<Props> {
             await this.loadAll(this.props.items, "listItems", this.props.updateItems, this.props.locale);
         }
 
+        await this.loadAll(
+            this.props.recipeGroups,
+            "listRecipeGroups",
+            this.props.updateRecipeGroups,
+            this.props.locale,
+        );
         await this.loadAll(this.props.skills, "listSkills", this.props.updateSkills, this.props.locale);
     };
 

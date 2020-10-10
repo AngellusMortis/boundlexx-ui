@@ -100,21 +100,73 @@ class Page extends React.Component<Props> {
         this.checkLoaded();
     };
 
-    getBows() {
-        if (this.state.world === null) {
-            return <div></div>;
+    makeBowsStrings = (world: Components.Schemas.World): string[] => {
+        const bows = world.bows;
+        let bestBows = "";
+        let netrualBows = "";
+        let lucentBows = "";
+
+        if (bows !== null) {
+            for (let index = 0; index < bows.best.length; index++) {
+                const bow = bows.best[index].replace(/^\w/, (c) => c.toUpperCase());
+
+                if (bestBows === "") {
+                    bestBows = this.props.t(bow);
+                } else {
+                    bestBows = `${bestBows}, ${this.props.t(bow)}`;
+                }
+            }
+
+            for (let index = 0; index < bows.neutral.length; index++) {
+                const bow = bows.neutral[index].replace(/^\w/, (c) => c.toUpperCase());
+
+                if (netrualBows === "") {
+                    netrualBows = this.props.t(bow);
+                } else {
+                    netrualBows = `${netrualBows}, ${this.props.t(bow)}`;
+                }
+            }
+
+            for (let index = 0; index < bows.lucent.length; index++) {
+                const bow = bows.lucent[index].replace(/^\w/, (c) => c.toUpperCase());
+
+                if (lucentBows === "") {
+                    lucentBows = this.props.t(bow);
+                } else {
+                    lucentBows = `${lucentBows}, ${this.props.t(bow)}`;
+                }
+            }
         }
 
-        // const bestBows = this.state.world.bows.best;
-        // for (let bowIndex = 0; bowIndex > bestBows.length; bowIndex++) {
-        //     console.log(bowIndex);
-        // }
+        return [bestBows, netrualBows, lucentBows];
+    };
+
+    getBows() {
+        if (this.state.world === null) {
+            return <span></span>;
+        }
+
+        const anyBows = this.state.world.bows != null;
+        const bows = this.makeBowsStrings(this.state.world);
 
         return (
             <Stack>
-                <Text>Best: </Text>
-                <Text>Neutral: </Text>
-                <Text>Lucent:</Text>
+                {!anyBows && <Text>{this.props.t("Any")}</Text>}
+                {bows[0] !== "" && (
+                    <Text>
+                        {this.props.t("Best")}: {bows[0]}
+                    </Text>
+                )}
+                {bows[1] !== "" && (
+                    <Text>
+                        {this.props.t("Netrual")}: {bows[1]}
+                    </Text>
+                )}
+                {bows[2] !== "" && (
+                    <Text>
+                        {this.props.t("Lucent")}: {bows[2]}
+                    </Text>
+                )}
             </Stack>
         );
     }
@@ -134,7 +186,7 @@ class Page extends React.Component<Props> {
 
         const specialType = api.getSpecialType(this.state.world);
 
-        // TODO: Bows, Protection Points/Skill
+        // TODO: Bows
         // Best: name, name
         // Neutral: name, name
         // Lucent: name, name
@@ -155,7 +207,7 @@ class Page extends React.Component<Props> {
                         flexWrap: "wrap",
                     }}
                 >
-                    <div style={{ display: "block" }}>
+                    <div>
                         <Image
                             src={this.state.world.image_url || "https://cdn.boundlexx.app/worlds/unknown.png"}
                             style={{ padding: 50, width: "80%", minWidth: "80%" }}
@@ -171,7 +223,7 @@ class Page extends React.Component<Props> {
                             flexWrap: "wrap",
                         }}
                     >
-                        <div style={{ display: "block", gridColumn: "1/3" }}>
+                        <div style={{ gridColumn: "1/3" }}>
                             <h2>
                                 <span
                                     style={{ display: "block" }}
@@ -189,71 +241,72 @@ class Page extends React.Component<Props> {
                                 {this.state.world.forum_url !== null && (
                                     <Text variant="medium">
                                         <Link target="_blank" href={this.state.world.forum_url}>
-                                            Forum Post
+                                            {this.props.t("Forum Post")}
                                         </Link>
                                     </Text>
                                 )}
                             </h2>
                         </div>
-                        <div style={{ display: "block" }}>
+                        <div>
                             <Text variant="large" style={{ color: theme.palette.themePrimary, fontWeight: "bold" }}>
-                                {" Tier: "}
+                                {this.props.t("Tier")}:
                             </Text>
                             <Text variant="medium">
                                 T{this.state.world.tier + 1} - {this.props.t(api.TierNameMap[this.state.world.tier])}
                             </Text>
                         </div>
-                        <div style={{ display: "block" }}>
+                        <div>
                             <Text variant="large" style={{ color: theme.palette.themePrimary, fontWeight: "bold" }}>
-                                {"Type: "}
+                                {this.props.t("World Type")}:
                             </Text>
                             <Text variant="medium">{this.props.t(api.TypeNameMap[this.state.world.world_type])}</Text>
                         </div>
-                        <div style={{ display: "block" }}>
-                            {this.state.world.protection_points !== null && this.state.world.protection_skill !== null && (
-                                <Stack>
-                                    <Text
-                                        variant="large"
-                                        style={{ color: theme.palette.themePrimary, fontWeight: "bold" }}
-                                    >
-                                        Atmosphere:
-                                    </Text>
-                                    <Atmosphere
-                                        points={this.state.world.protection_points}
-                                        skill={this.props.skills.items[this.state.world.protection_skill.id]}
-                                    />
-                                </Stack>
-                            )}
+                        <div>
+                            <Stack>
+                                <Text variant="large" style={{ color: theme.palette.themePrimary, fontWeight: "bold" }}>
+                                    {this.props.t("Atmosphere")}:
+                                </Text>
+                                {this.state.world.protection_points !== null &&
+                                    this.state.world.protection_skill !== null && (
+                                        <Atmosphere
+                                            points={this.state.world.protection_points}
+                                            skill={this.props.skills.items[this.state.world.protection_skill.id]}
+                                        />
+                                    )}
+                                {this.state.world.protection_points === null && this.props.t("Normal")}
+                            </Stack>
                         </div>
-                        <div style={{ display: "block" }}>
+                        <div>
                             <Text variant="large" style={{ color: theme.palette.themePrimary, fontWeight: "bold" }}>
-                                Status:
+                                {this.props.t("Status")}:
                             </Text>
                             <Text variant="medium">{this.props.t(api.getStatusText(this.state.world))}</Text>
                         </div>
-                        <div style={{ display: "block" }}>
+                        <div>
                             <Text variant="large" style={{ color: theme.palette.themePrimary, fontWeight: "bold" }}>
-                                ID:
+                                {this.props.t("ID")}:
                             </Text>
                             <Text variant="medium">{this.state.world.id}</Text>
                         </div>
-                        <div style={{ display: "block" }}>
+                        <div>
                             <Text variant="large" style={{ color: theme.palette.themePrimary, fontWeight: "bold" }}>
-                                Size:
+                                {this.props.t("Size")}:
                             </Text>
                             <Text variant="medium">{api.SizeMap[this.state.world.size]}</Text>
                         </div>
-                        <div style={{ display: "block" }}>
+                        <div>
                             <Text variant="large" style={{ color: theme.palette.themePrimary, fontWeight: "bold" }}>
-                                Server Region:
+                                {this.props.t("Server Region")}:
                             </Text>
                             <Text variant="medium">{api.RegionNameMap[this.state.world.region]}</Text>
                         </div>
-                        <div style={{ display: "block" }}>
+                        <div>
                             <Text variant="large" style={{ color: theme.palette.themePrimary, fontWeight: "bold" }}>
-                                Number of Regions:
+                                {this.props.t("Number of Regions")}:
                             </Text>
-                            <Text variant="medium">{this.state.world.number_of_regions || "Unknown"}</Text>
+                            <Text variant="medium">
+                                {this.state.world.number_of_regions || this.props.t("Unknown")}
+                            </Text>
                         </div>
                     </div>
                 </div>
@@ -262,51 +315,70 @@ class Page extends React.Component<Props> {
                         display: "grid",
                         gridGap: "1px",
                         gridAutoRows: "minmax(100px, auto)",
-                        gridTemplateColumns: "repeat(auto-fill, 239.5px)",
+                        gridTemplateColumns: "repeat(auto-fill, 475px)",
                         flexWrap: "wrap",
                     }}
                 >
-                    <div style={{ display: "block" }}>
-                        <Text variant="large" style={{ color: theme.palette.themePrimary, fontWeight: "bold" }}>
-                            Surface Liquid:
-                        </Text>
-                        <Text variant="medium">{this.state.world.surface_liquid}</Text>
+                    <div
+                        style={{
+                            display: "grid",
+                            gridGap: "1px",
+                            gridAutoRows: "minmax(100px, auto)",
+                            gridTemplateColumns: "repeat(auto-fill, 237px)",
+                            flexWrap: "wrap",
+                        }}
+                    >
+                        <div>
+                            <Text variant="large" style={{ color: theme.palette.themePrimary, fontWeight: "bold" }}>
+                                {this.props.t("Surface Liquid")}:
+                            </Text>
+                            <Text variant="medium">{this.state.world.surface_liquid}</Text>
+                            <Text variant="large" style={{ color: theme.palette.themePrimary, fontWeight: "bold" }}>
+                                {this.props.t("Core Liquid")}:
+                            </Text>
+                            <Text variant="medium">{this.state.world.core_liquid}</Text>
+                        </div>
+
+                        <div>
+                            {this.state.world.start !== null && (
+                                <Stack>
+                                    <Text
+                                        variant="large"
+                                        style={{ color: theme.palette.themePrimary, fontWeight: "bold" }}
+                                    >
+                                        {this.props.t("Start")}:
+                                    </Text>
+                                    <Time date={new Date(this.state.world.start)} />
+                                </Stack>
+                            )}
+                            {this.state.world.end !== null && (
+                                <Stack>
+                                    <Text
+                                        variant="large"
+                                        style={{ color: theme.palette.themePrimary, fontWeight: "bold" }}
+                                    >
+                                        {this.props.t("End")}:
+                                    </Text>
+                                    <Time date={new Date(this.state.world.end)} />
+                                </Stack>
+                            )}
+                        </div>
                     </div>
-                    <div style={{ display: "block" }}>
-                        <Text variant="large" style={{ color: theme.palette.themePrimary, fontWeight: "bold" }}>
-                            Surface Liquid:
-                        </Text>
-                        <Text variant="medium">{this.state.world.surface_liquid}</Text>
-                    </div>
-                    <div style={{ display: "block" }}>
-                        <Text variant="large" style={{ color: theme.palette.themePrimary, fontWeight: "bold" }}>
-                            Core Liquid:
-                        </Text>
-                        <Text variant="medium">{this.state.world.core_liquid}</Text>
-                    </div>
-                    <div style={{ display: "block" }}>
-                        {this.state.world.start !== null && (
-                            <Stack>
-                                <Text variant="large" style={{ color: theme.palette.themePrimary, fontWeight: "bold" }}>
-                                    Start:
-                                </Text>
-                                <Time date={new Date(this.state.world.start)} />
-                            </Stack>
-                        )}
-                        {this.state.world.end !== null && (
-                            <Stack>
-                                <Text variant="large" style={{ color: theme.palette.themePrimary, fontWeight: "bold" }}>
-                                    End:
-                                </Text>
-                                <Time date={new Date(this.state.world.end)} />
-                            </Stack>
-                        )}
-                    </div>
-                    <div style={{ display: "block" }}>
-                        <Text variant="large" style={{ color: theme.palette.themePrimary, fontWeight: "bold" }}>
-                            Bows:
-                        </Text>
-                        <Text variant="medium">{this.getBows()}</Text>
+                    <div
+                        style={{
+                            display: "grid",
+                            gridGap: "1px",
+                            gridAutoRows: "minmax(100px, auto)",
+                            gridTemplateColumns: "repeat(auto-fill, 237px)",
+                            flexWrap: "wrap",
+                        }}
+                    >
+                        <div>
+                            <Text variant="large" style={{ color: theme.palette.themePrimary, fontWeight: "bold" }}>
+                                Bows:
+                            </Text>
+                            <Text variant="medium">{this.getBows()}</Text>
+                        </div>
                     </div>
                 </div>
                 {/* <GroupedList
