@@ -314,7 +314,7 @@ class WorldResources extends React.Component<Props> {
             <Spinner
                 style={{ margin: 20 }}
                 size={SpinnerSize.medium}
-                label={this.props.t("Loading Colors...")}
+                label={this.props.t("Loading Resources...")}
                 ariaLive="assertive"
                 labelPosition="right"
             />

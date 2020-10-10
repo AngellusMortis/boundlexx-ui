@@ -22,6 +22,7 @@ import { getTheme } from "../themes";
 interface BaseProps {
     worldID: number;
     isSovereign: boolean;
+    specialType: number | null;
 }
 
 interface State {
@@ -208,6 +209,21 @@ class BlockColors extends React.Component<Props> {
     };
 
     render = (): string | JSX.Element => {
+        const theme = getTheme();
+
+        if (this.props.specialType === 1) {
+            return (
+                <div>
+                    <h3 style={{ color: theme.palette.themePrimary }}>{this.props.t("Block Colors")}</h3>
+                    <Text variant="large">
+                        {this.props.t(
+                            'This world is a "Color-Cycling" world. That means the colors change every 2 minutes at random.',
+                        )}
+                    </Text>
+                </div>
+            );
+        }
+
         if (this.state.loaded) {
             // no colors for world found
             if (this.state.defaultColors.length === 0 && this.state.currentColors.length === 0) {
@@ -243,8 +259,6 @@ class BlockColors extends React.Component<Props> {
                     startIndex: startIndex,
                 });
             }
-
-            const theme = getTheme();
 
             return (
                 <div>

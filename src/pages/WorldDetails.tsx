@@ -399,7 +399,11 @@ class Page extends React.Component<Props> {
                     </div>
                 </div>
                 {!this.state.world.is_creative && (
-                    <BlockColors worldID={this.state.world.id} isSovereign={this.state.world.is_sovereign} />
+                    <BlockColors
+                        worldID={this.state.world.id}
+                        isSovereign={this.state.world.is_sovereign}
+                        specialType={this.state.world.special_type}
+                    />
                 )}
                 {!this.state.world.is_creative && (
                     <WorldResources worldID={this.state.world.id} isExo={this.state.world.is_exo} />
