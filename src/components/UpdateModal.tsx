@@ -15,17 +15,15 @@ import {
 import "react-toastify/dist/ReactToastify.css";
 import { withTranslation, WithTranslation } from "react-i18next";
 import { RootState } from "../store";
-import { changeShowUpdates, onUpdate } from "../prefs/actions";
+import { changeShowUpdates, onUpdate, changeLanuage, changeTheme, changeVersion } from "../prefs/actions";
 import { connect, ConnectedProps } from "react-redux";
 import Time from "./Time";
 
 const mapState = (state: RootState) => ({
-    showUpdates: state.prefs.showUpdates,
-    newChanges: state.prefs.newChanges,
-    serviceWorker: state.prefs.serviceWorker,
+    prefs: state.prefs,
 });
 
-const mapDispatchToProps = { changeShowUpdates, onUpdate };
+const mapDispatchToProps = { changeShowUpdates, onUpdate, changeLanuage, changeTheme, changeVersion };
 
 const connector = connect(mapState, mapDispatchToProps);
 
@@ -35,12 +33,12 @@ class UpdateModal extends React.Component<Props> {
     constructor(props: Props) {
         super(props);
 
-        this.props.changeShowUpdates(true);
-        this.props.onUpdate([
-            { date: "2020-01-01T00:00:00", changelogs: ["Test 1", "Test 2"] },
-            { date: "2020-02-01T00:00:00", changelogs: ["Test 1"] },
-            { date: "2020-03-01T00:00:00", changelogs: ["Test 1", "Test 2", "Test 3"] },
-        ]);
+        // this.props.changeShowUpdates(true);
+        // this.props.onUpdate([
+        //     { date: "2020-01-01T00:00:00", changelogs: ["Test 1", "Test 2"] },
+        //     { date: "2020-02-01T00:00:00", changelogs: ["Test 1"] },
+        //     { date: "2020-03-01T00:00:00", changelogs: ["Test 1", "Test 2", "Test 3"] },
+        // ]);
     }
 
     onUpdatesDismiss = (): void => {
@@ -82,20 +80,27 @@ class UpdateModal extends React.Component<Props> {
     };
 
     onUpdateNow = (): void => {
-        if (this.props.serviceWorker === undefined) {
-            this.props.onUpdate([]);
-            this.onUpdatesDismiss();
+        this.props.onUpdate([]);
+        this.onUpdatesDismiss();
+        if (this.props.prefs.serviceWorker === undefined) {
             return;
         }
 
-        if (this.props.serviceWorker.waiting) {
-            this.props.serviceWorker.waiting.postMessage({ type: "SKIP_WAITING" });
+        if (this.props.prefs.serviceWorker.waiting) {
+            this.props.prefs.serviceWorker.waiting.postMessage({ type: "SKIP_WAITING" });
 
-            this.props.serviceWorker.waiting.addEventListener("statechange", (ev: Event) => {
+            this.props.prefs.serviceWorker.waiting.addEventListener("statechange", (ev: Event) => {
                 const target = ev.target as ServiceWorker;
 
                 if (target !== null && target.state === "activated") {
+                    const lang = this.props.prefs.language;
+                    const theme = this.props.prefs.theme;
+                    const version = this.props.prefs.version;
+                    console.log(`Current version: ${version}`);
                     localStorage.removeItem("persist:root");
+                    this.props.changeLanuage(lang);
+                    this.props.changeTheme(theme);
+                    this.props.changeVersion(version);
                     window.location.reload();
                 }
             });
@@ -115,9 +120,9 @@ class UpdateModal extends React.Component<Props> {
         let updates: string[] = [];
         const updateGroups: IGroup[] = [];
 
-        if (this.props.newChanges !== undefined) {
-            for (let index = 0; index < this.props.newChanges.length; index++) {
-                const update = this.props.newChanges[index];
+        if (this.props.prefs.newChanges !== undefined) {
+            for (let index = 0; index < this.props.prefs.newChanges.length; index++) {
+                const update = this.props.prefs.newChanges[index];
                 const startIndex = updates.length;
                 updates = updates.concat(update.changelogs);
 
@@ -135,10 +140,10 @@ class UpdateModal extends React.Component<Props> {
 
         return (
             <div>
-                {this.props.showUpdates && (
+                {this.props.prefs.showUpdates && (
                     <Modal
                         titleAriaId="show-updates"
-                        isOpen={this.props.showUpdates}
+                        isOpen={this.props.prefs.showUpdates}
                         onDismiss={this.onUpdatesDismiss}
                         isBlocking={false}
                         styles={{ main: { width: "90vw", height: "90vw" } }}
@@ -147,14 +152,19 @@ class UpdateModal extends React.Component<Props> {
                             <Stack.Item>
                                 <Text variant="xLarge">{this.props.t("Boundlexx UI Updates")}</Text>
                             </Stack.Item>
-                            <Stack.Item>
-                                <GroupedList
-                                    items={updates}
-                                    onRenderCell={this.onRenderUpdate}
-                                    selectionMode={SelectionMode.none}
-                                    groups={updateGroups}
-                                    groupProps={{ onRenderHeader: this.onRenderHeader }}
-                                />
+                            <Stack.Item tokens={{ margin: 20 }}>
+                                {updates.length > 0 && (
+                                    <GroupedList
+                                        items={updates}
+                                        onRenderCell={this.onRenderUpdate}
+                                        selectionMode={SelectionMode.none}
+                                        groups={updateGroups}
+                                        groupProps={{ onRenderHeader: this.onRenderHeader }}
+                                    />
+                                )}
+                                {updates.length === 0 && (
+                                    <Text variant="large">{this.props.t("No patch notes found")}</Text>
+                                )}
                             </Stack.Item>
                             <Stack.Item
                                 styles={{

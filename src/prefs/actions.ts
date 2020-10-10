@@ -22,7 +22,7 @@ export function changeTheme(newTheme: string): PerfsActionsType {
     };
 }
 
-export function changeVersion(newVersion: string): PerfsActionsType {
+export function changeVersion(newVersion: string | null): PerfsActionsType {
     return {
         type: CHANGE_VERSION,
         payload: newVersion,

@@ -30,13 +30,6 @@ type Version = {
     changelogs: string[];
 };
 
-const versions: Version[] = [
-    {
-        date: "2020-10-10T02:00:00",
-        changelogs: ["Adds patch updates to updates"],
-    },
-];
-
 export function register(config?: Config) {
     if (process.env.NODE_ENV === "production" && "serviceWorker" in navigator) {
         // The URL constructor is available in all browsers that support SW.
@@ -90,7 +83,13 @@ function registerValidSW(swUrl: string, config?: Config) {
 
                             // Execute callback
                             if (config && config.onUpdate) {
-                                config.onUpdate(registration, versions);
+                                fetch("/updates.json")
+                                    .then((response) => response.json())
+                                    .then((versions) => {
+                                        if (config && config.onUpdate) {
+                                            config.onUpdate(registration, versions);
+                                        }
+                                    });
                             }
                         } else {
                             // At this point, everything has been precached.
@@ -99,8 +98,15 @@ function registerValidSW(swUrl: string, config?: Config) {
                             console.log("Content is cached for offline use.");
 
                             // Execute callback
+                            console.log(config);
                             if (config && config.onSuccess) {
-                                config.onSuccess(registration, versions[0].date);
+                                fetch("/updates.json")
+                                    .then((response) => response.json())
+                                    .then((data) => {
+                                        if (config && config.onSuccess) {
+                                            config.onSuccess(registration, data[0].date);
+                                        }
+                                    });
                             }
                         }
                     }

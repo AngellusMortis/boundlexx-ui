@@ -42,6 +42,10 @@ ReactDOM.render(
 // unregister() to register() below. Note this comes with some pitfalls.
 // Learn more about service workers: https://bit.ly/CRA-PWA
 serviceWorker.register({
+    onSuccess: (registration: ServiceWorkerRegistration, version: string) => {
+        console.log(`Setting version to ${version}`);
+        store.dispatch(changeVersion(version));
+    },
     onUpdate: (registration: ServiceWorkerRegistration, versions?: Version[]) => {
         const updateServiceWorker = () => {
             store.dispatch(changeShowUpdates(true));
@@ -51,19 +55,31 @@ serviceWorker.register({
         let newVersions: Version[] = [];
 
         if (versions !== undefined) {
-            if (state.prefs.version === null) {
+            if (state.prefs.version === null || state.prefs.version === undefined) {
                 newVersions = versions;
             } else {
-                for (let index = 0; index < versions.length; index++) {
-                    const version = versions[index];
+                try {
+                    const currentVersion = new Date(state.prefs.version);
 
-                    if (version.date === state.prefs.version) {
-                        break;
+                    for (let index = 0; index < versions.length; index++) {
+                        const version = versions[index];
+                        const versionDate = new Date(version.date);
+
+                        if (version.date === state.prefs.version || versionDate < currentVersion) {
+                            break;
+                        }
+
+                        newVersions.push(version);
                     }
-
-                    newVersions.push(version);
+                } catch (err) {
+                    console.warn(`Error paring current version: ${state.prefs.version}`);
                 }
             }
+        } else {
+            console.warn("No new versions passed from service worker!");
+        }
+        if (newVersions.length > 0) {
+            console.log(`Update found. Current version: ${state.prefs.version}, new version: ${newVersions[0].date}`);
         }
 
         store.dispatch(onUpdate(newVersions, registration));
@@ -80,8 +96,5 @@ serviceWorker.register({
         toast(message, {
             onClick: updateServiceWorker,
         });
-    },
-    onSuccess: (registration: ServiceWorkerRegistration, version: string) => {
-        store.dispatch(changeVersion(version));
     },
 });

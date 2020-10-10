@@ -24,7 +24,17 @@ export function prefsReducer(state = initialState, action: PerfsActionsType): Us
         case CHANGE_VERSION:
             return { ...state, version: action.payload };
         case ON_UPDATE:
-            return { ...state, newChanges: action.payload.newChanges, serviceWorker: action.payload.serviceWorker };
+            let version: string | null = state.version;
+            if (action.payload.newChanges[0] !== undefined) {
+                version = action.payload.newChanges[0].date;
+                console.log(`New version: ${version}`);
+            }
+            return {
+                ...state,
+                newChanges: action.payload.newChanges,
+                serviceWorker: action.payload.serviceWorker,
+                version: version,
+            };
         case CHANGE_SHOW_VERSION:
             return { ...state, showUpdates: action.payload };
         default:

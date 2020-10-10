@@ -380,7 +380,7 @@ class Worlds extends APIDisplay {
                 </Stack.Item>
                 <Stack.Item styles={{ root: { margin: "5px 20px" } }}>
                     <WorldSelector
-                        label="Orbiting World"
+                        label="Orbited World"
                         worldID={assignmentID}
                         onWorldChange={this.onUpdateAssignment}
                     />

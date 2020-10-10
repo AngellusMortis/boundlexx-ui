@@ -32,7 +32,7 @@ export const CHANGE_VERSION = "CHANGE_VERSION";
 
 interface ChangeVersionAction {
     type: typeof CHANGE_VERSION;
-    payload: string;
+    payload: string | null;
 }
 
 export const CHANGE_SHOW_VERSION = "CHANGE_SHOW_VERSION";
