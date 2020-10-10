@@ -1,0 +1,15 @@
+.world-details :not(.ms-TooltipHost):not(.bows) > span,
+.world-details .ms-TooltipHost {
+    position: relative;
+}
+
+@media (max-width: 1599px) {
+    .grid-spacer {
+        display: none;
+    }
+
+    .world-details :not(.ms-TooltipHost):not(.bows) > span,
+    .world-details .ms-TooltipHost {
+        left: 25%;
+    }
+}

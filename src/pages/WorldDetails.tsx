@@ -20,6 +20,7 @@ import Atmosphere from "../components/Atmosphere";
 import { getTheme } from "../themes";
 import { RootState } from "../store";
 import { connect, ConnectedProps } from "react-redux";
+import "./WorldDetails.css";
 
 interface BaseProps {
     id: number;
@@ -100,42 +101,31 @@ class Page extends React.Component<Props> {
         this.checkLoaded();
     };
 
+    makeBowString = (bows: string[]) => {
+        let bowString = "";
+        for (let index = 0; index < bows.length; index++) {
+            // captalize first letter for display
+            const bow = bows[index].replace(/^\w/, (c) => c.toUpperCase());
+
+            if (bowString === "") {
+                bowString = this.props.t(bow);
+            } else {
+                bowString = `${bowString}, ${this.props.t(bow)}`;
+            }
+        }
+
+        return bowString;
+    };
+
     makeBowsStrings = (world: Components.Schemas.World): string[] => {
-        const bows = world.bows;
         let bestBows = "";
         let netrualBows = "";
         let lucentBows = "";
 
-        if (bows !== null) {
-            for (let index = 0; index < bows.best.length; index++) {
-                const bow = bows.best[index].replace(/^\w/, (c) => c.toUpperCase());
-
-                if (bestBows === "") {
-                    bestBows = this.props.t(bow);
-                } else {
-                    bestBows = `${bestBows}, ${this.props.t(bow)}`;
-                }
-            }
-
-            for (let index = 0; index < bows.neutral.length; index++) {
-                const bow = bows.neutral[index].replace(/^\w/, (c) => c.toUpperCase());
-
-                if (netrualBows === "") {
-                    netrualBows = this.props.t(bow);
-                } else {
-                    netrualBows = `${netrualBows}, ${this.props.t(bow)}`;
-                }
-            }
-
-            for (let index = 0; index < bows.lucent.length; index++) {
-                const bow = bows.lucent[index].replace(/^\w/, (c) => c.toUpperCase());
-
-                if (lucentBows === "") {
-                    lucentBows = this.props.t(bow);
-                } else {
-                    lucentBows = `${lucentBows}, ${this.props.t(bow)}`;
-                }
-            }
+        if (world.bows !== null) {
+            bestBows = this.makeBowString(world.bows.best);
+            netrualBows = this.makeBowString(world.bows.neutral);
+            lucentBows = this.makeBowString(world.bows.lucent);
         }
 
         return [bestBows, netrualBows, lucentBows];
@@ -150,7 +140,7 @@ class Page extends React.Component<Props> {
         const bows = this.makeBowsStrings(this.state.world);
 
         return (
-            <Stack>
+            <Stack className="bows">
                 {!anyBows && <Text>{this.props.t("Any")}</Text>}
                 {bows[0] !== "" && (
                     <Text>
@@ -171,13 +161,47 @@ class Page extends React.Component<Props> {
         );
     }
 
+    renderTime = (): string | JSX.Element => {
+        if (this.state.world === null || this.state.world.start === null) {
+            return "";
+        }
+
+        const theme = getTheme();
+
+        return (
+            <Stack>
+                <div>
+                    <Text
+                        block={true}
+                        variant="large"
+                        style={{ color: theme.palette.themePrimary, fontWeight: "bold" }}
+                    >
+                        {this.props.t("Start")}:
+                    </Text>
+                    <Time date={new Date(this.state.world.start)} />
+                </div>
+                {this.state.world.end !== null && (
+                    <div>
+                        <Text
+                            block={true}
+                            variant="large"
+                            style={{ color: theme.palette.themePrimary, fontWeight: "bold" }}
+                        >
+                            {this.props.t("End")}:
+                        </Text>
+                        <Time date={new Date(this.state.world.end)} />
+                    </div>
+                )}
+            </Stack>
+        );
+    };
+
     renderWorld = () => {
         const theme = getTheme();
 
         if (this.state.world === null) {
             return <NotFound pageName={this.props.t("World Not Found")} />;
         }
-        const cardTokens: ICardTokens = { childrenMargin: 12 };
         const boundlexx = this.props.t("Boundlexx");
         const page = `${this.props.t("World")} -`;
 
@@ -185,19 +209,10 @@ class Page extends React.Component<Props> {
         window.history.replaceState(document.title, document.title);
 
         const specialType = api.getSpecialType(this.state.world);
-
-        // TODO: Bows
-        // Best: name, name
-        // Neutral: name, name
-        // Lucent: name, name
-
         const sectionStackTokens: IStackTokens = { childrenGap: 10 };
-        const onRenderCell = () => {
-            return <div></div>;
-        };
 
         return (
-            <Stack tokens={sectionStackTokens} styles={{ root: { maxWidth: 1000, width: "50vw", margin: "0 auto" } }}>
+            <Stack tokens={sectionStackTokens} styles={{ root: { maxWidth: 1200, width: "60vw", margin: "0 auto" } }}>
                 <div
                     style={{
                         display: "grid",
@@ -205,6 +220,7 @@ class Page extends React.Component<Props> {
                         gridAutoRows: "minmax(500px, auto)",
                         gridTemplateColumns: "repeat(auto-fill, 475px)",
                         flexWrap: "wrap",
+                        textAlign: "left",
                     }}
                 >
                     <div>
@@ -213,57 +229,72 @@ class Page extends React.Component<Props> {
                             style={{ padding: 50, width: "80%", minWidth: "80%" }}
                             alt="World"
                         />
+                        <h2 style={{ textAlign: "center" }}>
+                            <span
+                                style={{ display: "block" }}
+                                dangerouslySetInnerHTML={{
+                                    __html: this.state.world.html_name || this.state.world.display_name,
+                                }}
+                            ></span>
+                            <Text variant="large" style={{ display: "block" }}>
+                                {`${this.props.t(api.TierNameMap[this.state.world.tier])} ${this.props.t(
+                                    api.TypeNameMap[this.state.world.world_type],
+                                )} ${specialType == null ? "" : specialType + " "} ${this.props.t(
+                                    api.getWorldClass(this.state.world),
+                                )}`}
+                            </Text>
+                            {this.state.world.forum_url !== null && (
+                                <Text variant="medium">
+                                    <Link target="_blank" href={this.state.world.forum_url}>
+                                        {this.props.t("Forum Post")}
+                                    </Link>
+                                </Text>
+                            )}
+                        </h2>
                     </div>
                     <div
+                        className="world-details"
                         style={{
                             display: "grid",
                             gridGap: "1px",
                             gridAutoRows: "minmax(100px, auto)",
-                            gridTemplateColumns: "repeat(auto-fill, 250px)",
+                            gridTemplateColumns: "repeat(auto-fill, 237px)",
                             flexWrap: "wrap",
+                            verticalAlign: "middle",
+                            alignItems: "center",
                         }}
                     >
-                        <div style={{ gridColumn: "1/3" }}>
-                            <h2>
-                                <span
-                                    style={{ display: "block" }}
-                                    dangerouslySetInnerHTML={{
-                                        __html: this.state.world.html_name || this.state.world.display_name,
-                                    }}
-                                ></span>
-                                <Text variant="large" style={{ display: "block" }}>
-                                    {`${this.props.t(api.TierNameMap[this.state.world.tier])} ${this.props.t(
-                                        api.TypeNameMap[this.state.world.world_type],
-                                    )} ${specialType == null ? "" : specialType + " "} ${this.props.t(
-                                        api.getWorldClass(this.state.world),
-                                    )}`}
-                                </Text>
-                                {this.state.world.forum_url !== null && (
-                                    <Text variant="medium">
-                                        <Link target="_blank" href={this.state.world.forum_url}>
-                                            {this.props.t("Forum Post")}
-                                        </Link>
-                                    </Text>
-                                )}
-                            </h2>
-                        </div>
-                        <div>
-                            <Text variant="large" style={{ color: theme.palette.themePrimary, fontWeight: "bold" }}>
+                        <div className="grid-spacer"></div>
+                        <div className="grid-spacer"></div>
+                        <Stack>
+                            <Text
+                                block={true}
+                                variant="large"
+                                style={{ color: theme.palette.themePrimary, fontWeight: "bold" }}
+                            >
                                 {this.props.t("Tier")}:
                             </Text>
                             <Text variant="medium">
                                 T{this.state.world.tier + 1} - {this.props.t(api.TierNameMap[this.state.world.tier])}
                             </Text>
-                        </div>
-                        <div>
-                            <Text variant="large" style={{ color: theme.palette.themePrimary, fontWeight: "bold" }}>
+                        </Stack>
+                        <Stack>
+                            <Text
+                                block={true}
+                                variant="large"
+                                style={{ color: theme.palette.themePrimary, fontWeight: "bold" }}
+                            >
                                 {this.props.t("World Type")}:
                             </Text>
                             <Text variant="medium">{this.props.t(api.TypeNameMap[this.state.world.world_type])}</Text>
-                        </div>
-                        <div>
-                            <Stack>
-                                <Text variant="large" style={{ color: theme.palette.themePrimary, fontWeight: "bold" }}>
+                        </Stack>
+                        <Stack>
+                            <div>
+                                <Text
+                                    block={true}
+                                    variant="large"
+                                    style={{ color: theme.palette.themePrimary, fontWeight: "bold" }}
+                                >
                                     {this.props.t("Atmosphere")}:
                                 </Text>
                                 {this.state.world.protection_points !== null &&
@@ -273,184 +304,94 @@ class Page extends React.Component<Props> {
                                             skill={this.props.skills.items[this.state.world.protection_skill.id]}
                                         />
                                     )}
-                                {this.state.world.protection_points === null && this.props.t("Normal")}
-                            </Stack>
-                        </div>
-                        <div>
-                            <Text variant="large" style={{ color: theme.palette.themePrimary, fontWeight: "bold" }}>
+                                {this.state.world.protection_points === null && (
+                                    <Text variant="medium">{this.props.t("Normal")}</Text>
+                                )}
+                            </div>
+                        </Stack>
+                        <Stack>
+                            <Text
+                                block={true}
+                                variant="large"
+                                style={{ color: theme.palette.themePrimary, fontWeight: "bold" }}
+                            >
                                 {this.props.t("Status")}:
                             </Text>
                             <Text variant="medium">{this.props.t(api.getStatusText(this.state.world))}</Text>
-                        </div>
-                        <div>
-                            <Text variant="large" style={{ color: theme.palette.themePrimary, fontWeight: "bold" }}>
+                        </Stack>
+                        <Stack>
+                            <Text
+                                block={true}
+                                variant="large"
+                                style={{ color: theme.palette.themePrimary, fontWeight: "bold" }}
+                            >
                                 {this.props.t("ID")}:
                             </Text>
                             <Text variant="medium">{this.state.world.id}</Text>
-                        </div>
-                        <div>
-                            <Text variant="large" style={{ color: theme.palette.themePrimary, fontWeight: "bold" }}>
+                        </Stack>
+                        <Stack>
+                            <Text
+                                block={true}
+                                variant="large"
+                                style={{ color: theme.palette.themePrimary, fontWeight: "bold" }}
+                            >
                                 {this.props.t("Size")}:
                             </Text>
                             <Text variant="medium">{api.SizeMap[this.state.world.size]}</Text>
-                        </div>
-                        <div>
-                            <Text variant="large" style={{ color: theme.palette.themePrimary, fontWeight: "bold" }}>
+                        </Stack>
+                        <Stack>
+                            <Text
+                                block={true}
+                                variant="large"
+                                style={{ color: theme.palette.themePrimary, fontWeight: "bold" }}
+                            >
                                 {this.props.t("Server Region")}:
                             </Text>
                             <Text variant="medium">{api.RegionNameMap[this.state.world.region]}</Text>
-                        </div>
-                        <div>
-                            <Text variant="large" style={{ color: theme.palette.themePrimary, fontWeight: "bold" }}>
+                        </Stack>
+                        <Stack>
+                            <Text
+                                block={true}
+                                variant="large"
+                                style={{ color: theme.palette.themePrimary, fontWeight: "bold" }}
+                            >
                                 {this.props.t("Number of Regions")}:
                             </Text>
                             <Text variant="medium">
                                 {this.state.world.number_of_regions || this.props.t("Unknown")}
                             </Text>
-                        </div>
-                    </div>
-                </div>
-                <div
-                    style={{
-                        display: "grid",
-                        gridGap: "1px",
-                        gridAutoRows: "minmax(100px, auto)",
-                        gridTemplateColumns: "repeat(auto-fill, 475px)",
-                        flexWrap: "wrap",
-                    }}
-                >
-                    <div
-                        style={{
-                            display: "grid",
-                            gridGap: "1px",
-                            gridAutoRows: "minmax(100px, auto)",
-                            gridTemplateColumns: "repeat(auto-fill, 237px)",
-                            flexWrap: "wrap",
-                        }}
-                    >
-                        <div>
-                            <Text variant="large" style={{ color: theme.palette.themePrimary, fontWeight: "bold" }}>
+                        </Stack>
+                        <Stack>
+                            <Text
+                                block={true}
+                                variant="large"
+                                style={{ color: theme.palette.themePrimary, fontWeight: "bold" }}
+                            >
                                 {this.props.t("Surface Liquid")}:
                             </Text>
                             <Text variant="medium">{this.state.world.surface_liquid}</Text>
-                            <Text variant="large" style={{ color: theme.palette.themePrimary, fontWeight: "bold" }}>
+                            <Text
+                                block={true}
+                                variant="large"
+                                style={{ color: theme.palette.themePrimary, fontWeight: "bold" }}
+                            >
                                 {this.props.t("Core Liquid")}:
                             </Text>
                             <Text variant="medium">{this.state.world.core_liquid}</Text>
-                        </div>
-
-                        <div>
-                            {this.state.world.start !== null && (
-                                <Stack>
-                                    <Text
-                                        variant="large"
-                                        style={{ color: theme.palette.themePrimary, fontWeight: "bold" }}
-                                    >
-                                        {this.props.t("Start")}:
-                                    </Text>
-                                    <Time date={new Date(this.state.world.start)} />
-                                </Stack>
-                            )}
-                            {this.state.world.end !== null && (
-                                <Stack>
-                                    <Text
-                                        variant="large"
-                                        style={{ color: theme.palette.themePrimary, fontWeight: "bold" }}
-                                    >
-                                        {this.props.t("End")}:
-                                    </Text>
-                                    <Time date={new Date(this.state.world.end)} />
-                                </Stack>
-                            )}
-                        </div>
-                    </div>
-                    <div
-                        style={{
-                            display: "grid",
-                            gridGap: "1px",
-                            gridAutoRows: "minmax(100px, auto)",
-                            gridTemplateColumns: "repeat(auto-fill, 237px)",
-                            flexWrap: "wrap",
-                        }}
-                    >
-                        <div>
-                            <Text variant="large" style={{ color: theme.palette.themePrimary, fontWeight: "bold" }}>
+                        </Stack>
+                        {this.renderTime()}
+                        <Stack>
+                            <Text
+                                block={true}
+                                variant="large"
+                                style={{ color: theme.palette.themePrimary, fontWeight: "bold" }}
+                            >
                                 Bows:
                             </Text>
                             <Text variant="medium">{this.getBows()}</Text>
-                        </div>
+                        </Stack>
                     </div>
                 </div>
-                {/* <GroupedList
-                    items={[]}
-                    onRenderCell={onRenderCell}
-                    selectionMode={SelectionMode.none}
-                    groups={[
-                        {
-                            key: "default-colors",
-                            name: "Default Colors",
-                            children: [],
-                            count: 1,
-                            isCollapsed: true,
-                            level: 0,
-                        },
-                        {
-                            key: "current-colors",
-                            name: "Current Colors",
-                            children: [],
-                            count: 1,
-                            isCollapsed: true,
-                            level: 0,
-                        },
-                        {
-                            key: "initial-resources",
-                            name: "Initial Resources",
-                            children: [],
-                            count: 1,
-                            isCollapsed: true,
-                            level: 0,
-                        },
-                        {
-                            key: "current-resources",
-                            name: "Current Resources",
-                            children: [],
-                            count: 1,
-                            isCollapsed: true,
-                            level: 0,
-                        },
-                    ]}
-                    groupProps={{ onRenderHeader: onRenderHeader }} */}
-                {/* /> */}
-                {/* {this.state.world.protection_points !== null && this.state.world.protection_skill !== null && (
-                        <Stack>
-                            <Text variant="large" style={{ color: theme.palette.themePrimary, fontWeight: "bold" }}>
-                                Atmosphere:
-                            </Text>
-                            <Atmosphere
-                                points={this.state.world.protection_points}
-                                skill={this.props.skills.items[this.state.world.protection_skill.id]}
-                            />
-                        </Stack>
-                    )} */}
-                {/* <Stack> */}
-
-                {/* </Stack> */}
-                {/* {this.state.world.start !== null && (
-                        <Stack>
-                            <Text variant="large" style={{ color: theme.palette.themePrimary, fontWeight: "bold" }}>
-                                Start:
-                            </Text>
-                            <Time date={new Date(this.state.world.start)} />
-                        </Stack>
-                    )}
-                    {this.state.world.end !== null && (
-                        <Stack>
-                            <Text variant="large" style={{ color: theme.palette.themePrimary, fontWeight: "bold" }}>
-                                End:
-                            </Text>
-                            <Time date={new Date(this.state.world.end)} />
-                        </Stack>
-                    )} */}
             </Stack>
         );
     };
@@ -476,68 +417,3 @@ class Page extends React.Component<Props> {
 }
 
 export default connector(withTranslation()(Page));
-
-/*
-const { DefaultPalette, Slider, Stack, IStackStyles, IStackTokens, Fabric, initializeIcons, GroupedList, SelectionMode, GroupHeader } = window.Fabric;
-
-// Initialize icons in case this example uses them
-initializeIcons();
-
-const sectionStackTokens: IStackTokens = { childrenGap: 10 };
-
-const HorizontalStackWrapExample: React.FunctionComponent = () => {
-  const onRenderCell = () => { return <div></div> }
-
-  const onRenderHeader = (props) => {
-    const headerCountStyle = { display: "none" };
-    const checkButtonStyle = { display: "none" };
-
-    const onToggleSelectGroup = () => {
-      props.onToggleCollapse(props.group);
-    };
-
-    return (
-      <GroupHeader
-        styles={{ check: checkButtonStyle, headerCount: headerCountStyle }}
-        {...props}
-        onToggleSelectGroup={onToggleSelectGroup}
-      />
-    );
-  }
-
-  return (
-    <Stack tokens={sectionStackTokens} styles={{root: {maxWidth: 1000, width: "50vw", margin: "0 auto"}}}>
-      <div style={{display: "grid", gridGap: "10px", gridAutoRows: "minmax(500px, auto)", gridTemplateColumns: "repeat(auto-fill, 475px)", flexWrap: "wrap" }}>
-        <div style={{backgroundColor: "rgba(233,171,88,.5)"}}>Image</div>
-        <div style={{display: "grid", gridGap: "1px", gridAutoRows: "minmax(100px, auto)", gridTemplateColumns: "repeat(auto-fill, 250px)", flexWrap: "wrap" }}>
-            <div style={{backgroundColor: "rgba(233,171,88,.5)", gridColumn: "1/3"}}>Title</div>
-            <div style={{backgroundColor: "rgba(233,171,88,.5)"}}>1</div>
-            <div style={{backgroundColor: "rgba(233,171,88,.5)"}}>2</div>
-            <div style={{backgroundColor: "rgba(233,171,88,.5)"}}>3</div>
-            <div style={{backgroundColor: "rgba(233,171,88,.5)"}}>4</div>
-            <div style={{backgroundColor: "rgba(233,171,88,.5)"}}>5</div>
-            <div style={{backgroundColor: "rgba(233,171,88,.5)"}}>6</div>
-            <div style={{backgroundColor: "rgba(233,171,88,.5)"}}>7</div>
-            <div style={{backgroundColor: "rgba(233,171,88,.5)"}}>8</div>
-        </div>
-      </div>
-      <div style={{display: "grid", gridGap: "1px", gridAutoRows: "minmax(100px, auto)", gridTemplateColumns: "repeat(auto-fill, 239.5px)", flexWrap: "wrap" }}>
-       <div style={{backgroundColor: "rgba(233,171,88,.5)"}}>9</div>
-       <div style={{backgroundColor: "rgba(233,171,88,.5)"}}>10</div>
-       <div style={{backgroundColor: "rgba(233,171,88,.5)"}}>11</div>
-       <div style={{backgroundColor: "rgba(233,171,88,.5)"}}>12</div>
-      </div>
-      <GroupedList
-        items={[]}
-        onRenderCell={onRenderCell}
-        selectionMode={SelectionMode.none}
-        groups={[{key: "default-colors", name: "Default Colors", children: [], count: 1, isCollapsed: true, level: 0}, {key: "current-colors", name: "Current Colors", children: [], count: 1, isCollapsed: true, level: 0}, {key: "initial-resources", name: "Initial Resources", children: [], count: 1, isCollapsed: true, level: 0}, {key: "current-resources", name: "Current Resources", children: [], count: 1, isCollapsed: true, level: 0}]}
-        groupProps={{onRenderHeader: onRenderHeader}}
-      />
-    </Stack>
-  );
-};
-
-const HorizontalStackWrapExampleWrapper = () => <Fabric><HorizontalStackWrapExample /></Fabric>;
-ReactDOM.render(<HorizontalStackWrapExampleWrapper />, document.getElementById('content'))
-*/
