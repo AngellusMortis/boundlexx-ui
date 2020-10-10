@@ -44,6 +44,7 @@ ReactDOM.render(
 serviceWorker.register({
     onSuccess: (registration: ServiceWorkerRegistration, version: string) => {
         console.log(`Setting version to ${version}`);
+        store.dispatch(onUpdate([]));
         store.dispatch(changeVersion(version));
     },
     onUpdate: (registration: ServiceWorkerRegistration, versions?: Version[]) => {

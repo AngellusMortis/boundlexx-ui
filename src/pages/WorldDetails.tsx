@@ -2,18 +2,7 @@ import React from "react";
 import { withTranslation, WithTranslation } from "react-i18next";
 import * as api from "../api";
 import { Client as BoundlexxClient, Components } from "../api/client";
-import { ICardTokens } from "@uifabric/react-cards";
-import {
-    Image,
-    Stack,
-    Text,
-    Spinner,
-    SpinnerSize,
-    Link,
-    GroupedList,
-    SelectionMode,
-    IStackTokens,
-} from "@fluentui/react";
+import { Image, Stack, Text, Spinner, SpinnerSize, Link, IStackTokens } from "@fluentui/react";
 import NotFound from "../components/NotFound";
 import Time from "../components/Time";
 import Atmosphere from "../components/Atmosphere";
@@ -21,6 +10,8 @@ import { getTheme } from "../themes";
 import { RootState } from "../store";
 import { connect, ConnectedProps } from "react-redux";
 import "./WorldDetails.css";
+import BlockColors from "../components/BlockColors";
+import WorldResources from "../components/WorldResources";
 
 interface BaseProps {
     id: number;
@@ -196,23 +187,38 @@ class Page extends React.Component<Props> {
         );
     };
 
+    setTitle = () => {
+        const boundlexx = this.props.t("Boundlexx");
+        const page = `${this.props.t("World")} - ${this.state.world === null ? "" : this.state.world.text_name}`;
+
+        document.title = `${boundlexx} | ${page}`;
+        window.history.replaceState(document.title, document.title);
+    };
+
     renderWorld = () => {
         const theme = getTheme();
 
         if (this.state.world === null) {
             return <NotFound pageName={this.props.t("World Not Found")} />;
         }
-        const boundlexx = this.props.t("Boundlexx");
-        const page = `${this.props.t("World")} -`;
-
-        document.title = `${boundlexx} | ${page}`;
-        window.history.replaceState(document.title, document.title);
+        this.setTitle();
 
         const specialType = api.getSpecialType(this.state.world);
         const sectionStackTokens: IStackTokens = { childrenGap: 10 };
 
         return (
-            <Stack tokens={sectionStackTokens} styles={{ root: { maxWidth: 1200, width: "60vw", margin: "0 auto" } }}>
+            <Stack
+                tokens={sectionStackTokens}
+                styles={{
+                    root: {
+                        maxWidth: 1200,
+                        width: "60vw",
+                        minWidth: 480,
+                        margin: "0 auto 50px 0",
+                        overflowX: "hidden",
+                    },
+                }}
+            >
                 <div
                     style={{
                         display: "grid",
@@ -392,6 +398,12 @@ class Page extends React.Component<Props> {
                         </Stack>
                     </div>
                 </div>
+                {!this.state.world.is_creative && (
+                    <BlockColors worldID={this.state.world.id} isSovereign={this.state.world.is_sovereign} />
+                )}
+                {!this.state.world.is_creative && (
+                    <WorldResources worldID={this.state.world.id} isExo={this.state.world.is_exo} />
+                )}
             </Stack>
         );
     };

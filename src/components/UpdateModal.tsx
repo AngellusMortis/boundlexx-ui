@@ -70,10 +70,19 @@ class UpdateModal extends React.Component<Props> {
             );
         };
 
+        const onGroupHeaderClick = (group: IGroup): void => {
+            if (props === undefined || props.group === undefined || props.onToggleCollapse === undefined) {
+                return;
+            }
+
+            props.onToggleCollapse(props.group);
+        };
+
         return (
             <GroupHeader
                 styles={{ check: { display: "none" }, headerCount: { display: "none" } }}
                 onRenderTitle={onRenderTitle}
+                onGroupHeaderClick={onGroupHeaderClick}
                 {...props}
             />
         );
@@ -108,15 +117,6 @@ class UpdateModal extends React.Component<Props> {
     };
 
     render = (): JSX.Element => {
-        // enforce trailing slash
-        if (!window.location.pathname.endsWith("/")) {
-            window.history.replaceState(
-                "",
-                document.title,
-                `${window.location.origin}${window.location.pathname}/${window.location.search}`,
-            );
-        }
-
         let updates: string[] = [];
         const updateGroups: IGroup[] = [];
 
@@ -129,7 +129,6 @@ class UpdateModal extends React.Component<Props> {
                 updateGroups.push({
                     key: update.date,
                     name: update.date,
-                    data: update.changelogs,
                     count: update.changelogs.length,
                     isCollapsed: true,
                     level: 0,
