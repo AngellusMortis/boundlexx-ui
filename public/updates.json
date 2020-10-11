@@ -1,9 +1,10 @@
 [
     {
-        "date": "",
+        "date": "2020-10-11T03:25:00.000Z",
         "changelogs": [
             "Adds assignment world to World Details",
-            "Fixes local data not being purged on version update, changing language."
+            "Fixes local data not being purged on version update, changing language.",
+            "Adds icons to World Block Colors mirror forum posts."
         ]
     },
     {
