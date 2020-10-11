@@ -18,6 +18,7 @@ import { connect, ConnectedProps } from "react-redux";
 import { Client as BoundlexxClient, Components } from "../api/client";
 import * as api from "../api";
 import { getTheme } from "../themes";
+import { NumberDict, StringDict } from "../types";
 
 interface BaseProps {
     worldID: number;
@@ -42,6 +43,67 @@ const connector = connect(mapState, mapDispatchToProps);
 
 type Props = WithTranslation & BaseProps & ConnectedProps<typeof connector>;
 
+const BlockGroups: string[] = [
+    "Gleam",
+    "Rock",
+    "Wood",
+    "Foliage",
+    "Soil",
+    "Grass",
+    "Miscellaneous",
+    "Flower",
+    "Plant",
+    "Fungus",
+];
+
+const BlockToGroupMap: NumberDict<string> = {
+    9555: "Gleam", // Gleam
+    10798: "Rock", // Igneous
+    10794: "Rock", // Metamorhic
+    10802: "Rock", // Sedimentary
+    10830: "Wood", // Ancient Trunk
+    10838: "Wood", // Lustrous Trunk
+    10834: "Wood", // Twisted Trunk
+    10822: "Foliage", // Exotic Leaves
+    10818: "Foliage", // Lust Leaves
+    10826: "Foliage", // Waxy Leaves
+    11588: "Soil", // Clay Soil
+    11592: "Soil", // Peaty Soil
+    11584: "Soil", // Silty Soil
+    10846: "Soil", // Mud
+    10850: "Soil", // Ash
+    10814: "Soil", // Gravel
+    10810: "Soil", // Sand
+    3085: "Grass", // Barbed Grass
+    6157: "Grass", // Gnarled Grass
+    13: "Grass", // Verdant Grass
+    10870: "Miscellaneous", // Growth
+    10842: "Miscellaneous", // Ice
+    10806: "Miscellaneous", // Glacier
+    10866: "Miscellaneous", // Mould
+    10854: "Miscellaneous", // Sponge
+    10858: "Miscellaneous", // Tangle
+    10862: "Miscellaneous", // Thorns
+    9838: "Flower", // Gladeflower
+    9839: "Flower", // Cloneflower
+    9840: "Flower", // Spineflower
+    9841: "Flower", // Ghostflower
+    10775: "Plant", // Trumpet Root
+    10774: "Plant", // Traveller's Perch
+    10779: "Plant", // Twisted Aloba
+    10778: "Plant", // Spineback Planet
+    10781: "Plant", // Oortian's Staff
+    10776: "Plant", // Rosetta Nox
+    10780: "Plant", // Stardrop Plant
+    10777: "Plant", // Desert Sword
+    10788: "Fungus", // Mottled Tar Spot Fungus
+    10789: "Fungus", // Clustered Tongue Fungus
+    10790: "Fungus", // Branch Funnel
+    10792: "Fungus", // Weeping Waxcap
+    10793: "Fungus", // Glow Cap
+    10791: "Fungus", // Tinted-Burst
+};
+
 class BlockColors extends React.Component<Props> {
     client: BoundlexxClient | null = null;
     mounted = false;
@@ -56,7 +118,11 @@ class BlockColors extends React.Component<Props> {
         this.mounted = true;
         this.client = await api.getClient();
 
-        await this.setColors();
+        if (this.props.specialType === 1) {
+            this.setState({ loaded: true });
+        } else {
+            await this.setColors();
+        }
     };
 
     componentWillUnmount = () => {
@@ -77,6 +143,7 @@ class BlockColors extends React.Component<Props> {
         if (
             !this.mounted ||
             this.client === null ||
+            this.props.specialType === 1 ||
             this.state.loaded ||
             Reflect.ownKeys(this.props.colors.items).length !== 255 ||
             Reflect.ownKeys(this.props.items.items).length !== this.props.items.count
@@ -140,13 +207,14 @@ class BlockColors extends React.Component<Props> {
 
         const color = this.props.colors.items[item.color.game_id];
         const actualItem = this.props.items.items[item.item.game_id];
+        nestingDepth = nestingDepth || 0;
 
         return (
             <DetailsRow
                 columns={[
                     { fieldName: "colorColor", key: "color-color", name: "color-color", minWidth: 30 },
-                    { fieldName: "item", key: "item", name: "item", minWidth: 200 },
-                    { fieldName: "color", key: "color", name: "color", minWidth: 200 },
+                    { fieldName: "item", key: "item", name: "item", minWidth: 175 },
+                    { fieldName: "color", key: "color", name: "color", minWidth: 175 },
                 ]}
                 item={{
                     colorColor: (
@@ -161,19 +229,19 @@ class BlockColors extends React.Component<Props> {
                         />
                     ),
                     item: (
-                        <Text block={true} style={{ fontWeight: "bold", width: 200 }}>
+                        <Text block={true} style={{ fontWeight: "bold", width: 175 }}>
                             {actualItem.localization[0].name}
                         </Text>
                     ),
                     color: (
-                        <Text block={true} style={{ fontStyle: "italic", width: 200 }}>
+                        <Text block={true} style={{ fontStyle: "italic", width: 175 }}>
                             {color.localization[0].name} ({this.props.t("ID")}: {color.game_id})
                         </Text>
                     ),
                 }}
                 itemIndex={index || 0}
                 selectionMode={SelectionMode.none}
-                styles={{ root: { width: "100%" } }}
+                styles={{ root: { width: "100%", marginLeft: nestingDepth * 15 } }}
             />
         );
     };
@@ -208,6 +276,61 @@ class BlockColors extends React.Component<Props> {
         );
     };
 
+    createGroup = (
+        colors: Components.Schemas.WorldBlockColor[],
+        items: unknown[],
+        groups: IGroup[],
+        key: string,
+        name: string,
+    ) => {
+        if (colors.length > 0) {
+            const blockGroups: StringDict<Components.Schemas.WorldBlockColor[]> = {};
+
+            for (let index = 0; index < colors.length; index++) {
+                const wbc = colors[index];
+                const groupName = BlockToGroupMap[wbc.item.game_id];
+
+                if (!(groupName in blockGroups)) {
+                    blockGroups[groupName] = [];
+                }
+
+                blockGroups[groupName].push(wbc);
+            }
+
+            const childrenGroups: IGroup[] = [];
+            const startIndex = items.length;
+            let previousIndex = startIndex;
+            for (let index = 0; index < BlockGroups.length; index++) {
+                const groupName = BlockGroups[index];
+                const groupColors = blockGroups[groupName];
+
+                childrenGroups.push({
+                    key: `${key}-${groupName}`,
+                    name: groupName,
+                    count: groupColors.length,
+                    isCollapsed: false,
+                    level: 1,
+                    startIndex: previousIndex,
+                });
+
+                previousIndex = previousIndex + groupColors.length;
+                items.push(...groupColors);
+            }
+
+            items.push(...colors);
+
+            groups.push({
+                key: key,
+                name: name,
+                children: childrenGroups,
+                count: colors.length,
+                isCollapsed: true,
+                level: 0,
+                startIndex: startIndex,
+            });
+        }
+    };
+
     render = (): string | JSX.Element => {
         const theme = getTheme();
 
@@ -230,35 +353,11 @@ class BlockColors extends React.Component<Props> {
                 return "";
             }
 
-            let blockColors: Components.Schemas.WorldBlockColor[] = [];
+            const blockColors: Components.Schemas.WorldBlockColor[] = [];
             const colorGroups: IGroup[] = [];
 
-            if (this.state.defaultColors.length > 0) {
-                blockColors = this.state.defaultColors;
-
-                colorGroups.push({
-                    key: "default-colors",
-                    name: "Default Colors",
-                    count: this.state.defaultColors.length,
-                    isCollapsed: true,
-                    level: 0,
-                    startIndex: 0,
-                });
-            }
-
-            if (this.state.currentColors.length > 0) {
-                const startIndex = blockColors.length;
-                blockColors = blockColors.concat(this.state.currentColors);
-
-                colorGroups.push({
-                    key: "current-colors",
-                    name: "Current Colors",
-                    count: this.state.currentColors.length,
-                    isCollapsed: true,
-                    level: 0,
-                    startIndex: startIndex,
-                });
-            }
+            this.createGroup(this.state.defaultColors, blockColors, colorGroups, "default-colors", "Default Colors");
+            this.createGroup(this.state.currentColors, blockColors, colorGroups, "current-colors", "Current Colors");
 
             return (
                 <div>

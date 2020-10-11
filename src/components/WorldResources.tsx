@@ -100,7 +100,7 @@ class WorldResources extends React.Component<Props> {
             }
 
             if (this.props.isExo) {
-                const defaultResponse = await this.client.listWorldPollResources([
+                const initialResponse = await this.client.listWorldPollResources([
                     {
                         name: "world_id",
                         value: this.props.worldID,
@@ -115,7 +115,7 @@ class WorldResources extends React.Component<Props> {
 
                 this.setState({
                     currentResources: latestResponse.data,
-                    defaultColors: defaultResponse.data,
+                    initialResources: initialResponse.data,
                     loaded: true,
                 });
             } else {
@@ -132,7 +132,7 @@ class WorldResources extends React.Component<Props> {
     };
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    onRenderColors = (
+    onRenderResources = (
         nestingDepth?: number | undefined,
         item?: any,
         index?: number | undefined,
@@ -141,18 +141,20 @@ class WorldResources extends React.Component<Props> {
             return "";
         }
 
+        nestingDepth = nestingDepth || 0;
+
         if (typeof item === "string") {
             return (
                 <DetailsRow
                     columns={[
-                        { fieldName: "item", key: "item", name: "item", minWidth: 200 },
+                        { fieldName: "item", key: "item", name: "item", minWidth: 175 },
                         { fieldName: "count", key: "count", name: "count", minWidth: 80 },
                         { fieldName: "percentage", key: "percentage", name: "percentage", minWidth: 50 },
-                        { fieldName: "average", key: "average", name: "average", minWidth: 150 },
+                        { fieldName: "average", key: "average", name: "average", minWidth: 75 },
                     ]}
                     item={{
                         item: (
-                            <Text block={true} style={{ fontWeight: "bold", width: 200 }}>
+                            <Text block={true} style={{ fontWeight: "bold", width: 175 }}>
                                 {this.props.t("Item")}
                             </Text>
                         ),
@@ -167,14 +169,14 @@ class WorldResources extends React.Component<Props> {
                             </Text>
                         ),
                         average: (
-                            <Text block={true} style={{ fontWeight: "bold", width: 150 }}>
+                            <Text block={true} style={{ fontWeight: "bold", whiteSpace: "break-spaces" }}>
                                 {this.props.t("Average per Chunk")}
                             </Text>
                         ),
                     }}
                     itemIndex={index || 0}
                     selectionMode={SelectionMode.none}
-                    styles={{ root: { width: "100%" } }}
+                    styles={{ root: { width: "100%", marginLeft: nestingDepth * 15 } }}
                 />
             );
         }
@@ -184,14 +186,14 @@ class WorldResources extends React.Component<Props> {
         return (
             <DetailsRow
                 columns={[
-                    { fieldName: "item", key: "item", name: "item", minWidth: 200 },
+                    { fieldName: "item", key: "item", name: "item", minWidth: 175 },
                     { fieldName: "count", key: "count", name: "count", minWidth: 80 },
                     { fieldName: "percentage", key: "percentage", name: "percentage", minWidth: 50 },
                     { fieldName: "average", key: "average", name: "average", minWidth: 150 },
                 ]}
                 item={{
                     item: (
-                        <Text block={true} style={{ fontWeight: "bold", width: 200 }}>
+                        <Text block={true} style={{ fontWeight: "bold", width: 175 }}>
                             {actualItem.localization[0].name}
                         </Text>
                     ),
@@ -216,7 +218,7 @@ class WorldResources extends React.Component<Props> {
                 }}
                 itemIndex={index || 0}
                 selectionMode={SelectionMode.none}
-                styles={{ root: { width: "100%" } }}
+                styles={{ root: { width: "100%", marginLeft: nestingDepth * 15 } }}
             />
         );
     };
@@ -251,7 +253,64 @@ class WorldResources extends React.Component<Props> {
         );
     };
 
+    createGroup = (
+        resources: Components.Schemas.WorldPollResources | null,
+        items: unknown[],
+        groups: IGroup[],
+        key: string,
+        name: string,
+    ) => {
+        if (resources !== null && resources.resources.length > 0) {
+            const embedded: unknown[] = [];
+            const surface: unknown[] = [];
+
+            for (let index = 0; index < resources.resources.length; index++) {
+                const item = resources.resources[index];
+
+                if (item.is_embedded) {
+                    embedded.push(item);
+                } else {
+                    surface.push(item);
+                }
+            }
+
+            const startIndex = items.length;
+            const surfaceIndex = startIndex + embedded.length + 1;
+
+            items.push("header", ...embedded, "header", ...surface);
+
+            groups.push({
+                key: key,
+                children: [
+                    {
+                        key: `${key}-embedded`,
+                        name: "Embedded Resources",
+                        count: embedded.length + 1,
+                        isCollapsed: false,
+                        level: 1,
+                        startIndex: startIndex,
+                    },
+                    {
+                        key: `${key}-surface`,
+                        name: "Surface Resources",
+                        count: surface.length + 1,
+                        isCollapsed: false,
+                        level: 1,
+                        startIndex: surfaceIndex,
+                    },
+                ],
+                name: name,
+                count: resources.resources.length + 2,
+                isCollapsed: true,
+                level: 0,
+                startIndex: startIndex,
+            });
+        }
+    };
+
     render = (): string | JSX.Element => {
+        const theme = getTheme();
+
         if (this.state.loaded) {
             // no resources for the world found
             if (
@@ -263,37 +322,11 @@ class WorldResources extends React.Component<Props> {
                 return "";
             }
 
-            let resources: unknown[] = [];
+            const resources: unknown[] = [];
             const groups: IGroup[] = [];
 
-            if (this.state.initialResources !== null && this.state.initialResources.resources.length > 0) {
-                resources = resources.concat("header", this.state.initialResources.resources);
-
-                groups.push({
-                    key: "initial-resources",
-                    name: "Initial Resources",
-                    count: this.state.initialResources.resources.length + 1,
-                    isCollapsed: true,
-                    level: 0,
-                    startIndex: 0,
-                });
-            }
-
-            if (this.state.currentResources !== null && this.state.currentResources.resources.length > 0) {
-                const startIndex = resources.length;
-                resources = resources.concat("header", this.state.currentResources.resources);
-
-                groups.push({
-                    key: "current-resources",
-                    name: "Current Resources",
-                    count: this.state.currentResources.resources.length + 1,
-                    isCollapsed: true,
-                    level: 0,
-                    startIndex: startIndex,
-                });
-            }
-
-            const theme = getTheme();
+            this.createGroup(this.state.initialResources, resources, groups, "initial-resources", "Initial Resources");
+            this.createGroup(this.state.currentResources, resources, groups, "current-resources", "Current Resources");
 
             return (
                 <div>
@@ -301,7 +334,7 @@ class WorldResources extends React.Component<Props> {
                     <GroupedList
                         compact={true}
                         items={resources}
-                        onRenderCell={this.onRenderColors}
+                        onRenderCell={this.onRenderResources}
                         selectionMode={SelectionMode.none}
                         groups={groups}
                         groupProps={{ onRenderHeader: this.onRenderHeader }}
