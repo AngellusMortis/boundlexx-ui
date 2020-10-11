@@ -294,7 +294,7 @@ class Page extends React.Component<Props> {
                             api.TierNameMap[assignmentWorld.tier],
                         )} ${this.props.t(api.TypeNameMap[assignmentWorld.world_type])} ${
                             specialType == null ? "" : specialType + " "
-                        } ${this.props.t(api.getWorldClass(assignmentWorld))}`}
+                        } ${this.props.t(assignmentWorld.world_class)}`}
                     </Text>
                 </div>
             </Stack>
@@ -360,7 +360,7 @@ class Page extends React.Component<Props> {
                                 {`${this.props.t(api.TierNameMap[this.state.world.tier])} ${this.props.t(
                                     api.TypeNameMap[this.state.world.world_type],
                                 )} ${specialType == null ? "" : specialType + " "} ${this.props.t(
-                                    api.getWorldClass(this.state.world),
+                                    this.state.world.world_class,
                                 )}`}
                             </Text>
                             {this.state.world.forum_url !== null && (

@@ -363,6 +363,7 @@ declare namespace Components {
             display_name: string;
             text_name: string | null;
             html_name: string | null;
+            world_class: "Homeworld" | "Exoworld" | "Sovereign World" | "Creative World";
             /**
              * Tier of the world. Starts at 0.
              */
@@ -453,6 +454,7 @@ declare namespace Components {
             display_name: string;
             text_name: string | null;
             html_name: string | null;
+            world_class: "Homeworld" | "Exoworld" | "Sovereign World" | "Creative World";
             address: string;
             image_url: string | null; // binary
             forum_url: string | null; // uri ^(?:[a-z0-9.+-]*)://(?:[^\s:@/]+(?::[^\s:@/]*)?@)?(?:(?:25[0-5]|2[0-4]\d|[0-1]?\d?\d)(?:\.(?:25[0-5]|2[0-4]\d|[0-1]?\d?\d)){3}|\[[0-9a-f:.]+\]|([a-z¡-￿0-9](?:[a-z¡-￿0-9-]{0,61}[a-z¡-￿0-9])?(?:\.(?!-)[a-z¡-￿0-9-]{1,63}(?<!-))*\.(?!-)(?:[a-z¡-￿-]{2,63}|xn--[a-z0-9]{1,59})(?<!-)\.?|localhost))(?::\d{2,5})?(?:[/?#][^\s]*)?\z

@@ -53,15 +53,3 @@ export const getSpecialType = (world: Components.Schemas.World | Components.Sche
 export const getStatusText = (item: Components.Schemas.SimpleWorld): string => {
     return item.is_locked ? "Locked" : item.active ? "Active" : "Inactive";
 };
-
-export const getWorldClass = (world: Components.Schemas.World | Components.Schemas.SimpleWorld): string => {
-    let worldClass = "Homeworld";
-    if (world.is_creative) {
-        worldClass = "Creative World";
-    } else if (world.is_sovereign) {
-        worldClass = "Sovereign World";
-    } else if (world.is_exo) {
-        worldClass = "Exoworld";
-    }
-    return worldClass;
-};

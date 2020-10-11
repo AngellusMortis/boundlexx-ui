@@ -20,6 +20,8 @@ const mapState = (state: RootState) => {
         results: mapNumericStoreToItems(state.worlds),
         name: "World",
         operationID: "listWorlds",
+        groupBy: "world_class",
+        groupOrder: ["Homeworld", "Exoworld", "Creative World", "Sovereign World"],
         showGroups: state.prefs.showGroups,
         extraDefaultFilters: [{ name: "show_inactive", value: true, in: "query" }],
         extraFilterKeys: [
@@ -430,7 +432,7 @@ class Worlds extends APIDisplay {
                         <Text variant="xSmall">
                             T{item.tier + 1} - {this.props.t(api.TierNameMap[item.tier])}{" "}
                             {this.props.t(api.TypeNameMap[item.world_type])}{" "}
-                            {specialType == null ? "" : specialType + " "} {this.props.t(api.getWorldClass(item))}
+                            {specialType == null ? "" : specialType + " "} {this.props.t(item.world_class)}
                         </Text>
                     )}
                 </Shimmer>

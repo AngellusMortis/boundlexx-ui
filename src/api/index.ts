@@ -12,7 +12,6 @@ export {
     RegionNameMap,
     getStatusText,
     getSpecialType,
-    getWorldClass,
     PointsToLevelsMap,
 } from "./data";
 export { config, getClient, throttle } from "./core";

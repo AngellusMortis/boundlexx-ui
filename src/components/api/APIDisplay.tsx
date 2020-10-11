@@ -62,6 +62,7 @@ interface BaseProps {
     extraDefaultFilters?: APIParams[];
     extraFilterKeys?: FilterValidator[];
     groupBy?: string;
+    groupOrder?: string[];
     showGroups: boolean;
 
     changeShowGroups: (showGroups: boolean) => unknown;
@@ -310,13 +311,17 @@ export abstract class APIDisplay extends React.Component<APIDisplayProps> {
             groups[groupName].push(result);
         }
 
-        const sorted = Reflect.ownKeys(groups).sort();
+        const sorted = this.props.groupOrder || Reflect.ownKeys(groups).sort();
         const newResults: unknown[] = [];
         const listGroups: IGroup[] = [];
 
         for (let index = 0; index < sorted.length; index++) {
             let groupName = sorted[index].toString();
             const group = groups[groupName];
+
+            if (group === undefined) {
+                continue;
+            }
 
             if (groupName === "") {
                 groupName = this.props.t("No Group");
@@ -902,6 +907,10 @@ export abstract class APIDisplay extends React.Component<APIDisplayProps> {
         };
 
         const getGroupHeight = (group: IGroup): number => {
+            if (group.isCollapsed) {
+                return 0;
+            }
+
             return (group.count / this.state.columnCount) * 76;
         };
 
