@@ -213,7 +213,7 @@ class BlockColors extends React.Component<Props> {
             <DetailsRow
                 columns={[
                     { fieldName: "colorColor", key: "color-color", name: "color-color", minWidth: 30 },
-                    { fieldName: "item", key: "item", name: "item", minWidth: 175 },
+                    { fieldName: "item", key: "item", name: "item", minWidth: 135 },
                     { fieldName: "color", key: "color", name: "color", minWidth: 175 },
                 ]}
                 item={{
@@ -229,7 +229,7 @@ class BlockColors extends React.Component<Props> {
                         />
                     ),
                     item: (
-                        <Text block={true} style={{ fontWeight: "bold", width: 175 }}>
+                        <Text block={true} style={{ fontWeight: "bold", width: 135 }}>
                             {actualItem.localization[0].name}
                         </Text>
                     ),

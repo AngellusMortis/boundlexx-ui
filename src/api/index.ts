@@ -18,4 +18,4 @@ export {
 export { config, getClient, throttle } from "./core";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export type updateItems = (results: any[], count?: number | null, nextUrl?: string | null, lang?: string) => unknown;
+export type updateGeneric = (results: any[], count?: number | null, nextUrl?: string | null, lang?: string) => unknown;

@@ -1,5 +1,12 @@
 [
     {
+        "date": "",
+        "changelogs": [
+            "Adds assignment world to World Details",
+            "Fixes local data not being purged on version update, changing language."
+        ]
+    },
+    {
         "date": "2020-10-11T00:45:00.000Z",
         "changelogs": ["Fixes auto trailing slash logic"]
     },

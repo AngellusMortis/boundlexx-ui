@@ -58,7 +58,7 @@ interface BaseProps {
     extraFilterKeys?: FilterValidator[];
 
     changeAPIDefinition?: (definition: OpenAPIV3.Document) => unknown;
-    updateItems?: api.updateItems;
+    updateItems?: api.updateGeneric;
 }
 
 const generatePlaceholders = (targetCount: number | null, items?: unknown[]): unknown[] => {
@@ -222,6 +222,10 @@ export abstract class APIDisplay extends React.Component<APIDisplayProps> {
             // lang changed, clear stored items
             this.resetStore();
             this.resetState(this.state.filters);
+        }
+
+        if (this.props.theme !== prevProps.theme) {
+            this.setState({ results: this.state.results });
         }
     }
 
