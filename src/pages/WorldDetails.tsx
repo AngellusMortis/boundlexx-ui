@@ -152,6 +152,24 @@ class Page extends React.Component<Props> {
         );
     }
 
+    renderEndTimeNull() {
+        const theme = getTheme();
+        if (this.state.world?.end === null) {
+            return (
+                <div>
+                    <Text
+                        block={true}
+                        variant="large"
+                        style={{ color: theme.palette.themePrimary, fontWeight: "bold" }}
+                    >
+                        {this.props.t("End")}:
+                    </Text>
+                    <Text> {this.props.t("Does Not Expire")}</Text>
+                </div>
+            );
+        }
+    }
+
     renderTime = (): string | JSX.Element => {
         if (this.state.world === null || this.state.world.start === null) {
             return "";
@@ -160,7 +178,14 @@ class Page extends React.Component<Props> {
         const theme = getTheme();
 
         return (
-            <Stack>
+            <Stack
+                style={{
+                    backgroundColor: theme.palette.neutralLighter,
+                    borderBottom: "2px solid",
+                    borderBottomColor: theme.palette.themePrimary,
+                    padding: "10px",
+                }}
+            >
                 <div>
                     <Text
                         block={true}
@@ -171,6 +196,7 @@ class Page extends React.Component<Props> {
                     </Text>
                     <Time date={new Date(this.state.world.start)} />
                 </div>
+                {this.renderEndTimeNull()}
                 {this.state.world.end !== null && (
                     <div>
                         <Text
@@ -235,7 +261,15 @@ class Page extends React.Component<Props> {
                             style={{ padding: 50, width: "80%", minWidth: "80%" }}
                             alt="World"
                         />
-                        <h2 style={{ textAlign: "center" }}>
+                        <h2
+                            style={{
+                                textAlign: "center",
+                                backgroundColor: theme.palette.neutralLighter,
+                                borderBottom: "2px solid",
+                                borderBottomColor: theme.palette.themePrimary,
+                                padding: "10px",
+                            }}
+                        >
                             <span
                                 style={{ display: "block" }}
                                 dangerouslySetInnerHTML={{
@@ -262,7 +296,7 @@ class Page extends React.Component<Props> {
                         className="world-details"
                         style={{
                             display: "grid",
-                            gridGap: "1px",
+                            gridGap: "0px",
                             gridAutoRows: "minmax(100px, auto)",
                             gridTemplateColumns: "repeat(auto-fill, 237px)",
                             flexWrap: "wrap",
@@ -272,7 +306,14 @@ class Page extends React.Component<Props> {
                     >
                         <div className="grid-spacer"></div>
                         <div className="grid-spacer"></div>
-                        <Stack>
+                        <Stack
+                            style={{
+                                backgroundColor: theme.palette.neutralLighter,
+                                borderBottom: "2px solid",
+                                borderBottomColor: theme.palette.themePrimary,
+                                padding: "10px",
+                            }}
+                        >
                             <Text
                                 block={true}
                                 variant="large"
@@ -284,7 +325,14 @@ class Page extends React.Component<Props> {
                                 T{this.state.world.tier + 1} - {this.props.t(api.TierNameMap[this.state.world.tier])}
                             </Text>
                         </Stack>
-                        <Stack>
+                        <Stack
+                            style={{
+                                backgroundColor: theme.palette.neutralLighter,
+                                borderBottom: "2px solid",
+                                borderBottomColor: theme.palette.themePrimary,
+                                padding: "10px",
+                            }}
+                        >
                             <Text
                                 block={true}
                                 variant="large"
@@ -294,7 +342,14 @@ class Page extends React.Component<Props> {
                             </Text>
                             <Text variant="medium">{this.props.t(api.TypeNameMap[this.state.world.world_type])}</Text>
                         </Stack>
-                        <Stack>
+                        <Stack
+                            style={{
+                                backgroundColor: theme.palette.neutralLighter,
+                                borderBottom: "2px solid",
+                                borderBottomColor: theme.palette.themePrimary,
+                                padding: "10px",
+                            }}
+                        >
                             <div>
                                 <Text
                                     block={true}
@@ -315,7 +370,14 @@ class Page extends React.Component<Props> {
                                 )}
                             </div>
                         </Stack>
-                        <Stack>
+                        <Stack
+                            style={{
+                                backgroundColor: theme.palette.neutralLighter,
+                                borderBottom: "2px solid",
+                                borderBottomColor: theme.palette.themePrimary,
+                                padding: "10px",
+                            }}
+                        >
                             <Text
                                 block={true}
                                 variant="large"
@@ -325,7 +387,14 @@ class Page extends React.Component<Props> {
                             </Text>
                             <Text variant="medium">{this.props.t(api.getStatusText(this.state.world))}</Text>
                         </Stack>
-                        <Stack>
+                        <Stack
+                            style={{
+                                backgroundColor: theme.palette.neutralLighter,
+                                borderBottom: "2px solid",
+                                borderBottomColor: theme.palette.themePrimary,
+                                padding: "10px",
+                            }}
+                        >
                             <Text
                                 block={true}
                                 variant="large"
@@ -335,7 +404,14 @@ class Page extends React.Component<Props> {
                             </Text>
                             <Text variant="medium">{this.state.world.id}</Text>
                         </Stack>
-                        <Stack>
+                        <Stack
+                            style={{
+                                backgroundColor: theme.palette.neutralLighter,
+                                borderBottom: "2px solid",
+                                borderBottomColor: theme.palette.themePrimary,
+                                padding: "10px",
+                            }}
+                        >
                             <Text
                                 block={true}
                                 variant="large"
@@ -345,7 +421,14 @@ class Page extends React.Component<Props> {
                             </Text>
                             <Text variant="medium">{api.SizeMap[this.state.world.size]}</Text>
                         </Stack>
-                        <Stack>
+                        <Stack
+                            style={{
+                                backgroundColor: theme.palette.neutralLighter,
+                                borderBottom: "2px solid",
+                                borderBottomColor: theme.palette.themePrimary,
+                                padding: "10px",
+                            }}
+                        >
                             <Text
                                 block={true}
                                 variant="large"
@@ -355,7 +438,14 @@ class Page extends React.Component<Props> {
                             </Text>
                             <Text variant="medium">{api.RegionNameMap[this.state.world.region]}</Text>
                         </Stack>
-                        <Stack>
+                        <Stack
+                            style={{
+                                backgroundColor: theme.palette.neutralLighter,
+                                borderBottom: "2px solid",
+                                borderBottomColor: theme.palette.themePrimary,
+                                padding: "10px",
+                            }}
+                        >
                             <Text
                                 block={true}
                                 variant="large"
@@ -367,7 +457,14 @@ class Page extends React.Component<Props> {
                                 {this.state.world.number_of_regions || this.props.t("Unknown")}
                             </Text>
                         </Stack>
-                        <Stack>
+                        <Stack
+                            style={{
+                                backgroundColor: theme.palette.neutralLighter,
+                                borderBottom: "2px solid",
+                                borderBottomColor: theme.palette.themePrimary,
+                                padding: "10px",
+                            }}
+                        >
                             <Text
                                 block={true}
                                 variant="large"
@@ -386,7 +483,14 @@ class Page extends React.Component<Props> {
                             <Text variant="medium">{this.state.world.core_liquid}</Text>
                         </Stack>
                         {this.renderTime()}
-                        <Stack>
+                        <Stack
+                            style={{
+                                backgroundColor: theme.palette.neutralLighter,
+                                borderBottom: "2px solid",
+                                borderBottomColor: theme.palette.themePrimary,
+                                padding: "10px",
+                            }}
+                        >
                             <Text
                                 block={true}
                                 variant="large"

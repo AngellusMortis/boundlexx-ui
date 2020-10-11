@@ -7,9 +7,9 @@
     .grid-spacer {
         display: none;
     }
-
+    /* 
     .world-details :not(.ms-TooltipHost):not(.bows) > span,
     .world-details .ms-TooltipHost {
         left: 25%;
-    }
+    } */
 }
