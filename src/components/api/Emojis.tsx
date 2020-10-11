@@ -12,6 +12,7 @@ import { Components } from "../../api/client";
 import { withRouter } from "react-router-dom";
 import { StringDict } from "../../types";
 import { Mutex } from "async-mutex";
+import { changeShowGroups } from "../../prefs/actions";
 
 const mapState = (state: RootState) => ({
     theme: getTheme(state.prefs.theme),
@@ -19,6 +20,7 @@ const mapState = (state: RootState) => ({
     operationID: "listEmojis",
     name: "Emoji",
     results: mapStringStoreToItems(state.emojis),
+    showGroups: state.prefs.showGroups,
     extraFilterKeys: [
         {
             name: "is_boundless_only",
@@ -27,7 +29,7 @@ const mapState = (state: RootState) => ({
     ],
 });
 
-const mapDispatchToProps = { changeAPIDefinition: api.changeAPIDefinition, updateItems: api.updateEmojis };
+const mapDispatchToProps = { changeShowGroups, updateItems: api.updateEmojis };
 
 const connector = connect(mapState, mapDispatchToProps);
 

@@ -344,6 +344,14 @@ declare namespace Components {
                     name: string;
                 }[];
             };
+            list_type: {
+                string_id: string;
+                strings: {
+                    lang: string;
+                    text: string;
+                    plain_text: string;
+                }[];
+            };
         }
         export interface SimpleWorld {
             id: number;
@@ -791,6 +799,7 @@ declare namespace Paths {
         namespace Parameters {
             export type Active = string;
             export type Color_GameId = string;
+            export type IsDefault = string;
             export type IsExo = string;
             export type IsSovereign = string;
             export type Item_GameId = string;
@@ -827,6 +836,7 @@ declare namespace Paths {
             limit?: Parameters.Limit;
             offset?: Parameters.Offset;
             active?: Parameters.Active;
+            is_default?: Parameters.IsDefault;
             item__string_id?: Parameters.Item_StringId;
             item__game_id?: Parameters.Item_GameId;
             world__active?: Parameters.World_Active;
@@ -950,6 +960,7 @@ declare namespace Paths {
         namespace Parameters {
             export type Active = string;
             export type Color_GameId = string;
+            export type IsDefault = string;
             export type IsExo = string;
             export type IsSovereign = string;
             export type Item_GameId = string;
@@ -985,6 +996,7 @@ declare namespace Paths {
             limit?: Parameters.Limit;
             offset?: Parameters.Offset;
             active?: Parameters.Active;
+            is_default?: Parameters.IsDefault;
             color__game_id?: Parameters.Color_GameId;
             world__active?: Parameters.World_Active;
             world__tier?: Parameters.World_Tier;
@@ -1198,6 +1210,7 @@ declare namespace Paths {
             export type ItemSubtitleId = string;
             export type Lang = "english" | "french" | "german" | "italian" | "spanish" | "none" | "all";
             export type Limit = number;
+            export type ListType_StringId = string;
             export type Offset = number;
             export type Ordering = string;
             export type Search = string;
@@ -1208,6 +1221,7 @@ declare namespace Paths {
             offset?: Parameters.Offset;
             string_id?: Parameters.StringId;
             item_subtitle_id?: Parameters.ItemSubtitleId;
+            list_type__string_id?: Parameters.ListType_StringId;
             lang?: Parameters.Lang;
             has_colors?: Parameters.HasColors;
             is_resource?: Parameters.IsResource;
@@ -1528,6 +1542,7 @@ declare namespace Paths {
             export type Assignment = string;
             export type End = string;
             export type IsCreative = string;
+            export type IsDefault = string;
             export type IsExo = string;
             export type IsLocked = string;
             export type IsPublic = string;
@@ -1572,6 +1587,7 @@ declare namespace Paths {
             active?: Parameters.Active;
             is_exo?: Parameters.IsExo;
             is_sovereign?: Parameters.IsSovereign;
+            is_default?: Parameters.IsDefault;
             show_inactive?: Parameters.ShowInactive;
             show_inactive_colors?: Parameters.ShowInactiveColors;
             search?: Parameters.Search;
@@ -1632,6 +1648,7 @@ declare namespace Paths {
         namespace Parameters {
             export type Active = string;
             export type Color_GameId = string;
+            export type IsDefault = string;
             export type IsExo = string;
             export type IsSovereign = string;
             export type Item_GameId = string;
@@ -1665,6 +1682,7 @@ declare namespace Paths {
         }
         export interface QueryParameters {
             active?: Parameters.Active;
+            is_default?: Parameters.IsDefault;
             item__string_id?: Parameters.Item_StringId;
             item__game_id?: Parameters.Item_GameId;
             world__active?: Parameters.World_Active;
@@ -1710,6 +1728,7 @@ declare namespace Paths {
             export type IsResource = string;
             export type ItemSubtitleId = string;
             export type Lang = "english" | "french" | "german" | "italian" | "spanish" | "none" | "all";
+            export type ListType_StringId = string;
             export type Ordering = string;
             export type Search = string;
             export type StringId = string;
@@ -1720,6 +1739,7 @@ declare namespace Paths {
         export interface QueryParameters {
             string_id?: Parameters.StringId;
             item_subtitle_id?: Parameters.ItemSubtitleId;
+            list_type__string_id?: Parameters.ListType_StringId;
             lang?: Parameters.Lang;
             has_colors?: Parameters.HasColors;
             is_resource?: Parameters.IsResource;
@@ -1734,6 +1754,7 @@ declare namespace Paths {
         namespace Parameters {
             export type Active = string;
             export type Color_GameId = string;
+            export type IsDefault = string;
             export type IsExo = string;
             export type IsSovereign = string;
             export type Item_GameId = string;
@@ -1766,6 +1787,7 @@ declare namespace Paths {
         }
         export interface QueryParameters {
             active?: Parameters.Active;
+            is_default?: Parameters.IsDefault;
             color__game_id?: Parameters.Color_GameId;
             world__active?: Parameters.World_Active;
             world__tier?: Parameters.World_Tier;
@@ -1945,6 +1967,7 @@ declare namespace Paths {
             export type End = string;
             export type Id = string;
             export type IsCreative = string;
+            export type IsDefault = string;
             export type IsExo = string;
             export type IsLocked = string;
             export type IsPublic = string;
@@ -1988,6 +2011,7 @@ declare namespace Paths {
             active?: Parameters.Active;
             is_exo?: Parameters.IsExo;
             is_sovereign?: Parameters.IsSovereign;
+            is_default?: Parameters.IsDefault;
             show_inactive?: Parameters.ShowInactive;
             show_inactive_colors?: Parameters.ShowInactiveColors;
             search?: Parameters.Search;
@@ -2469,7 +2493,8 @@ export interface OperationMethods {
      *
      * Retrieves a specific poll for a given world
      *
-     * Can pass `latest` in place of `id` to retrieve the newsest one
+     * Can pass `latest` or `initial` in place of `id` to retrieve the
+     * newest or first one
      */
     "retrieveWorldPoll"(
         parameters?: Parameters<Paths.RetrieveWorldPoll.PathParameters & Paths.RetrieveWorldPoll.QueryParameters>,
@@ -2994,7 +3019,8 @@ export interface PathsDictionary {
          *
          * Retrieves a specific poll for a given world
          *
-         * Can pass `latest` in place of `id` to retrieve the newsest one
+         * Can pass `latest` or `initial` in place of `id` to retrieve the
+         * newest or first one
          */
         "get"(
             parameters?: Parameters<Paths.RetrieveWorldPoll.PathParameters & Paths.RetrieveWorldPoll.QueryParameters>,

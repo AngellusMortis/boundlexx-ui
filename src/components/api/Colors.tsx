@@ -9,6 +9,7 @@ import { APIDisplay, mapNumericStoreToItems } from "./APIDisplay";
 import { Components } from "../../api/client";
 import { getTheme } from "../../themes";
 import { withRouter } from "react-router-dom";
+import { changeShowGroups } from "../../prefs/actions";
 
 const mapState = (state: RootState) => ({
     theme: getTheme(state.prefs.theme),
@@ -16,10 +17,11 @@ const mapState = (state: RootState) => ({
     operationID: "listColors",
     name: "Color",
     results: mapNumericStoreToItems(state.colors),
+    showGroups: state.prefs.showGroups,
     loadAll: true,
 });
 
-const mapDispatchToProps = { changeAPIDefinition: api.changeAPIDefinition, updateItems: api.updateColors };
+const mapDispatchToProps = { changeShowGroups, updateItems: api.updateColors };
 
 const connector = connect(mapState, mapDispatchToProps);
 

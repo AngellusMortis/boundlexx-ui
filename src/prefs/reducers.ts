@@ -5,6 +5,7 @@ import {
     CHANGE_VERSION,
     ON_UPDATE,
     CHANGE_SHOW_VERSION,
+    CHANGE_SHOW_GROUPS,
     PerfsActionsType,
 } from "./types";
 
@@ -13,6 +14,7 @@ const initialState: UserPreferences = {
     theme: "",
     version: null,
     showUpdates: false,
+    showGroups: false,
 };
 
 export function prefsReducer(state = initialState, action: PerfsActionsType): UserPreferences {
@@ -37,6 +39,8 @@ export function prefsReducer(state = initialState, action: PerfsActionsType): Us
             };
         case CHANGE_SHOW_VERSION:
             return { ...state, showUpdates: action.payload };
+        case CHANGE_SHOW_GROUPS:
+            return { ...state, showGroups: action.payload };
         default:
             return state;
     }

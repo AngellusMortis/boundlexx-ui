@@ -10,6 +10,7 @@ import { Components } from "../../api/client";
 import { withRouter } from "react-router-dom";
 import { StringDict } from "../../types";
 import WorldSelector from "../WorldSelector";
+import { changeShowGroups } from "../../prefs/actions";
 
 const mapState = (state: RootState) => {
     return {
@@ -19,6 +20,7 @@ const mapState = (state: RootState) => {
         results: mapNumericStoreToItems(state.worlds),
         name: "World",
         operationID: "listWorlds",
+        showGroups: state.prefs.showGroups,
         extraDefaultFilters: [{ name: "show_inactive", value: true, in: "query" }],
         extraFilterKeys: [
             {
@@ -105,7 +107,7 @@ const mapState = (state: RootState) => {
     };
 };
 
-const mapDispatchToProps = { changeAPIDefinition: api.changeAPIDefinition, updateItems: api.updateWorlds };
+const mapDispatchToProps = { changeShowGroups, updateItems: api.updateWorlds };
 
 const connector = connect(mapState, mapDispatchToProps);
 

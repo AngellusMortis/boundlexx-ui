@@ -4,8 +4,8 @@ import { withTranslation, WithTranslation } from "react-i18next";
 import { Components } from "../api/client";
 
 interface BaseProps extends ISelectableDroppableTextProps<IComboBox, IComboBox> {
-    subtitleID?: number | null;
-    onSubtitleChange?: (item: Components.Schemas.SimpleItem | null) => void;
+    stringID?: string | null;
+    onStringIDChange?: (item: Components.Schemas.SimpleItem | null) => void;
     items: Components.Schemas.SimpleItem[];
 }
 
@@ -15,7 +15,7 @@ interface State {
 
 type Props = WithTranslation & BaseProps;
 
-class SubtitleSelector extends React.Component<Props> {
+class ListTypeSelector extends React.Component<Props> {
     state: State;
 
     constructor(props: Props) {
@@ -27,14 +27,14 @@ class SubtitleSelector extends React.Component<Props> {
 
         // Pass inital world back up
         if (
-            this.props.subtitleID !== null &&
-            this.props.subtitleID !== undefined &&
-            this.props.onSubtitleChange !== undefined
+            this.props.stringID !== null &&
+            this.props.stringID !== undefined &&
+            this.props.onStringIDChange !== undefined
         ) {
-            const item = this.getItemFromSubtitleID(this.props.subtitleID);
+            const item = this.getItemFromStringID(this.props.stringID);
 
             if (item !== null) {
-                this.props.onSubtitleChange(item);
+                this.props.onStringIDChange(item);
             }
         }
     }
@@ -48,15 +48,19 @@ class SubtitleSelector extends React.Component<Props> {
     optionsFromProps = () => {
         let options: IComboBoxOption[] = [];
 
-        const subtitleIDs: number[] = [];
+        const stringIDs: string[] = [];
         for (let index = 0; index < this.props.items.length; index++) {
             const item = this.props.items[index];
-            if (subtitleIDs.indexOf(item.item_subtitle.id) <= -1) {
-                subtitleIDs.push(item.item_subtitle.id);
+            if (item === undefined) {
+                break;
+            }
+
+            if (item.list_type !== null && stringIDs.indexOf(item.list_type.string_id) <= -1) {
+                stringIDs.push(item.list_type.string_id);
 
                 options.push({
-                    key: item.item_subtitle.id,
-                    text: item.item_subtitle.localization[0].name,
+                    key: item.list_type.string_id,
+                    text: item.list_type.strings[0].plain_text,
                 });
             }
         }
@@ -66,10 +70,10 @@ class SubtitleSelector extends React.Component<Props> {
         return options;
     };
 
-    getItemFromSubtitleID = (id: number): Components.Schemas.SimpleItem | null => {
+    getItemFromStringID = (id: string): Components.Schemas.SimpleItem | null => {
         for (let index = 0; index < this.props.items.length; index++) {
             const item = this.props.items[index];
-            if (item.item_subtitle.id === id) {
+            if (item.list_type.string_id === id) {
                 return item;
             }
         }
@@ -80,20 +84,17 @@ class SubtitleSelector extends React.Component<Props> {
         let newItem: Components.Schemas.SimpleItem | null = null;
 
         if (option !== undefined) {
-            let key = option.key;
-            if (typeof key === "string") {
-                key = parseInt(key);
-            }
+            const key = option.key.toString();
 
-            newItem = this.getItemFromSubtitleID(key);
+            newItem = this.getItemFromStringID(key);
         }
 
-        if (this.props.onSubtitleChange !== undefined) {
-            this.props.onSubtitleChange(newItem);
+        if (this.props.onStringIDChange !== undefined) {
+            this.props.onStringIDChange(newItem);
         }
     };
 
-    getValueFromID = (worldID?: number | null | undefined) => {
+    getValueFromID = (worldID?: string | null | undefined) => {
         if (worldID === null || worldID === undefined) {
             return "";
         }
@@ -109,7 +110,7 @@ class SubtitleSelector extends React.Component<Props> {
     };
 
     render() {
-        const label = this.props.label || "Subtitle";
+        const label = this.props.label || "Type";
         return (
             <ComboBox
                 placeholder={this.props.t(`Select ${label}`)}
@@ -118,11 +119,11 @@ class SubtitleSelector extends React.Component<Props> {
                 allowFreeform
                 options={this.state.options}
                 onChange={this.onChange}
-                text={this.getValueFromID(this.props.subtitleID)}
+                text={this.getValueFromID(this.props.stringID)}
                 {...this.props}
             ></ComboBox>
         );
     }
 }
 
-export default withTranslation()(SubtitleSelector);
+export default withTranslation()(ListTypeSelector);
