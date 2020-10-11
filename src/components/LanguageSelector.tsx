@@ -57,13 +57,13 @@ class LanguageSelector extends React.Component<Props> {
     };
 
     updateLanguage = (lang: string) => {
-        // clear localized data
-        this.props.updateColors([], null, null, lang);
-        this.props.updateRecipeGroups([], null, null, lang);
-        this.props.updateSkills([], null, null, lang);
-        this.props.updateItems([], null, null, lang);
-
         if (this.props.locale !== lang) {
+            // clear localized data
+            this.props.updateColors([], null, null, lang);
+            this.props.updateRecipeGroups([], null, null, lang);
+            this.props.updateSkills([], null, null, lang);
+            this.props.updateItems([], null, null, lang);
+
             this.props.changeLanuage(lang);
         }
 

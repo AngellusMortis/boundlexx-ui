@@ -9,6 +9,8 @@ import {
     Spinner,
     SpinnerSize,
     Text,
+    Image,
+    TooltipHost,
 } from "@fluentui/react";
 import "react-toastify/dist/ReactToastify.css";
 import { withTranslation, WithTranslation } from "react-i18next";
@@ -19,6 +21,7 @@ import { Client as BoundlexxClient, Components } from "../api/client";
 import * as api from "../api";
 import { getTheme } from "../themes";
 import { NumberDict, StringDict } from "../types";
+import { withRouter, RouteComponentProps } from "react-router-dom";
 
 interface BaseProps {
     worldID: number;
@@ -35,13 +38,14 @@ interface State {
 const mapState = (state: RootState) => ({
     colors: state.colors,
     items: state.items,
+    worlds: state.worlds,
 });
 
 const mapDispatchToProps = { changeShowUpdates, onUpdate, changeLanuage, changeTheme, changeVersion };
 
 const connector = connect(mapState, mapDispatchToProps);
 
-type Props = WithTranslation & BaseProps & ConnectedProps<typeof connector>;
+type Props = WithTranslation & BaseProps & RouteComponentProps & ConnectedProps<typeof connector>;
 
 const BlockGroups: string[] = [
     "Gleam",
@@ -107,6 +111,7 @@ const BlockToGroupMap: NumberDict<string> = {
 class BlockColors extends React.Component<Props> {
     client: BoundlexxClient | null = null;
     mounted = false;
+    iconId = 0;
 
     state: State = {
         loaded: false,
@@ -195,6 +200,130 @@ class BlockColors extends React.Component<Props> {
         this.props.changeShowUpdates(false);
     };
 
+    onClickWorldIcon = (event: React.MouseEvent<HTMLImageElement, MouseEvent>): void => {
+        const target = event.target as HTMLImageElement;
+        const worldID = target.getAttribute("data-world-id");
+
+        if (worldID !== null) {
+            this.props.history.push(`/worlds/${worldID}/`);
+        }
+    };
+
+    renderIcons = (wbc: Components.Schemas.WorldBlockColor): string | JSX.Element => {
+        const icons = [];
+        const world = this.props.worlds.items[this.props.worldID];
+
+        if (world.is_creative || world.is_perm) {
+            return "";
+        }
+
+        if (wbc.first_world !== null) {
+            const firstWorld = this.props.worlds.items[wbc.first_world.id];
+
+            if (firstWorld.is_perm) {
+                icons.push(
+                    <TooltipHost
+                        key="first-world"
+                        id={`wbc-icon-${this.iconId++}`}
+                        content={`${this.props.t("First seen")}: ${firstWorld.text_name || firstWorld.display_name}`}
+                        calloutProps={{ gapSpace: 0 }}
+                        styles={{ root: { display: "inline-block", margin: "0 2px" } }}
+                    >
+                        <Image
+                            src={firstWorld.image_url || "https://cdn.boundlexx.app/worlds/unknown.png"}
+                            width={20}
+                            data-world-id={firstWorld.id}
+                            onClick={this.onClickWorldIcon}
+                            styles={{ root: { cursor: "pointer" } }}
+                        ></Image>
+                    </TooltipHost>,
+                );
+            }
+        } else if (wbc.is_default) {
+            if (wbc.is_new_exo || (!world.is_exo && wbc.is_new)) {
+                const tooltip = world.is_exo ? "New Exoworld color!" : "New Sovereign Color!";
+                icons.push(
+                    <TooltipHost
+                        key="new-wbc"
+                        id={`wbc-icon-${this.iconId++}`}
+                        content={this.props.t(tooltip)}
+                        calloutProps={{ gapSpace: 0 }}
+                        styles={{ root: { display: "inline-block", margin: "0 2px" } }}
+                    >
+                        <Image src="https://cdn.boundlexx.app/images/new_wbc.png" width={20}></Image>
+                    </TooltipHost>,
+                );
+            }
+            if (world.is_exo) {
+                if (wbc.transform_first_world !== null || wbc.transform_last_exo !== null) {
+                    let transWorld: Components.Schemas.SimpleWorld | null = null;
+                    if (wbc.transform_last_exo !== null) {
+                        transWorld = this.props.worlds.items[wbc.transform_last_exo.id];
+                    } else if (wbc.transform_first_world !== null) {
+                        transWorld = this.props.worlds.items[wbc.transform_first_world.id];
+                    }
+
+                    if (transWorld !== null) {
+                        const tooltip = world.is_exo ? "Last available transform" : "Transform available";
+                        icons.push(
+                            <TooltipHost
+                                key="exist-trans"
+                                id={`wbc-icon-${this.iconId++}`}
+                                content={`${this.props.t(tooltip)}: ${transWorld.text_name || transWorld.display_name}`}
+                                calloutProps={{ gapSpace: 0 }}
+                                styles={{ root: { display: "inline-block", margin: "0 2px" } }}
+                            >
+                                <Image
+                                    src="https://cdn.boundlexx.app/images/exist_trans.png"
+                                    width={20}
+                                    data-world-id={transWorld.id}
+                                    onClick={this.onClickWorldIcon}
+                                    styles={{ root: { cursor: "pointer" } }}
+                                ></Image>
+                            </TooltipHost>,
+                        );
+                    }
+                }
+                if (wbc.days_since_exo !== null && wbc.last_exo !== null) {
+                    const lastExo = this.props.worlds.items[wbc.last_exo.id];
+                    icons.push(
+                        <span style={{ textAlign: "center" }} key="days-since">
+                            <TooltipHost
+                                id={`wbc-icon-${this.iconId++}`}
+                                content={`${this.props.t("Last appeared")}: ${
+                                    lastExo.text_name || lastExo.display_name
+                                }`}
+                                calloutProps={{ gapSpace: 0 }}
+                                styles={{ root: { display: "inline-block", margin: "0 2px" } }}
+                            >
+                                <Image
+                                    src="https://cdn.boundlexx.app/images/days_since.png"
+                                    width={20}
+                                    data-world-id={lastExo.id}
+                                    onClick={this.onClickWorldIcon}
+                                    styles={{ root: { cursor: "pointer" } }}
+                                ></Image>
+                                {wbc.days_since_exo}
+                            </TooltipHost>
+                        </span>,
+                    );
+                }
+            }
+        }
+
+        if (icons.length > 0) {
+            return (
+                <div style={{ width: 100 }}>
+                    {icons.map((icon) => {
+                        return icon;
+                    })}
+                </div>
+            );
+        }
+
+        return "";
+    };
+
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     onRenderColors = (
         nestingDepth?: number | undefined,
@@ -214,7 +343,8 @@ class BlockColors extends React.Component<Props> {
                 columns={[
                     { fieldName: "colorColor", key: "color-color", name: "color-color", minWidth: 30 },
                     { fieldName: "item", key: "item", name: "item", minWidth: 135 },
-                    { fieldName: "color", key: "color", name: "color", minWidth: 175 },
+                    { fieldName: "color", key: "color", name: "color", minWidth: 135 },
+                    { fieldName: "icons", key: "icons", name: "icons", minWidth: 100 },
                 ]}
                 item={{
                     colorColor: (
@@ -234,10 +364,11 @@ class BlockColors extends React.Component<Props> {
                         </Text>
                     ),
                     color: (
-                        <Text block={true} style={{ fontStyle: "italic", width: 175 }}>
+                        <Text block={true} style={{ fontStyle: "italic", width: 135 }}>
                             {color.localization[0].name} ({this.props.t("ID")}: {color.game_id})
                         </Text>
                     ),
+                    icons: this.renderIcons(item),
                 }}
                 itemIndex={index || 0}
                 selectionMode={SelectionMode.none}
@@ -386,4 +517,4 @@ class BlockColors extends React.Component<Props> {
     };
 }
 
-export default connector(withTranslation()(BlockColors));
+export default connector(withRouter(withTranslation()(BlockColors)));
