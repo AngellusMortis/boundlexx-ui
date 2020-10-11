@@ -209,6 +209,8 @@ class BlockColors extends React.Component<Props> {
         }
     };
 
+    // TODO:
+    // eslint-disable-next-line
     renderIcons = (wbc: Components.Schemas.WorldBlockColor): string | JSX.Element => {
         const icons = [];
         const world = this.props.worlds.items[this.props.worldID];
@@ -389,7 +391,7 @@ class BlockColors extends React.Component<Props> {
             );
         };
 
-        const onGroupHeaderClick = (group: IGroup): void => {
+        const onGroupHeaderClick = (): void => {
             if (props === undefined || props.group === undefined || props.onToggleCollapse === undefined) {
                 return;
             }

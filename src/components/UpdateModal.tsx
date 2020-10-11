@@ -70,7 +70,7 @@ class UpdateModal extends React.Component<Props> {
             );
         };
 
-        const onGroupHeaderClick = (group: IGroup): void => {
+        const onGroupHeaderClick = (): void => {
             if (props === undefined || props.group === undefined || props.onToggleCollapse === undefined) {
                 return;
             }

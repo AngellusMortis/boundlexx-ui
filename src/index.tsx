@@ -57,6 +57,8 @@ serviceWorker.register({
         store.dispatch(api.updateEmojis([], null, null));
         store.dispatch(api.updateWorlds([], null, null));
     },
+    // TODO:
+    // eslint-disable-next-line
     onUpdate: (registration: ServiceWorkerRegistration, versions?: Version[]) => {
         const updateServiceWorker = () => {
             store.dispatch(changeShowUpdates(true));
