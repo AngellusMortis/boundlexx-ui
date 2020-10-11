@@ -1,5 +1,13 @@
 [
     {
+        "date": "2020-10-11T00:45:00.000Z",
+        "changelogs": ["Fixes auto trailing slash logic"]
+    },
+    {
+        "date": "2020-10-11T00:30:00.000Z",
+        "changelogs": ["Adds detail page for Worlds"]
+    },
+    {
         "date": "2020-10-10T04:16:00.000Z",
         "changelogs": ["Text update. Orbiting -> Orbited"]
     },

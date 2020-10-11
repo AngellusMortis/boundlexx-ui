@@ -17,6 +17,15 @@ import UpdateModal from "./components/UpdateModal";
 
 class App extends React.Component {
     render = (): JSX.Element => {
+        // enforce trailing slash
+        if (!window.location.pathname.endsWith("/")) {
+            window.history.replaceState(
+                "",
+                document.title,
+                `${window.location.origin}${window.location.pathname}/${window.location.search}`,
+            );
+        }
+
         return (
             <Router>
                 <Header />

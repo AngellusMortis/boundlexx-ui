@@ -12,6 +12,7 @@ import { connect, ConnectedProps } from "react-redux";
 import "./WorldDetails.css";
 import BlockColors from "../components/BlockColors";
 import WorldResources from "../components/WorldResources";
+import { withRouter, RouteComponentProps } from "react-router-dom";
 
 interface BaseProps {
     id: number;
@@ -31,7 +32,7 @@ const connector = connect(mapState);
 
 type PropsFromRedux = ConnectedProps<typeof connector>;
 
-type Props = BaseProps & WithTranslation & PropsFromRedux;
+type Props = BaseProps & RouteComponentProps & WithTranslation & PropsFromRedux;
 
 class Page extends React.Component<Props> {
     state: State = {
@@ -46,6 +47,14 @@ class Page extends React.Component<Props> {
         this.client = await api.getClient();
 
         if (!this.mounted) {
+            return;
+        }
+
+        await this.getWorld();
+    };
+
+    getWorld = async () => {
+        if (this.client === null) {
             return;
         }
 
@@ -88,8 +97,14 @@ class Page extends React.Component<Props> {
         this.mounted = false;
     };
 
-    componentDidUpdate = () => {
-        this.checkLoaded();
+    componentDidUpdate = (prevProp: Props) => {
+        if (this.props.id === prevProp.id) {
+            this.checkLoaded();
+        } else {
+            this.setState({ world: null, loaded: false }, () => {
+                this.getWorld();
+            });
+        }
     };
 
     makeBowString = (bows: string[]) => {
@@ -110,16 +125,16 @@ class Page extends React.Component<Props> {
 
     makeBowsStrings = (world: Components.Schemas.World): string[] => {
         let bestBows = "";
-        let netrualBows = "";
+        let neutralBows = "";
         let lucentBows = "";
 
         if (world.bows !== null) {
             bestBows = this.makeBowString(world.bows.best);
-            netrualBows = this.makeBowString(world.bows.neutral);
+            neutralBows = this.makeBowString(world.bows.neutral);
             lucentBows = this.makeBowString(world.bows.lucent);
         }
 
-        return [bestBows, netrualBows, lucentBows];
+        return [bestBows, neutralBows, lucentBows];
     };
 
     getBows() {
@@ -140,7 +155,7 @@ class Page extends React.Component<Props> {
                 )}
                 {bows[1] !== "" && (
                     <Text>
-                        {this.props.t("Netrual")}: {bows[1]}
+                        {this.props.t("Neutral")}: {bows[1]}
                     </Text>
                 )}
                 {bows[2] !== "" && (
@@ -221,6 +236,71 @@ class Page extends React.Component<Props> {
         window.history.replaceState(document.title, document.title);
     };
 
+    onAssignmentClick = (): void => {
+        if (this.state.world === null || this.state.world.assignment === null) {
+            return;
+        }
+
+        this.props.history.push(`/worlds/${this.state.world.assignment.id}/`);
+    };
+
+    renderAssignment = (): string | JSX.Element => {
+        if (this.state.world === null || this.state.world.assignment === null) {
+            return "";
+        }
+
+        const theme = getTheme();
+        const assignmentWorld = this.props.worlds.items[this.state.world.assignment.id];
+        const specialType = api.getSpecialType(assignmentWorld);
+
+        return (
+            <Stack
+                style={{
+                    backgroundColor: theme.palette.neutralLighter,
+                    borderBottom: "2px solid",
+                    borderBottomColor: theme.palette.themePrimary,
+                    padding: "10px",
+                    height: 102,
+                    cursor: "pointer",
+                }}
+                role="link"
+                onClick={this.onAssignmentClick}
+                horizontal
+            >
+                <Image
+                    src={assignmentWorld.image_url || "https://cdn.boundlexx.app/worlds/unknown.png"}
+                    width={100}
+                    styles={{ root: { margin: "auto 5px" } }}
+                    alt={assignmentWorld.text_name || assignmentWorld.display_name}
+                />
+                <div>
+                    <Text
+                        block={true}
+                        variant="medium"
+                        style={{ color: theme.palette.themePrimary, fontWeight: "bold" }}
+                    >
+                        {this.props.t("Orbited World")}:
+                    </Text>
+                    <Text variant="large">
+                        <span
+                            style={{ display: "block" }}
+                            dangerouslySetInnerHTML={{
+                                __html: assignmentWorld.html_name || assignmentWorld.display_name,
+                            }}
+                        ></span>
+                    </Text>
+                    <Text variant="medium">
+                        {`T${assignmentWorld.tier + 1} - ${this.props.t(
+                            api.TierNameMap[assignmentWorld.tier],
+                        )} ${this.props.t(api.TypeNameMap[assignmentWorld.world_type])} ${
+                            specialType == null ? "" : specialType + " "
+                        } ${this.props.t(api.getWorldClass(assignmentWorld))}`}
+                    </Text>
+                </div>
+            </Stack>
+        );
+    };
+
     renderWorld = () => {
         const theme = getTheme();
 
@@ -259,7 +339,7 @@ class Page extends React.Component<Props> {
                         <Image
                             src={this.state.world.image_url || "https://cdn.boundlexx.app/worlds/unknown.png"}
                             style={{ padding: 50, width: "80%", minWidth: "80%" }}
-                            alt="World"
+                            alt={this.state.world.text_name || this.state.world.display_name}
                         />
                         <h2
                             style={{
@@ -489,6 +569,7 @@ class Page extends React.Component<Props> {
                                 borderBottom: "2px solid",
                                 borderBottomColor: theme.palette.themePrimary,
                                 padding: "10px",
+                                height: 102,
                             }}
                         >
                             <Text
@@ -500,6 +581,7 @@ class Page extends React.Component<Props> {
                             </Text>
                             <Text variant="medium">{this.getBows()}</Text>
                         </Stack>
+                        {this.renderAssignment()}
                     </div>
                 </div>
                 {!this.state.world.is_creative && (
@@ -536,4 +618,4 @@ class Page extends React.Component<Props> {
     }
 }
 
-export default connector(withTranslation()(Page));
+export default connector(withRouter(withTranslation()(Page)));
