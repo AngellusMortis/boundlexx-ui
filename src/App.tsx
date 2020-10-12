@@ -14,6 +14,7 @@ import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import WorldDetails from "./pages/WorldDetails";
 import UpdateModal from "./components/UpdateModal";
+import ItemDetails from "./pages/ItemDetails";
 
 class App extends React.Component {
     render = (): JSX.Element => {
@@ -47,6 +48,12 @@ class App extends React.Component {
                         <Route path="/forum/" exact strict>
                             <Forum />
                         </Route>
+                        <Route
+                            path="/items/:id(\d+)/"
+                            exact
+                            strict
+                            render={(props) => <ItemDetails id={props.match.params.id} />}
+                        />
                         <Route path="/items/" exact strict>
                             <Items />
                         </Route>
