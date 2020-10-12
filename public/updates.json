@@ -1,5 +1,9 @@
 [
     {
+        "date": "2020-10-11T22:05:00.000Z",
+        "changelogs": ["Centered cards on grouped Display pages when there is only a single column"]
+    },
+    {
         "date": "2020-10-11T18:00:00.000Z",
         "changelogs": ["Fixes rendering issues with Show Groups.", "Adds groups for Worlds Display page"]
     },

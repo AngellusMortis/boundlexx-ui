@@ -1,5 +1,5 @@
 import React from "react";
-import { Shimmer, Text, Stack, Dropdown, IDropdownOption, TooltipHost } from "@fluentui/react";
+import { Stack, Dropdown, IDropdownOption } from "@fluentui/react";
 import { RootState } from "../../store";
 import { connect } from "react-redux";
 import { withTranslation } from "react-i18next";
@@ -7,11 +7,11 @@ import * as api from "../../api";
 import { APIDisplay, mapNumericStoreToItems } from "./APIDisplay";
 import { Components } from "../../api/client";
 import { getTheme } from "../../themes";
-import { withRouter } from "react-router-dom";
 import { StringDict } from "../../types";
 import SubtitleSelector from "../SubtitleSelector";
 import ListTypeSelector from "../ListTypeSelector";
 import { changeShowGroups } from "../../prefs/actions";
+import ItemCard from "./ItemCard";
 
 const mapState = (state: RootState) => ({
     theme: getTheme(state.prefs.theme),
@@ -147,55 +147,9 @@ class Items extends APIDisplay {
         );
     };
 
-    onCardClick = () => {
-        return;
-    };
-
-    renderCardImage = (item: Components.Schemas.SimpleItem) => {
-        return <div></div>;
-    };
-
-    renderTextName = (item: Components.Schemas.SimpleItem): JSX.Element => {
-        const name = item.localization[0].name;
-
-        if (name.length <= 32) {
-            return <Text nowrap>{name}</Text>;
-        }
-
-        return (
-            <TooltipHost
-                content={name}
-                id={`long-name-tooltip-${this.tooltipID++}`}
-                calloutProps={{ gapSpace: 0 }}
-                styles={{
-                    root: { display: "inline-block", textOverflow: "ellipsis", overflowX: "hidden", width: "100%" },
-                }}
-            >
-                <Text nowrap>{name}</Text>
-            </TooltipHost>
-        );
-    };
-
-    renderCardDetails = (item: Components.Schemas.SimpleItem) => {
-        const loaded = item !== undefined;
-        return (
-            <div>
-                <Shimmer isDataLoaded={loaded} width={100}>
-                    {loaded && this.renderTextName(item)}
-                </Shimmer>
-                <Shimmer isDataLoaded={loaded} width={100}>
-                    {loaded && <Text variant="small">{item.item_subtitle.localization[0].name}</Text>}
-                </Shimmer>
-                <Shimmer isDataLoaded={loaded} width={60}>
-                    {loaded && (
-                        <Text variant="xSmall">
-                            {this.props.t("ID")}: {item.game_id}
-                        </Text>
-                    )}
-                </Shimmer>
-            </div>
-        );
+    onRenderCell = (item: Components.Schemas.SimpleItem | undefined): string | JSX.Element => {
+        return <ItemCard item={item} />;
     };
 }
 
-export default connector(withRouter(withTranslation()(Items)));
+export default connector(withTranslation()(Items));

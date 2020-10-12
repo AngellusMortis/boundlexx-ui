@@ -1,6 +1,5 @@
 import React from "react";
-import { Text, Shimmer, Image, ImageFit, Stack, Dropdown, IDropdownOption } from "@fluentui/react";
-import { Card } from "@uifabric/react-cards";
+import { Text, Stack, Dropdown, IDropdownOption } from "@fluentui/react";
 import { RootState } from "../../store";
 import { connect } from "react-redux";
 import { withTranslation } from "react-i18next";
@@ -9,10 +8,10 @@ import { APIDisplay, mapStringStoreToItems } from "./APIDisplay";
 import { getTheme } from "../../themes";
 import toast from "../../toast";
 import { Components } from "../../api/client";
-import { withRouter } from "react-router-dom";
 import { StringDict } from "../../types";
 import { Mutex } from "async-mutex";
 import { changeShowGroups } from "../../prefs/actions";
+import EmojiCard from "./EmojiCard";
 
 const mapState = (state: RootState) => ({
     theme: getTheme(state.prefs.theme),
@@ -110,58 +109,9 @@ class Emojis extends APIDisplay {
         );
     };
 
-    getNames = (item: Components.Schemas.Emoji) => {
-        let names = "";
-        item.names.forEach((element: string, index: number) => {
-            if (index === 2) {
-                names += "\n";
-            }
-
-            names += `:${element}: `;
-        });
-
-        return names.trim();
-    };
-
-    renderCardImage = (item: Components.Schemas.Emoji) => {
-        if (item !== undefined && item.image_url !== null) {
-            return (
-                <Image
-                    imageFit={ImageFit.centerCover}
-                    maximizeFrame={true}
-                    shouldFadeIn={true}
-                    src={item.image_url}
-                    className="card-preview"
-                    alt={`emoji ${item.names[0]}`}
-                    onClick={this.onCardClick}
-                ></Image>
-            );
-        }
-        return <div></div>;
-    };
-
-    renderCardDetails = (item: Components.Schemas.Emoji) => {
-        const loaded = item !== undefined;
-
-        return (
-            <Card.Section>
-                <Shimmer isDataLoaded={loaded} width={110}>
-                    {loaded && (
-                        <Text onClick={this.onCardClick}>
-                            {this.props.t("In-game Name", { count: item.names.length })}:
-                        </Text>
-                    )}
-                </Shimmer>
-                <Shimmer isDataLoaded={loaded} width={150}>
-                    {loaded && (
-                        <Text variant="tiny" onClick={this.onCardClick}>
-                            <pre className="names">{this.getNames(item)}</pre>
-                        </Text>
-                    )}
-                </Shimmer>
-            </Card.Section>
-        );
+    onRenderCell = (item: Components.Schemas.Emoji | undefined): string | JSX.Element => {
+        return <EmojiCard emoji={item} />;
     };
 }
 
-export default connector(withRouter(withTranslation()(Emojis)));
+export default connector(withTranslation()(Emojis));

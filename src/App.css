@@ -2,3 +2,7 @@
     width: 300px;
     height: 300px;
 }
+
+.api-card .ms-CardSection > :not(:first-child) {
+    margin-top: 0;
+}

@@ -4,7 +4,6 @@ import {
     SearchBox,
     Stack,
     Text,
-    Shimmer,
     IPage,
     DefaultButton,
     FocusZone,
@@ -18,14 +17,12 @@ import {
     SelectionMode,
     TooltipHost,
 } from "@fluentui/react";
-import { Card } from "@uifabric/react-cards";
 import "./APIDisplay.css";
 import { WithTranslation } from "react-i18next";
 import * as api from "../../api";
 import { Client as BoundlexxClient } from "../../api/client";
 import { StringAPIItems, NumericAPIItems, BaseItemsAsArray, BaseItems, StringDict, APIParams } from "../../types";
 import { AxiosResponse } from "axios";
-import { RouteComponentProps } from "react-router-dom";
 
 export interface FilterValidator {
     name: string;
@@ -155,7 +152,7 @@ export const mapStringStoreToItems = (store: StringAPIItems): BaseItemsAsArray |
     });
 };
 
-export type APIDisplayProps = RouteComponentProps & WithTranslation & BaseProps;
+export type APIDisplayProps = WithTranslation & BaseProps;
 
 const SEARCH_TIMEOUT = 1000;
 
@@ -601,9 +598,7 @@ export abstract class APIDisplay extends React.Component<APIDisplayProps> {
         }
     };
 
-    abstract renderCardImage(item: unknown, index: number | undefined): JSX.Element;
-
-    abstract renderCardDetails(item: unknown, index: number | undefined): JSX.Element;
+    abstract onRenderCell(item: unknown, index: number | undefined): string | JSX.Element;
 
     onRenderGroupCell = (
         nestingDepth?: number | undefined,
@@ -615,39 +610,6 @@ export abstract class APIDisplay extends React.Component<APIDisplayProps> {
         }
 
         return this.onRenderCell(item, index);
-    };
-
-    onRenderCell = (item: unknown, index: number | undefined): JSX.Element => {
-        if (typeof item === "string") {
-            return <h3>{item}</h3>;
-        }
-
-        return (
-            <Card
-                data-is-focusable
-                horizontal
-                tokens={{ childrenMargin: 5 }}
-                style={{ borderColor: this.props.theme.palette.themePrimary }}
-                styles={{
-                    root: {
-                        backgroundColor: this.props.theme.palette.neutralLighter,
-                        margin: 2,
-                        position: "relative",
-                        padding: 2,
-                        width: 300,
-                        height: 66,
-                    },
-                }}
-                onClick={this.onCardClick}
-            >
-                <Card.Item fill>
-                    <Shimmer className="card-preview" isDataLoaded={item !== undefined}>
-                        {this.renderCardImage(item, index)}
-                    </Shimmer>
-                </Card.Item>
-                <Card.Section styles={{ root: { width: 222 } }}>{this.renderCardDetails(item, index)}</Card.Section>
-            </Card>
-        );
     };
 
     onRetryClick = async (): Promise<void> => {
@@ -677,8 +639,6 @@ export abstract class APIDisplay extends React.Component<APIDisplayProps> {
     onShowGroupsToggleClick = (): void => {
         this.props.changeShowGroups(!this.props.showGroups);
     };
-
-    abstract onCardClick(event: React.MouseEvent<HTMLElement, MouseEvent> | undefined): void;
 
     // TODO:
     // eslint-disable-next-line
