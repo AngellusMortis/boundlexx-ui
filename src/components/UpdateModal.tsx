@@ -70,7 +70,7 @@ class UpdateModal extends React.Component<Props> {
             );
         };
 
-        const onGroupHeaderClick = (group: IGroup): void => {
+        const onGroupHeaderClick = (): void => {
             if (props === undefined || props.group === undefined || props.onToggleCollapse === undefined) {
                 return;
             }
@@ -171,7 +171,7 @@ class UpdateModal extends React.Component<Props> {
                                 }}
                             >
                                 <Text style={{ margin: 5 }}>
-                                    {this.props.t("Updates with automatically be applied when you close all tabs")}
+                                    {this.props.t("Updates will automatically be applied when you close all tabs")}
                                 </Text>
                                 <Stack horizontal styles={{ root: { justifyContent: "center" } }}>
                                     <Stack.Item styles={{ root: { margin: 5 } }}>

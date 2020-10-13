@@ -7,6 +7,7 @@ export interface UserPreferences {
     showUpdates: boolean;
     newChanges?: Version[];
     serviceWorker?: ServiceWorkerRegistration;
+    showGroups: boolean;
 }
 
 export interface OnUpdatePayload {
@@ -42,6 +43,13 @@ interface ChangeShowUpdatesAction {
     payload: boolean;
 }
 
+export const CHANGE_SHOW_GROUPS = "CHANGE_SHOW_GROUPS";
+
+interface ChangeShowGroupsAction {
+    type: typeof CHANGE_SHOW_GROUPS;
+    payload: boolean;
+}
+
 export const ON_UPDATE = "ON_UPDATE";
 
 interface OnUpdateAction {
@@ -54,4 +62,5 @@ export type PerfsActionsType =
     | ChangeLanguageAction
     | ChangeVersionAction
     | OnUpdateAction
-    | ChangeShowUpdatesAction;
+    | ChangeShowUpdatesAction
+    | ChangeShowGroupsAction;

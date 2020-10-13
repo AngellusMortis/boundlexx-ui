@@ -1,5 +1,5 @@
 import React from "react";
-import { Shimmer, Text, Stack, Dropdown, IDropdownOption } from "@fluentui/react";
+import { Stack, Dropdown, IDropdownOption } from "@fluentui/react";
 import { RootState } from "../../store";
 import { connect } from "react-redux";
 import { withTranslation } from "react-i18next";
@@ -7,9 +7,11 @@ import * as api from "../../api";
 import { APIDisplay, mapNumericStoreToItems } from "./APIDisplay";
 import { Components } from "../../api/client";
 import { getTheme } from "../../themes";
-import { withRouter } from "react-router-dom";
 import { StringDict } from "../../types";
 import SubtitleSelector from "../SubtitleSelector";
+import ListTypeSelector from "../ListTypeSelector";
+import { changeShowGroups } from "../../prefs/actions";
+import ItemCard from "./ItemCard";
 
 const mapState = (state: RootState) => ({
     theme: getTheme(state.prefs.theme),
@@ -18,6 +20,8 @@ const mapState = (state: RootState) => ({
     name: "Item",
     results: mapNumericStoreToItems(state.items),
     loadAll: true,
+    groupBy: "list_type.strings.0.plain_text",
+    showGroups: state.prefs.showGroups,
     extraFilterKeys: [
         {
             name: "has_colors",
@@ -31,14 +35,20 @@ const mapState = (state: RootState) => ({
             name: "item_subtitle_id",
             type: "number",
         },
+        {
+            name: "list_type__string_id",
+            type: "string",
+        },
     ],
 });
 
-const mapDispatchToProps = { changeAPIDefinition: api.changeAPIDefinition, updateItems: api.updateItems };
+const mapDispatchToProps = { changeShowGroups, updateItems: api.updateItems };
 
 const connector = connect(mapState, mapDispatchToProps);
 
 class Items extends APIDisplay {
+    tooltipID = 0;
+
     componentDidMount = async () => {
         this.mounted = true;
 
@@ -70,9 +80,22 @@ class Items extends APIDisplay {
         this.resetState(this.updateQueryParam({ item_subtitle_id: id }));
     };
 
+    onUpdateListType = (item: Components.Schemas.SimpleItem | null) => {
+        const id = item === null ? null : item.list_type.string_id;
+
+        this.resetState(this.updateQueryParam({ list_type__string_id: id }));
+    };
+
     renderFilters = (): JSX.Element => {
         const filters: StringDict<string> = this.state.filters.extraFilters || {};
+        const listType = filters["list_type__string_id"] === undefined ? null : filters["list_type__string_id"];
         const subtitleID = filters["item_subtitle_id"] === undefined ? null : parseInt(filters["item_subtitle_id"]);
+
+        const filteredItems = this.state.results.items as Components.Schemas.SimpleItem[];
+        const allItems =
+            this.props.results === undefined
+                ? []
+                : ([...this.props.results.items.values()] as Components.Schemas.SimpleItem[]);
 
         return (
             <Stack horizontal wrap horizontalAlign="center" verticalAlign="center">
@@ -105,40 +128,28 @@ class Items extends APIDisplay {
                     ></Dropdown>
                 </Stack.Item>
                 <Stack.Item styles={{ root: { margin: "5px 20px" } }}>
-                    <SubtitleSelector label="Type" subtitleID={subtitleID} onSubtitleChange={this.onUpdateSubtitle} />
+                    <ListTypeSelector
+                        label="Type"
+                        stringID={listType}
+                        onStringIDChange={this.onUpdateListType}
+                        items={subtitleID === null ? allItems : filteredItems}
+                    />
+                </Stack.Item>
+                <Stack.Item styles={{ root: { margin: "5px 20px" } }}>
+                    <SubtitleSelector
+                        label="Subtype"
+                        subtitleID={subtitleID}
+                        onSubtitleChange={this.onUpdateSubtitle}
+                        items={listType === null ? allItems : filteredItems}
+                    />
                 </Stack.Item>
             </Stack>
         );
     };
 
-    onCardClick = () => {
-        return;
-    };
-
-    renderCardImage = (item: Components.Schemas.SimpleItem) => {
-        return <div></div>;
-    };
-
-    renderCardDetails = (item: Components.Schemas.SimpleItem) => {
-        const loaded = item !== undefined;
-        return (
-            <div>
-                <Shimmer isDataLoaded={loaded} width={100}>
-                    {loaded && <Text>{item.localization[0].name}</Text>}
-                </Shimmer>
-                <Shimmer isDataLoaded={loaded} width={100}>
-                    {loaded && <Text variant="small">{item.item_subtitle.localization[0].name}</Text>}
-                </Shimmer>
-                <Shimmer isDataLoaded={loaded} width={60}>
-                    {loaded && (
-                        <Text variant="xSmall">
-                            {this.props.t("ID")}: {item.game_id}
-                        </Text>
-                    )}
-                </Shimmer>
-            </div>
-        );
+    onRenderCell = (item: Components.Schemas.SimpleItem | undefined): string | JSX.Element => {
+        return <ItemCard item={item} />;
     };
 }
 
-export default connector(withRouter(withTranslation()(Items)));
+export default connector(withTranslation()(Items));

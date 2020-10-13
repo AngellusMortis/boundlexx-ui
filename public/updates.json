@@ -1,5 +1,28 @@
 [
     {
+        "date": "2020-10-11T22:05:00.000Z",
+        "changelogs": ["Centered cards on grouped Display pages when there is only a single column"]
+    },
+    {
+        "date": "2020-10-11T18:00:00.000Z",
+        "changelogs": ["Fixes rendering issues with Show Groups.", "Adds groups for Worlds Display page"]
+    },
+    {
+        "date": "2020-10-11T16:35:00.000Z",
+        "changelogs": [
+            "Adds more Italian translations (thanks edWe!)",
+            "Adds experimental \"Show Groups\" for item display page. Rendering might be really weird right now."
+        ]
+    },
+    {
+        "date": "2020-10-11T03:25:00.000Z",
+        "changelogs": [
+            "Adds assignment world to World Details",
+            "Fixes local data not being purged on version update, changing language.",
+            "Adds icons to World Block Colors mirror forum posts."
+        ]
+    },
+    {
         "date": "2020-10-11T00:45:00.000Z",
         "changelogs": ["Fixes auto trailing slash logic"]
     },

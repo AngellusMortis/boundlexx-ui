@@ -1,33 +1,20 @@
 .api-display .ms-List-page {
     display: flex;
+}
+
+.api-display .ms-List[role="treegrid"] .ms-List-page,
+.api-display .ms-List[role="treegrid"] .ms-List-surface {
+    width: 95vw;
+}
+
+.api-display .ms-List[role="list"] .ms-List-page {
     justify-content: center;
 }
 
-.api-display .ms-List-page .ms-List-cell {
+.api-display .ms-List[role="list"] .ms-List-page .ms-List-cell,
+.api-display .ms-List[role="treegrid"] .ms-List .ms-List-page .ms-List-cell {
     width: 304px;
     display: flex;
-}
-
-.api-display .ms-List-cell .ms-CardSection > :not(:first-child) {
-    margin-top: 0;
-}
-
-.api-display .ms-CardItem {
-    width: 60px;
-    height: 60px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.api-display .ms-CardItem .card-preview {
-    width: 57px;
-    height: 57px;
-    display: inline-flex;
-}
-
-.api-display .ms-CardItem .card-preview .ms-Shimmer-shimmerWrapper {
-    height: 100%;
 }
 
 .api-display .ms-List-cell .emoji {
@@ -38,5 +25,9 @@
 @media (max-width: 600px) {
     .api-display .api-display-search {
         width: 100%;
+    }
+
+    .api-display .ms-List[role="treegrid"] .ms-List .ms-List-page {
+        justify-content: center;
     }
 }

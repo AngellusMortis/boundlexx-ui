@@ -6,6 +6,7 @@ import { changeLanuage } from "../prefs/actions";
 import { withTranslation, WithTranslation } from "react-i18next";
 import { StringDict } from "../types";
 import CollapsibleInput from "./CollapsibleInput";
+import { updateColors, updateRecipeGroups, updateSkills, updateItems } from "../api";
 
 const mapState = (state: RootState) => ({
     locale: state.prefs.language,
@@ -13,7 +14,7 @@ const mapState = (state: RootState) => ({
 
 const myStyle1 = mergeStyles(AnimationStyles.fadeIn400);
 
-const mapDispatchToProps = { changeLanuage };
+const mapDispatchToProps = { changeLanuage, updateColors, updateRecipeGroups, updateSkills, updateItems };
 
 const connector = connect(mapState, mapDispatchToProps);
 
@@ -57,6 +58,12 @@ class LanguageSelector extends React.Component<Props> {
 
     updateLanguage = (lang: string) => {
         if (this.props.locale !== lang) {
+            // clear localized data
+            this.props.updateColors([], null, null, lang);
+            this.props.updateRecipeGroups([], null, null, lang);
+            this.props.updateSkills([], null, null, lang);
+            this.props.updateItems([], null, null, lang);
+
             this.props.changeLanuage(lang);
         }
 

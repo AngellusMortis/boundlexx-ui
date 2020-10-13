@@ -4,24 +4,25 @@ import {
     SearchBox,
     Stack,
     Text,
-    IRectangle,
-    Shimmer,
     IPage,
     DefaultButton,
     FocusZone,
     ITheme,
     IconButton,
     TeachingBubble,
+    IGroup,
+    GroupedList,
+    GroupHeader,
+    IGroupHeaderProps,
+    SelectionMode,
+    TooltipHost,
 } from "@fluentui/react";
-import { Card } from "@uifabric/react-cards";
 import "./APIDisplay.css";
 import { WithTranslation } from "react-i18next";
 import * as api from "../../api";
 import { Client as BoundlexxClient } from "../../api/client";
 import { StringAPIItems, NumericAPIItems, BaseItemsAsArray, BaseItems, StringDict, APIParams } from "../../types";
 import { AxiosResponse } from "axios";
-import { OpenAPIV3 } from "openapi-client-axios";
-import { RouteComponentProps } from "react-router-dom";
 
 export interface FilterValidator {
     name: string;
@@ -45,6 +46,7 @@ interface State {
     filtersHelp: boolean;
     results: BaseItemsAsArray;
     error?: Error;
+    columnCount: number;
 }
 
 interface BaseProps {
@@ -56,9 +58,12 @@ interface BaseProps {
     operationID?: string;
     extraDefaultFilters?: APIParams[];
     extraFilterKeys?: FilterValidator[];
+    groupBy?: string;
+    groupOrder?: string[];
+    showGroups: boolean;
 
-    changeAPIDefinition?: (definition: OpenAPIV3.Document) => unknown;
-    updateItems?: api.updateItems;
+    changeShowGroups: (showGroups: boolean) => unknown;
+    updateItems?: api.updateGeneric;
 }
 
 const generatePlaceholders = (targetCount: number | null, items?: unknown[]): unknown[] => {
@@ -147,12 +152,13 @@ export const mapStringStoreToItems = (store: StringAPIItems): BaseItemsAsArray |
     });
 };
 
-export type APIDisplayProps = RouteComponentProps & WithTranslation & BaseProps;
+export type APIDisplayProps = WithTranslation & BaseProps;
 
 const SEARCH_TIMEOUT = 1000;
 
 export abstract class APIDisplay extends React.Component<APIDisplayProps> {
     mounted = false;
+    listGroups: IGroup[] | null = null;
     client: BoundlexxClient | null = null;
     searchTimer: NodeJS.Timeout | null = null;
     state: State = {
@@ -165,6 +171,7 @@ export abstract class APIDisplay extends React.Component<APIDisplayProps> {
         },
         filtersVisible: false,
         filtersHelp: false,
+        columnCount: 0,
         results: {
             items: generatePlaceholders(api.config.pageSize),
             count: null,
@@ -174,6 +181,9 @@ export abstract class APIDisplay extends React.Component<APIDisplayProps> {
     constructor(props: APIDisplayProps) {
         super(props);
 
+        this.state.columnCount = Math.floor(window.innerWidth / 304);
+        window.addEventListener("resize", this.calculateColumns);
+
         const filters = this.updateQueryParam(this.getParamsDict(window.location.search), true);
         if (filters !== null) {
             this.state.filtersVisible = true;
@@ -181,6 +191,7 @@ export abstract class APIDisplay extends React.Component<APIDisplayProps> {
         } else if (props.results !== undefined) {
             if (props.locale === null || props.locale === props.results.lang) {
                 this.state.results = props.results;
+                this.state.results.items = this.groupResults(this.state.results.items);
 
                 // count == null means partial results from a search or something
                 if (props.results.count !== null) {
@@ -192,6 +203,15 @@ export abstract class APIDisplay extends React.Component<APIDisplayProps> {
             }
         }
     }
+
+    calculateColumns = (): void => {
+        const newColumns = Math.floor(window.innerWidth / 304);
+
+        if (newColumns !== this.state.columnCount) {
+            this.setState({ columnCount: newColumns });
+            this.forceUpdate();
+        }
+    };
 
     setAsyncState = (state: Partial<State>, callback?: () => void): void => {
         if (this.mounted) {
@@ -223,10 +243,22 @@ export abstract class APIDisplay extends React.Component<APIDisplayProps> {
             this.resetStore();
             this.resetState(this.state.filters);
         }
+
+        if (this.props.theme !== prevProps.theme) {
+            this.setState({ results: this.state.results });
+        }
+
+        if (this.props.showGroups !== prevProps.showGroups) {
+            const newResults = this.state.results;
+            newResults.items = this.groupResults(newResults.items);
+
+            this.setState({ results: newResults });
+        }
     }
 
     componentWillUnmount = (): void => {
         this.mounted = false;
+        window.removeEventListener("resize", this.calculateColumns);
     };
 
     resetStore = (): void => {
@@ -237,6 +269,75 @@ export abstract class APIDisplay extends React.Component<APIDisplayProps> {
                 this.props.updateItems([], null, null, this.props.locale);
             }
         }
+    };
+
+    // eslint-disable-next-line
+    getGroupByValue = (item: any): string => {
+        if (this.props.groupBy === undefined || item === undefined) {
+            return "";
+        }
+
+        const props = this.props.groupBy.split(".");
+        let value = item;
+        for (let index = 0; index < props.length; index++) {
+            if (value === null) {
+                value = "";
+                break;
+            }
+            value = value[props[index]];
+        }
+
+        return value.toString();
+    };
+
+    groupResults = (results: unknown[]): unknown[] => {
+        if (this.props.groupBy === undefined || this.state.filters.search !== null || !this.props.showGroups) {
+            this.listGroups = null;
+            return results;
+        }
+
+        const groups: StringDict<unknown[]> = {};
+        for (let index = 0; index < results.length; index++) {
+            const result = results[index];
+            const groupName = this.getGroupByValue(result);
+
+            if (!(groupName in groups)) {
+                groups[groupName] = [];
+            }
+
+            groups[groupName].push(result);
+        }
+
+        const sorted = this.props.groupOrder || Reflect.ownKeys(groups).sort();
+        const newResults: unknown[] = [];
+        const listGroups: IGroup[] = [];
+
+        for (let index = 0; index < sorted.length; index++) {
+            let groupName = sorted[index].toString();
+            const group = groups[groupName];
+
+            if (group === undefined) {
+                continue;
+            }
+
+            if (groupName === "") {
+                groupName = this.props.t("No Group");
+            }
+
+            listGroups.push({
+                key: groupName,
+                name: groupName,
+                count: group.length,
+                isCollapsed: false,
+                level: 0,
+                startIndex: newResults.length,
+            });
+
+            newResults.push(...group);
+        }
+
+        this.listGroups = listGroups;
+        return newResults;
     };
 
     resetState = (filters?: Filters | null): void => {
@@ -262,6 +363,7 @@ export abstract class APIDisplay extends React.Component<APIDisplayProps> {
             this.props.results !== undefined
         ) {
             newState.results = this.props.results;
+            newState.results.items = this.groupResults(newState.results.items);
         } else {
             newState.initialLoad = false;
             newState.results = {
@@ -496,37 +598,18 @@ export abstract class APIDisplay extends React.Component<APIDisplayProps> {
         }
     };
 
-    abstract renderCardImage(item: unknown, index: number | undefined): JSX.Element;
+    abstract onRenderCell(item: unknown, index: number | undefined): string | JSX.Element;
 
-    abstract renderCardDetails(item: unknown, index: number | undefined): JSX.Element;
+    onRenderGroupCell = (
+        nestingDepth?: number | undefined,
+        item?: unknown,
+        index?: number | undefined,
+    ): string | JSX.Element => {
+        if (item === undefined || index === undefined) {
+            return "";
+        }
 
-    onRenderCell = (item: unknown, index: number | undefined): JSX.Element => {
-        return (
-            <Card
-                data-is-focusable
-                horizontal
-                tokens={{ childrenMargin: 5 }}
-                style={{ borderColor: this.props.theme.palette.themePrimary }}
-                styles={{
-                    root: {
-                        backgroundColor: this.props.theme.palette.neutralLighter,
-                        margin: 2,
-                        position: "relative",
-                        padding: 2,
-                        width: 300,
-                        height: 66,
-                    },
-                }}
-                onClick={this.onCardClick}
-            >
-                <Card.Item fill>
-                    <Shimmer className="card-preview" isDataLoaded={item !== undefined}>
-                        {this.renderCardImage(item, index)}
-                    </Shimmer>
-                </Card.Item>
-                <Card.Section>{this.renderCardDetails(item, index)}</Card.Section>
-            </Card>
-        );
+        return this.onRenderCell(item, index);
     };
 
     onRetryClick = async (): Promise<void> => {
@@ -553,7 +636,9 @@ export abstract class APIDisplay extends React.Component<APIDisplayProps> {
         this.setState({ filtersVisible: !this.state.filtersVisible });
     };
 
-    abstract onCardClick(event: React.MouseEvent<HTMLElement, MouseEvent> | undefined): void;
+    onShowGroupsToggleClick = (): void => {
+        this.props.changeShowGroups(!this.props.showGroups);
+    };
 
     // TODO:
     // eslint-disable-next-line
@@ -644,11 +729,13 @@ export abstract class APIDisplay extends React.Component<APIDisplayProps> {
         }
 
         // remove placeholder results, add new results
-        const newResults = this.state.results.items
-            .filter((v: unknown) => {
-                return v !== undefined;
-            })
-            .concat(response.data.results);
+        const newResults = this.groupResults(
+            this.state.results.items
+                .filter((v: unknown) => {
+                    return v !== undefined;
+                })
+                .concat(response.data.results),
+        );
 
         const newItems: BaseItemsAsArray = {
             items: newResults.concat(generatePlaceholders(response.data.count - newResults.length)),
@@ -677,16 +764,44 @@ export abstract class APIDisplay extends React.Component<APIDisplayProps> {
         this.setState({ filtersHelp: false });
     };
 
+    renderShowGroups = (): string | JSX.Element => {
+        if (this.props.groupBy !== undefined) {
+            return (
+                <TooltipHost
+                    content={this.props.t(this.props.showGroups ? "Hide Groups" : "Show Groups")}
+                    id={"show-groups-tooltip"}
+                    calloutProps={{ gapSpace: 0 }}
+                    styles={{ root: { display: "inline-block" } }}
+                >
+                    <IconButton
+                        id="show-groups-button"
+                        iconProps={{ iconName: "MapLayers" }}
+                        checked={this.props.showGroups}
+                        onClick={this.onShowGroupsToggleClick}
+                    ></IconButton>
+                </TooltipHost>
+            );
+        }
+        return "";
+    };
+
     renderFiltersToggle = (): JSX.Element => {
         if (this.props.extraFilterKeys !== undefined && this.props.extraFilterKeys.length > 0) {
             return (
                 <div>
-                    <IconButton
-                        id="filters-button"
-                        iconProps={{ iconName: "Filter" }}
-                        checked={this.state.filtersVisible}
-                        onClick={this.onFilterToggleClick}
-                    ></IconButton>
+                    <TooltipHost
+                        content={this.props.t(this.state.filtersVisible ? "Hide Filters" : "Show Filters")}
+                        id={"show-filters-tooltip"}
+                        calloutProps={{ gapSpace: 0 }}
+                        styles={{ root: { display: "inline-block" } }}
+                    >
+                        <IconButton
+                            id="filters-button"
+                            iconProps={{ iconName: "Filter" }}
+                            checked={this.state.filtersVisible}
+                            onClick={this.onFilterToggleClick}
+                        ></IconButton>
+                    </TooltipHost>
 
                     {this.state.filtersHelp && (
                         <TeachingBubble
@@ -706,6 +821,101 @@ export abstract class APIDisplay extends React.Component<APIDisplayProps> {
         return <span></span>;
     };
 
+    onRenderHeader = (props: IGroupHeaderProps | undefined): JSX.Element => {
+        const onRenderTitle = (): JSX.Element => {
+            if (props === undefined || props.group === undefined) {
+                return <div></div>;
+            }
+            return (
+                <div style={{ margin: "0 20px" }}>
+                    {props.group.name} ({props.group.count})
+                </div>
+            );
+        };
+
+        const onGroupHeaderClick = (): void => {
+            if (props === undefined || props.group === undefined || props.onToggleCollapse === undefined) {
+                return;
+            }
+
+            props.onToggleCollapse(props.group);
+        };
+
+        return (
+            <GroupHeader
+                styles={{ check: { display: "none" }, headerCount: { display: "none" } }}
+                onRenderTitle={onRenderTitle}
+                onGroupHeaderClick={onGroupHeaderClick}
+                {...props}
+            />
+        );
+    };
+
+    renderItems = (): string | JSX.Element => {
+        const getItemCountForPage = () => {
+            return this.state.columnCount;
+        };
+
+        const onPageAdded = (page: IPage) => {
+            if (this.state.loading) {
+                return;
+            }
+
+            if (page.items !== undefined && page.items[0] === undefined) {
+                this.getData();
+            }
+        };
+
+        const getGroupHeight = (group: IGroup): number => {
+            if (group.isCollapsed) {
+                return 0;
+            }
+
+            return (group.count / this.state.columnCount) * 76;
+        };
+
+        if (this.listGroups !== null) {
+            return (
+                <GroupedList
+                    compact={true}
+                    items={this.state.results.items}
+                    onRenderCell={this.onRenderGroupCell}
+                    selectionMode={SelectionMode.none}
+                    groups={this.listGroups}
+                    getGroupHeight={getGroupHeight}
+                    listProps={{
+                        style: { position: "relative" },
+                        getItemCountForPage: getItemCountForPage,
+                        getPageHeight: () => {
+                            return 76;
+                        },
+                        usePageCache: true,
+                        onPageAdded: onPageAdded,
+                    }}
+                    groupProps={{ onRenderHeader: this.onRenderHeader }}
+                    usePageCache={true}
+                />
+            );
+        }
+
+        return (
+            <FocusZone>
+                <List
+                    items={this.state.results.items}
+                    onRenderCell={this.onRenderCell}
+                    style={{ position: "relative" }}
+                    getItemCountForPage={getItemCountForPage}
+                    getPageHeight={() => {
+                        return 76;
+                    }}
+                    usePageCache={true}
+                    renderCount={this.state.results.count || api.config.pageSize}
+                    onPageAdded={onPageAdded}
+                />
+            </FocusZone>
+        );
+    };
+
     render(): JSX.Element {
         if (this.state.error) {
             return (
@@ -718,25 +928,6 @@ export abstract class APIDisplay extends React.Component<APIDisplayProps> {
                 </Stack>
             );
         }
-
-        let columnCount = 0;
-        const getItemCountForPage = (index: number | undefined, surface: IRectangle | undefined) => {
-            if (index === 0 && surface !== undefined) {
-                columnCount = Math.floor(surface.width / 304);
-            }
-
-            return columnCount;
-        };
-
-        const onPageAdded = (page: IPage) => {
-            if (this.state.loading) {
-                return;
-            }
-
-            if (page.items !== undefined && page.items[0] === undefined) {
-                this.getData();
-            }
-        };
 
         const actualCount = this.state.results.count == null ? api.config.pageSize : this.state.results.count;
         const displayCount = !this.state.initialLoad ? "#" : actualCount.toString();
@@ -780,6 +971,7 @@ export abstract class APIDisplay extends React.Component<APIDisplayProps> {
                         style={{ display: "inline-flex", margin: "0 20px", justifyContent: "center" }}
                         className="api-display-search"
                     >
+                        {this.renderShowGroups()}
                         {this.renderFiltersToggle()}
                         <SearchBox
                             placeholder={this.props.t(`Search ${this.getName("", false)}`)}
@@ -818,20 +1010,7 @@ export abstract class APIDisplay extends React.Component<APIDisplayProps> {
                         },
                     }}
                 >
-                    <FocusZone>
-                        <List
-                            items={this.state.results.items}
-                            onRenderCell={this.onRenderCell}
-                            style={{ position: "relative" }}
-                            getItemCountForPage={getItemCountForPage}
-                            getPageHeight={() => {
-                                return 76;
-                            }}
-                            usePageCache={true}
-                            renderCount={this.state.results.count || api.config.pageSize}
-                            onPageAdded={onPageAdded}
-                        />
-                    </FocusZone>
+                    {this.renderItems()}
                 </Stack.Item>
             </Stack>
         );

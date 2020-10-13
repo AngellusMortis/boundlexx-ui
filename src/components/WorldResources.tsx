@@ -131,9 +131,9 @@ class WorldResources extends React.Component<Props> {
         this.props.changeShowUpdates(false);
     };
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     onRenderResources = (
         nestingDepth?: number | undefined,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         item?: any,
         index?: number | undefined,
     ): string | JSX.Element => {
@@ -235,7 +235,7 @@ class WorldResources extends React.Component<Props> {
             );
         };
 
-        const onGroupHeaderClick = (group: IGroup): void => {
+        const onGroupHeaderClick = (): void => {
             if (props === undefined || props.group === undefined || props.onToggleCollapse === undefined) {
                 return;
             }

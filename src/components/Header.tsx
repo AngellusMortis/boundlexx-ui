@@ -72,16 +72,24 @@ const myStyle2 = mergeStyles(AnimationStyles.slideDownIn20);
 
 class Header extends React.Component<Props> {
     mounted = false;
+    loading = false;
     client: BoundlexxClient | null = null;
 
     componentDidMount = async () => {
         this.mounted = true;
 
-        // load "essential data"
         this.client = await api.getClient();
-        // get a specific world
-        // this.client.retrieveWorld(320);
 
+        this.loadData();
+    };
+
+    loadData = async () => {
+        if (this.loading) {
+            return;
+        }
+        this.loading = true;
+
+        // load "essential data"
         if (window.location.pathname !== "/worlds/") {
             await this.loadAll(this.props.worlds, "listWorlds", this.props.updateWorlds, undefined, [
                 { name: "show_inactive", value: true, in: "query" },
@@ -101,16 +109,22 @@ class Header extends React.Component<Props> {
             this.props.locale,
         );
         await this.loadAll(this.props.skills, "listSkills", this.props.updateSkills, this.props.locale);
+
+        this.loading = false;
     };
 
     componentWillUnmount = () => {
         this.mounted = false;
     };
 
+    componentDidUpdate = () => {
+        this.loadData();
+    };
+
     loadAll = async (
         results: BaseItems,
         operationID: string,
-        updateMethod: api.updateItems,
+        updateMethod: api.updateGeneric,
         locale?: string,
         params?: APIParams[],
     ): Promise<void> => {
@@ -157,7 +171,7 @@ class Header extends React.Component<Props> {
         }
     };
 
-    setDataFromResponse(response: AxiosResponse, updateMethod: api.updateItems, locale?: string) {
+    setDataFromResponse(response: AxiosResponse, updateMethod: api.updateGeneric, locale?: string) {
         let nextURL: string | null = null;
 
         if (this.mounted) {

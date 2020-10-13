@@ -10,6 +10,7 @@ import { Provider } from "react-redux";
 import { PersistGate } from "redux-persist/integration/react";
 import { changeVersion, onUpdate, changeShowUpdates } from "./prefs/actions";
 import toast from "./toast";
+import * as api from "./api";
 import { Version } from "./types";
 
 const App = React.lazy(() => import("./App"));
@@ -46,7 +47,18 @@ serviceWorker.register({
         console.log(`Setting version to ${version}`);
         store.dispatch(onUpdate([]));
         store.dispatch(changeVersion(version));
+
+        const lang = store.getState().prefs.language;
+        // wipe all API data
+        store.dispatch(api.updateColors([], null, null, lang));
+        store.dispatch(api.updateRecipeGroups([], null, null, lang));
+        store.dispatch(api.updateSkills([], null, null, lang));
+        store.dispatch(api.updateItems([], null, null, lang));
+        store.dispatch(api.updateEmojis([], null, null));
+        store.dispatch(api.updateWorlds([], null, null));
     },
+    // TODO:
+    // eslint-disable-next-line
     onUpdate: (registration: ServiceWorkerRegistration, versions?: Version[]) => {
         const updateServiceWorker = () => {
             store.dispatch(changeShowUpdates(true));
