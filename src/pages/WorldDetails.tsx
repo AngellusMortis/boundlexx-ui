@@ -351,6 +351,7 @@ class Page extends React.Component<Props> {
                             }}
                         >
                             <span
+                                className="world-name"
                                 style={{ display: "block" }}
                                 dangerouslySetInnerHTML={{
                                     __html: this.state.world.html_name || this.state.world.display_name,

@@ -1,5 +1,13 @@
 [
     {
+        "date": "2020-10-19T14:00:00.000Z",
+        "changelogs": ["Fixes going to world details page", "Changes World cards so they be used as links as well"]
+    },
+    {
+        "date": "2020-10-19T13:30:00.000Z",
+        "changelogs": ["Fixes minor styling issues."]
+    },
+    {
         "date": "2020-10-11T22:05:00.000Z",
         "changelogs": ["Centered cards on grouped Display pages when there is only a single column"]
     },
