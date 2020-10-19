@@ -14,7 +14,7 @@ const initialState: UserPreferences = {
     theme: "",
     version: null,
     showUpdates: false,
-    showGroups: false,
+    showGroups: true,
 };
 
 export function prefsReducer(state = initialState, action: PerfsActionsType): UserPreferences {

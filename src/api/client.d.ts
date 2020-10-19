@@ -262,6 +262,11 @@ declare namespace Components {
             guild_tag: string;
             shop_activity: number;
         }
+        export interface PossibleItemWBC {
+            item: {
+                game_id: number;
+            };
+        }
         export interface PossibleWBC {
             color: {
                 game_id: number;
@@ -310,6 +315,7 @@ declare namespace Components {
                     item: {
                         game_id: number;
                     } | null;
+                    count: number;
                 }[];
             }[];
             required_event?: "GLEAMBOW_RACING" | "CHRISTMAS" | "VALENTINES" | "HALLOWEEN" | "BIRTHDAY";
@@ -883,7 +889,7 @@ declare namespace Paths {
             game_id: Parameters.GameId;
         }
         namespace Responses {
-            export type $200 = Components.Schemas.PossibleWBC;
+            export type $200 = Components.Schemas.PossibleItemWBC;
         }
     }
     namespace ListColors {

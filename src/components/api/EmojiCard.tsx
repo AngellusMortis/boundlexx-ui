@@ -79,7 +79,7 @@ const EmojiCard: React.FunctionComponent<Props> = (props) => {
                 >
                     {props.emoji !== undefined && props.emoji.image_url !== null && (
                         <Image
-                            imageFit={ImageFit.centerCover}
+                            imageFit={ImageFit.centerContain}
                             maximizeFrame={true}
                             shouldFadeIn={true}
                             src={props.emoji.image_url}

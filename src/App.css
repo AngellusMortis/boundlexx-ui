@@ -6,3 +6,7 @@
 .api-card .ms-CardSection > :not(:first-child) {
     margin-top: 0;
 }
+
+.card-link:hover {
+    text-decoration: none;
+}
