@@ -13,6 +13,8 @@ interface BaseProps {
 
 type Props = BaseProps & RouteComponentProps & WithTranslation;
 
+// TODO
+// eslint-disable-next-line
 const WorldCard: React.FunctionComponent<Props> = (props) => {
     const theme = getTheme();
 

@@ -1,8 +1,8 @@
 import { Components } from "./client";
-import { StringDict, LocalizedStringAPIItems } from "../types";
+import { LocalizedNumericAPIItems, NumberDict } from "../types";
 
-interface RecipeGroups extends LocalizedStringAPIItems {
-    items: StringDict<Components.Schemas.RecipeGroup>;
+interface RecipeGroups extends LocalizedNumericAPIItems {
+    items: NumberDict<Components.Schemas.RecipeGroup>;
 }
 
 export const recipeGroupsInitialState: RecipeGroups = {
@@ -13,7 +13,7 @@ export const recipeGroupsInitialState: RecipeGroups = {
 };
 
 export type RecipeGroupsPayload = {
-    items: StringDict<Components.Schemas.RecipeGroup>;
+    items: NumberDict<Components.Schemas.RecipeGroup>;
     nextUrl?: string | null;
     count?: number | null;
     lang?: string;
@@ -52,10 +52,10 @@ export function updateRecipeGroups(
     nextUrl?: string | null,
     lang?: string,
 ): UpdateRecipeGroupsAction {
-    const mapped: StringDict<Components.Schemas.RecipeGroup> = {};
+    const mapped: NumberDict<Components.Schemas.RecipeGroup> = {};
 
     results.forEach((result) => {
-        mapped[result.name] = result;
+        mapped[result.id] = result;
     });
 
     return {
