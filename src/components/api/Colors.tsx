@@ -8,6 +8,7 @@ import { Components } from "../../api/client";
 import { getTheme } from "../../themes";
 import { changeShowGroups } from "../../prefs/actions";
 import ColorCard from "./ColorCard";
+import { withRouter } from "react-router-dom";
 
 const mapState = (state: RootState) => ({
     theme: getTheme(state.prefs.theme),
@@ -28,8 +29,8 @@ class Colors extends APIDisplay {
         return;
     };
 
-    renderFilters = (): JSX.Element => {
-        return <div></div>;
+    renderFilters = (): string | JSX.Element => {
+        return "";
     };
 
     onRenderCell = (item: Components.Schemas.Color | undefined): string | JSX.Element => {
@@ -37,4 +38,4 @@ class Colors extends APIDisplay {
     };
 }
 
-export default connector(withTranslation()(Colors));
+export default connector(withRouter(withTranslation()(Colors)));

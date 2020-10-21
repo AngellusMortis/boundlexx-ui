@@ -50,3 +50,11 @@ export interface StringAPIItems extends BaseItems {
 export interface LocalizedStringAPIItems extends LocalizedBaseItems {
     items: StringDict<unknown>;
 }
+
+export interface MenuLink {
+    key: string;
+    text: string;
+    icon: string;
+    href: string;
+    base?: string;
+}

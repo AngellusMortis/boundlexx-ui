@@ -14,7 +14,7 @@ export {
     getSpecialType,
     PointsToLevelsMap,
 } from "./data";
-export { config, getClient, throttle } from "./core";
+export { config, getClient, throttle, getWorld, getItem, getColor } from "./core";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type updateGeneric = (results: any[], count?: number | null, nextUrl?: string | null, lang?: string) => unknown;

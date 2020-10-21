@@ -55,6 +55,10 @@ export function updateColors(
     const mapped: NumberDict<Components.Schemas.Color> = {};
 
     items.forEach((item) => {
+        if (item.game_id === undefined) {
+            return;
+        }
+
         mapped[item.game_id] = item;
     });
 

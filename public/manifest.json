@@ -33,19 +33,19 @@
             "name": "Open Worlds",
             "short_name": "Worlds",
             "description": "Open Worlds Page",
-            "url": "/worlds/"
+            "url": "/worlds/browse/"
         },
         {
             "name": "Open Items",
             "short_name": "Items",
             "description": "Open Items Page",
-            "url": "/items/"
+            "url": "/items/browse/"
         },
         {
             "name": "Open Colors",
             "short_name": "Colors",
             "description": "Open Colors Page",
-            "url": "/colors/"
+            "url": "/colors/browse/"
         },
         {
             "name": "Open Emojis",

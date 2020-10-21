@@ -38,7 +38,7 @@ class App extends React.Component {
                     style={{ height: "calc(100vh - 119px)", textAlign: "center" }}
                 >
                     <Switch>
-                        <Route path="/colors/" exact strict>
+                        <Route path="/colors/:route(browse|item-lookup|sovereign)/" exact strict>
                             <Colors />
                         </Route>
                         <Route path="/emojis/" exact strict>
@@ -47,7 +47,7 @@ class App extends React.Component {
                         <Route path="/forum/" exact strict>
                             <Forum />
                         </Route>
-                        <Route path="/items/" exact strict>
+                        <Route path="/items/:route(browse|resource-lookup|color-lookup)/" exact strict>
                             <Items />
                         </Route>
                         <Route
@@ -56,7 +56,7 @@ class App extends React.Component {
                             strict
                             render={(props) => <WorldDetails id={props.match.params.id} />}
                         />
-                        <Route path="/worlds/" exact strict>
+                        <Route path="/worlds/:route(browse|resource-lookup|color-lookup)/" exact strict>
                             <Worlds />
                         </Route>
                         <Route path="/" exact strict>

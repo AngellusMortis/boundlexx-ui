@@ -50,6 +50,6 @@ export const getSpecialType = (world: Components.Schemas.World | Components.Sche
     return specialType;
 };
 
-export const getStatusText = (item: Components.Schemas.SimpleWorld): string => {
+export const getStatusText = (item: Components.Schemas.SimpleWorld | Components.Schemas.World): string => {
     return item.is_locked ? "Locked" : item.active ? "Active" : "Inactive";
 };

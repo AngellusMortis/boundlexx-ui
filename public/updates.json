@@ -1,5 +1,17 @@
 [
     {
+        "date": "2020-10-20T03:40:00.000Z",
+        "changelogs": ["Changes boolean icons on 'By Resource' to be colored"]
+    },
+    {
+        "date": "2020-10-20T03:35:00.000Z",
+        "changelogs": ["Changes worlds on 'By Resource' view to be clickable"]
+    },
+    {
+        "date": "2020-10-20T03:20:00.000Z",
+        "changelogs": ["Adds 'Find By Color' world API view", "Adds 'By Resource' item API view", "Adds 'Find Color' item API view", "Adds 'Find By Color' color API view", "Adds 'Sovereign' color API view"]
+    },
+    {
         "date": "2020-10-19T14:00:00.000Z",
         "changelogs": ["Fixes going to world details page", "Changes World cards so they be used as links as well"]
     },

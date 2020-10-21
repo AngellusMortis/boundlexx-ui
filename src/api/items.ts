@@ -55,6 +55,10 @@ export function updateItems(
     const mapped: NumberDict<Components.Schemas.SimpleItem> = {};
 
     results.forEach((result) => {
+        if (result.game_id === undefined) {
+            return;
+        }
+
         mapped[result.game_id] = result;
     });
 

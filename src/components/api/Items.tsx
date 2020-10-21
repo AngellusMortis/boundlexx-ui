@@ -12,6 +12,7 @@ import SubtitleSelector from "../SubtitleSelector";
 import ListTypeSelector from "../ListTypeSelector";
 import { changeShowGroups } from "../../prefs/actions";
 import ItemCard from "./ItemCard";
+import { withRouter } from "react-router-dom";
 
 const mapState = (state: RootState) => ({
     theme: getTheme(state.prefs.theme),
@@ -152,4 +153,4 @@ class Items extends APIDisplay {
     };
 }
 
-export default connector(withTranslation()(Items));
+export default connector(withRouter(withTranslation()(Items)));
