@@ -221,6 +221,8 @@ declare namespace Components {
             item_count: number;
             price: string; // decimal
             beacon_name: string;
+            beacon_text_name: string | null;
+            beacon_html_name: string | null;
             guild_tag: string;
             shop_activity: number;
         }
@@ -262,6 +264,8 @@ declare namespace Components {
             item_count: number;
             price: string; // decimal
             beacon_name: string;
+            beacon_text_name: string | null;
+            beacon_html_name: string | null;
             guild_tag: string;
             shop_activity: number;
         }
@@ -709,6 +713,8 @@ declare namespace Components {
                 guild_tag: string;
                 mayor_name: string;
                 name: string;
+                text_name: string | null;
+                html_name: string | null;
                 prestige: number;
             }[];
         }
@@ -764,6 +770,8 @@ declare namespace Components {
             item_count: number;
             price: string; // decimal
             beacon_name: string;
+            beacon_text_name: string | null;
+            beacon_html_name: string | null;
             guild_tag: string;
             shop_activity: number;
         }
@@ -776,6 +784,8 @@ declare namespace Components {
             item_count: number;
             price: string; // decimal
             beacon_name: string;
+            beacon_text_name: string | null;
+            beacon_html_name: string | null;
             guild_tag: string;
             shop_activity: number;
         }
