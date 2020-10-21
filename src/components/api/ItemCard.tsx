@@ -4,16 +4,23 @@ import { Components } from "../../api/client";
 import { Card } from "@uifabric/react-cards";
 import { getTheme } from "../../themes";
 import { Shimmer, Text, TooltipHost } from "@fluentui/react";
+import { useId } from "@uifabric/react-hooks";
 
 interface BaseProps {
     item: Components.Schemas.SimpleItem | undefined;
+    extra?: string;
 }
 
 type Props = BaseProps & WithTranslation;
 
 const ItemCard: React.FunctionComponent<Props> = (props) => {
     const theme = getTheme();
-    let tooltipID = 0;
+    let width = 300;
+    const longNameTooltip = useId("tooltip");
+
+    if (props.extra !== undefined) {
+        width = 350;
+    }
 
     const onCardClick = () => {
         return;
@@ -29,7 +36,7 @@ const ItemCard: React.FunctionComponent<Props> = (props) => {
         return (
             <TooltipHost
                 content={name}
-                id={`long-name-tooltip-${tooltipID++}`}
+                id={longNameTooltip}
                 calloutProps={{ gapSpace: 0 }}
                 styles={{
                     root: { display: "inline-block", textOverflow: "ellipsis", overflowX: "hidden", width: "100%" },
@@ -53,7 +60,7 @@ const ItemCard: React.FunctionComponent<Props> = (props) => {
                     margin: 2,
                     position: "relative",
                     padding: 2,
-                    width: 300,
+                    width: width,
                     height: 66,
                 },
             }}
@@ -87,7 +94,7 @@ const ItemCard: React.FunctionComponent<Props> = (props) => {
                     }}
                 ></Shimmer>
             </Card.Item>
-            <Card.Section>
+            <Card.Section styles={{ root: { width: 212 } }}>
                 <Shimmer isDataLoaded={props.item !== undefined} width={100}>
                     {props.item !== undefined && renderTextName(props.item)}
                 </Shimmer>
@@ -104,6 +111,17 @@ const ItemCard: React.FunctionComponent<Props> = (props) => {
                     )}
                 </Shimmer>
             </Card.Section>
+            {props.extra !== undefined && (
+                <Card.Section
+                    styles={{
+                        root: { backgroundColor: theme.palette.themePrimary, width: 50, height: "100%", margin: 0 },
+                    }}
+                >
+                    <Text style={{ margin: "auto 0", color: theme.palette.white, fontWeight: "bold" }}>
+                        {props.extra}
+                    </Text>
+                </Card.Section>
+            )}
         </Card>
     );
 };
