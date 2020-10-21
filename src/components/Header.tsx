@@ -19,7 +19,7 @@ import { connect, ConnectedProps } from "react-redux";
 import * as api from "../api";
 import { Client as BoundlexxClient } from "../api/client";
 import { AxiosResponse } from "axios";
-import { BaseItems, APIParams } from "../types";
+import { BaseItems, APIParams, MenuLink } from "../types";
 import "./Header.css";
 import { getTheme } from "../themes";
 import { RouteComponentProps, withRouter } from "react-router-dom";
@@ -52,17 +52,10 @@ type PropsFromRedux = ConnectedProps<typeof connector>;
 
 type Props = RouteComponentProps & WithTranslation & PropsFromRedux;
 
-interface menuLink {
-    key: string;
-    text: string;
-    icon: string;
-    href: string;
-}
-
-const links: menuLink[] = [
-    { key: "worlds", text: "World_plural", icon: "World", href: "/worlds/" },
-    { key: "items", text: "Item_plural", icon: "Stack", href: "/items/" },
-    { key: "colors", text: "Color_plural", icon: "Color", href: "/colors/" },
+const links: MenuLink[] = [
+    { key: "worlds", text: "World_plural", icon: "World", href: "/worlds/browse/", base: "/worlds/" },
+    { key: "items", text: "Item_plural", icon: "Stack", href: "/items/browse/", base: "/items/" },
+    { key: "colors", text: "Color_plural", icon: "Color", href: "/colors/browse/", base: "/colors/" },
     { key: "emojis", text: "Emoji_plural", icon: "Emoji2", href: "/emojis/" },
     { key: "forum", text: "Forum Generator", icon: "PageHeaderEdit", href: "/forum/" },
 ];
@@ -90,15 +83,15 @@ class Header extends React.Component<Props> {
         this.loading = true;
 
         // load "essential data"
-        if (window.location.pathname !== "/worlds/") {
+        if (window.location.pathname !== "/worlds/browse/") {
             await this.loadAll(this.props.worlds, "listWorlds", this.props.updateWorlds, undefined, [
                 { name: "show_inactive", value: true, in: "query" },
             ]);
         }
-        if (window.location.pathname !== "/colors/") {
+        if (window.location.pathname !== "/colors/browse/") {
             await this.loadAll(this.props.colors, "listColors", this.props.updateColors, this.props.locale);
         }
-        if (window.location.pathname !== "/items/") {
+        if (window.location.pathname !== "/items/browse/") {
             await this.loadAll(this.props.items, "listItems", this.props.updateItems, this.props.locale);
         }
 
@@ -210,7 +203,10 @@ class Header extends React.Component<Props> {
                 text: this.props.t(link.text),
                 iconProps: { iconName: link.icon },
                 disabled: false,
-                checked: window.location.pathname === link.href,
+                checked:
+                    link.base === undefined
+                        ? window.location.pathname === link.href
+                        : window.location.pathname.startsWith(link.base),
                 href: link.href,
                 onClick: this.onClick,
                 buttonStyles: {

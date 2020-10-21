@@ -1,6 +1,6 @@
 import { RootState } from "../store";
 import { OpenAPIClientAxios, OpenAPIV3 } from "openapi-client-axios";
-import { Client as BoundlexxClient } from "./client";
+import { Client as BoundlexxClient, Components } from "./client";
 import { Mutex } from "async-mutex";
 import msgpack from "msgpack-lite";
 import { AxiosRequestConfig } from "axios";
@@ -97,4 +97,16 @@ export const getClient = async (force?: boolean): Promise<BoundlexxClient> => {
         store.dispatch(changeAPIDefinition(api.document));
         return client;
     });
+};
+
+export const getWorld = (id: number): Components.Schemas.SimpleWorld | undefined => {
+    return store.getState().worlds.items[id];
+};
+
+export const getItem = (id: number): Components.Schemas.SimpleItem | undefined => {
+    return store.getState().items.items[id];
+};
+
+export const getColor = (id: number): Components.Schemas.Color | undefined => {
+    return store.getState().colors.items[id];
 };

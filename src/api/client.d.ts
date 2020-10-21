@@ -139,6 +139,8 @@ declare namespace Components {
                     plain_text: string;
                 }[];
             };
+            has_colors: boolean;
+            is_resource: boolean;
         }
         export interface ItemColor {
             color: {
@@ -228,7 +230,7 @@ declare namespace Components {
             readonly is_embedded?: string;
             percentage: string; // decimal
             count: number;
-            average_per_chunk?: string | null; // decimal
+            average_per_chunk: string; // decimal
         }
         export interface ItemResourceCountTimeSeries {
             time: string; // date-time
@@ -238,7 +240,7 @@ declare namespace Components {
             readonly is_embedded?: string;
             percentage: string; // decimal
             count: number;
-            average_per_chunk?: string | null; // decimal
+            average_per_chunk: string; // decimal
         }
         export interface ItemResourceCountTimeSeriesTB {
             time_bucket?: string; // date-time
@@ -358,6 +360,8 @@ declare namespace Components {
                     plain_text: string;
                 }[];
             };
+            has_colors: boolean;
+            is_resource: boolean;
         }
         export interface SimpleWorld {
             id: number;
@@ -401,6 +405,9 @@ declare namespace Components {
             is_exo: boolean;
             is_creative: boolean;
             is_locked: boolean;
+            is_public: boolean;
+            is_public_edit: boolean;
+            is_public_claim: boolean;
         }
         export interface Skill {
             id: number;

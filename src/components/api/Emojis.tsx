@@ -12,6 +12,7 @@ import { StringDict } from "../../types";
 import { Mutex } from "async-mutex";
 import { changeShowGroups } from "../../prefs/actions";
 import EmojiCard from "./EmojiCard";
+import { withRouter } from "react-router-dom";
 
 const mapState = (state: RootState) => ({
     theme: getTheme(state.prefs.theme),
@@ -114,4 +115,4 @@ class Emojis extends APIDisplay {
     };
 }
 
-export default connector(withTranslation()(Emojis));
+export default connector(withRouter(withTranslation()(Emojis)));

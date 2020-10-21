@@ -16,6 +16,7 @@ import {
     IGroupHeaderProps,
     SelectionMode,
     TooltipHost,
+    IColumn,
 } from "@fluentui/react";
 import "./APIDisplay.css";
 import { WithTranslation } from "react-i18next";
@@ -23,10 +24,13 @@ import * as api from "../../api";
 import { Client as BoundlexxClient } from "../../api/client";
 import { StringAPIItems, NumericAPIItems, BaseItemsAsArray, BaseItems, StringDict, APIParams } from "../../types";
 import { AxiosResponse } from "axios";
+import { RouteComponentProps } from "react-router-dom";
 
 export interface FilterValidator {
     name: string;
     type: string;
+    required?: boolean; // required filters = path params
+    operationID?: string; // filter = path to create new operation
     choices?: string[];
     validate?: (value: string) => boolean;
 }
@@ -47,6 +51,8 @@ interface State {
     results: BaseItemsAsArray;
     error?: Error;
     columnCount: number;
+    hasRequiredFilters: boolean;
+    columns?: IColumn[];
 }
 
 interface BaseProps {
@@ -61,6 +67,8 @@ interface BaseProps {
     groupBy?: string;
     groupOrder?: string[];
     showGroups: boolean;
+    allowSearch?: boolean;
+    title?: string;
 
     changeShowGroups: (showGroups: boolean) => unknown;
     updateItems?: api.updateGeneric;
@@ -152,7 +160,7 @@ export const mapStringStoreToItems = (store: StringAPIItems): BaseItemsAsArray |
     });
 };
 
-export type APIDisplayProps = WithTranslation & BaseProps;
+export type APIDisplayProps = WithTranslation & BaseProps & RouteComponentProps;
 
 const SEARCH_TIMEOUT = 1000;
 
@@ -169,6 +177,7 @@ export abstract class APIDisplay extends React.Component<APIDisplayProps> {
             search: null,
             queryParams: "",
         },
+        hasRequiredFilters: false,
         filtersVisible: false,
         filtersHelp: false,
         columnCount: 0,
@@ -182,13 +191,14 @@ export abstract class APIDisplay extends React.Component<APIDisplayProps> {
         super(props);
 
         this.state.columnCount = Math.floor(window.innerWidth / 304);
+        this.state.hasRequiredFilters = this.getHasRequiredFilters();
         window.addEventListener("resize", this.calculateColumns);
 
         const filters = this.updateQueryParam(this.getParamsDict(window.location.search), true);
         if (filters !== null) {
             this.state.filtersVisible = true;
             this.state.filters = filters;
-        } else if (props.results !== undefined) {
+        } else if (props.results !== undefined && !this.state.hasRequiredFilters) {
             if (props.locale === null || props.locale === props.results.lang) {
                 this.state.results = props.results;
                 this.state.results.items = this.groupResults(this.state.results.items);
@@ -201,8 +211,29 @@ export abstract class APIDisplay extends React.Component<APIDisplayProps> {
             } else {
                 this.resetStore();
             }
+        } else if (this.state.hasRequiredFilters) {
+            this.state.results.items = [];
         }
     }
+
+    getHasRequiredFilters = (): boolean => {
+        if (this.props.extraFilterKeys === undefined) {
+            return false;
+        }
+
+        let hasRequired = false;
+
+        for (let index = 0; index < this.props.extraFilterKeys.length; index++) {
+            const filter = this.props.extraFilterKeys[index];
+
+            if (filter.required) {
+                hasRequired = true;
+                break;
+            }
+        }
+
+        return hasRequired;
+    };
 
     calculateColumns = (): void => {
         const newColumns = Math.floor(window.innerWidth / 304);
@@ -253,6 +284,12 @@ export abstract class APIDisplay extends React.Component<APIDisplayProps> {
             newResults.items = this.groupResults(newResults.items);
 
             this.setState({ results: newResults });
+        }
+
+        const hasRequired = this.getHasRequiredFilters();
+
+        if (hasRequired !== this.state.hasRequiredFilters) {
+            this.setState({ hasRequiredFilters: hasRequired });
         }
     }
 
@@ -534,14 +571,41 @@ export abstract class APIDisplay extends React.Component<APIDisplayProps> {
         return name;
     };
 
-    callOperation = async (params: APIParams[]): Promise<AxiosResponse> => {
+    // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types, @typescript-eslint/no-explicit-any
+    getTitle = (extra?: string, translate?: boolean, transArgs?: any): string => {
+        let name = "";
+        if (this.props.title !== undefined) {
+            name = this.props.title.toString();
+        } else {
+            return this.getName(extra, translate, transArgs);
+        }
+
+        if (extra !== undefined) {
+            name = `${name}${extra}`;
+        }
+
+        if (translate === undefined || translate) {
+            if (transArgs === undefined) {
+                return this.props.t(name);
+            } else {
+                return this.props.t(name, transArgs);
+            }
+        }
+        return name;
+    };
+
+    callOperation = async (params: APIParams[], operationID?: string): Promise<AxiosResponse> => {
         if (this.client === null) {
             this.client = await api.getClient();
         }
 
+        if (operationID === undefined) {
+            operationID = this.props.operationID;
+        }
+
         // eslint-disable-next-line
         // @ts-ignore
-        const operation = this.client[this.props.operationID];
+        const operation = this.client[operationID];
 
         if (operation === undefined) {
             this.client = await api.getClient(true);
@@ -640,6 +704,10 @@ export abstract class APIDisplay extends React.Component<APIDisplayProps> {
         this.props.changeShowGroups(!this.props.showGroups);
     };
 
+    hasMore = (): boolean => {
+        return !(this.state.initialLoad && this.state.results.nextUrl === null);
+    };
+
     // TODO:
     // eslint-disable-next-line
     getData = async (): Promise<void> => {
@@ -649,8 +717,20 @@ export abstract class APIDisplay extends React.Component<APIDisplayProps> {
         }
 
         // no more data, do not update
-        if (this.state.initialLoad && this.state.results.nextUrl === null) {
+        if (!this.hasMore()) {
             return;
+        }
+
+        if (this.props.extraFilterKeys !== undefined && this.state.hasRequiredFilters) {
+            const currentFilters: StringDict<string> = this.state.filters.extraFilters || {};
+
+            for (let index = 0; index < this.props.extraFilterKeys.length; index++) {
+                const filter = this.props.extraFilterKeys[index];
+
+                if (filter.required && !(filter.name in currentFilters)) {
+                    return;
+                }
+            }
         }
 
         // add placeholder cards
@@ -681,12 +761,30 @@ export abstract class APIDisplay extends React.Component<APIDisplayProps> {
                     queryParams["search"] = this.state.filters.search;
                 }
 
-                if (this.state.filters.extraFilters !== undefined) {
+                let operationID = undefined;
+                if (this.props.extraFilterKeys !== undefined && this.state.filters.extraFilters !== undefined) {
+                    const filters: StringDict<FilterValidator> = {};
+                    for (let index = 0; index < this.props.extraFilterKeys.length; index++) {
+                        const filter = this.props.extraFilterKeys[index];
+                        filters[filter.name] = filter;
+                    }
+
                     for (const key in this.state.filters.extraFilters) {
+                        const filter = filters[key];
+                        let type = "query";
+
+                        if (key in filters && (filter.required || filter.operationID)) {
+                            type = "path";
+
+                            if (filter.operationID) {
+                                operationID = filter.operationID;
+                            }
+                        }
+
                         params.push({
                             name: key,
                             value: this.state.filters.extraFilters[key],
-                            in: "query",
+                            in: type,
                         });
                     }
                 }
@@ -694,7 +792,7 @@ export abstract class APIDisplay extends React.Component<APIDisplayProps> {
                 if (this.props.extraDefaultFilters !== undefined) {
                     params = params.concat(this.props.extraDefaultFilters);
                 }
-                response = await this.callOperation(params);
+                response = await this.callOperation(params, operationID);
             } else {
                 response = await this.client.get(this.state.results.nextUrl, { paramsSerializer: () => "" });
             }
@@ -758,7 +856,7 @@ export abstract class APIDisplay extends React.Component<APIDisplayProps> {
         });
     };
 
-    abstract renderFilters(): JSX.Element;
+    abstract renderFilters(): string | JSX.Element;
 
     onFiltersHelpDismiss = (): void => {
         this.setState({ filtersHelp: false });
@@ -785,8 +883,12 @@ export abstract class APIDisplay extends React.Component<APIDisplayProps> {
         return "";
     };
 
-    renderFiltersToggle = (): JSX.Element => {
-        if (this.props.extraFilterKeys !== undefined && this.props.extraFilterKeys.length > 0) {
+    renderFiltersToggle = (): string | JSX.Element => {
+        if (
+            this.props.extraFilterKeys !== undefined &&
+            this.props.extraFilterKeys.length > 0 &&
+            !this.state.hasRequiredFilters
+        ) {
             return (
                 <div>
                     <TooltipHost
@@ -818,7 +920,7 @@ export abstract class APIDisplay extends React.Component<APIDisplayProps> {
             );
         }
 
-        return <span></span>;
+        return "";
     };
 
     onRenderHeader = (props: IGroupHeaderProps | undefined): JSX.Element => {
@@ -877,6 +979,7 @@ export abstract class APIDisplay extends React.Component<APIDisplayProps> {
         if (this.listGroups !== null) {
             return (
                 <GroupedList
+                    className="card-list"
                     compact={true}
                     items={this.state.results.items}
                     onRenderCell={this.onRenderGroupCell}
@@ -901,6 +1004,7 @@ export abstract class APIDisplay extends React.Component<APIDisplayProps> {
         return (
             <FocusZone>
                 <List
+                    className="card-list"
                     items={this.state.results.items}
                     onRenderCell={this.onRenderCell}
                     style={{ position: "relative" }}
@@ -916,17 +1020,9 @@ export abstract class APIDisplay extends React.Component<APIDisplayProps> {
         );
     };
 
-    render(): JSX.Element {
-        if (this.state.error) {
-            return (
-                <Stack horizontalAlign={"center"}>
-                    <h2>{this.getName("_plural")}</h2>
-                    <Text>
-                        {this.props.t("Error:")} {this.state.error.message}
-                    </Text>
-                    <DefaultButton text="Retry" onClick={this.onRetryClick.bind(this)} />
-                </Stack>
-            );
+    renderResultsHeader = (): string | JSX.Element => {
+        if (this.state.hasRequiredFilters) {
+            return "";
         }
 
         const actualCount = this.state.results.count == null ? api.config.pageSize : this.state.results.count;
@@ -935,6 +1031,49 @@ export abstract class APIDisplay extends React.Component<APIDisplayProps> {
             actualCount.toString(),
             displayCount,
         );
+
+        return (
+            <div
+                style={{
+                    display: "inline-flex",
+                    margin: "0 20px",
+                    alignItems: "flex-end",
+                    alignSelf: "center",
+                }}
+            >
+                <Text>{foundName}</Text>
+            </div>
+        );
+    };
+
+    renderSearchBox = (): string | JSX.Element => {
+        if (this.props.allowSearch === undefined || this.props.allowSearch) {
+            return (
+                <SearchBox
+                    placeholder={this.props.t(`Search ${this.getName("", false)}`)}
+                    onChange={this.onSearchChange}
+                    onSearch={this.onSearch}
+                    onClear={this.clearSearch}
+                    value={this.state.filters.search || ""}
+                />
+            );
+        }
+
+        return "";
+    };
+
+    render(): JSX.Element {
+        if (this.state.error) {
+            return (
+                <Stack horizontalAlign={"center"}>
+                    <h2>{this.getTitle("_plural")}</h2>
+                    <Text>
+                        {this.props.t("Error:")} {this.state.error.message}
+                    </Text>
+                    <DefaultButton text="Retry" onClick={this.onRetryClick.bind(this)} />
+                </Stack>
+            );
+        }
 
         return (
             <Stack
@@ -956,33 +1095,18 @@ export abstract class APIDisplay extends React.Component<APIDisplayProps> {
                         },
                     }}
                 >
-                    <h2 style={{ display: "inline-flex", margin: "0 20px" }}>{this.getName("_plural")}</h2>
-                    <div
-                        style={{
-                            display: "inline-flex",
-                            margin: "0 20px",
-                            alignItems: "flex-end",
-                            alignSelf: "center",
-                        }}
-                    >
-                        <Text>{foundName}</Text>
-                    </div>
+                    <h2 style={{ display: "inline-flex", margin: "0 20px" }}>{this.getTitle("_plural")}</h2>
+                    {this.renderResultsHeader()}
                     <div
                         style={{ display: "inline-flex", margin: "0 20px", justifyContent: "center" }}
                         className="api-display-search"
                     >
                         {this.renderShowGroups()}
                         {this.renderFiltersToggle()}
-                        <SearchBox
-                            placeholder={this.props.t(`Search ${this.getName("", false)}`)}
-                            onChange={this.onSearchChange}
-                            onSearch={this.onSearch}
-                            onClear={this.clearSearch}
-                            value={this.state.filters.search || ""}
-                        />
+                        {this.renderSearchBox()}
                     </div>
                 </Stack.Item>
-                {this.state.filtersVisible && (
+                {(this.state.filtersVisible || this.state.hasRequiredFilters) && (
                     <Stack.Item
                         styles={{
                             root: {

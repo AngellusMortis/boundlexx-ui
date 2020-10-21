@@ -11,6 +11,7 @@ import { StringDict } from "../../types";
 import WorldSelector from "../WorldSelector";
 import { changeShowGroups } from "../../prefs/actions";
 import WorldCard from "./WorldCard";
+import { withRouter } from "react-router-dom";
 
 const mapState = (state: RootState) => {
     return {
@@ -223,7 +224,6 @@ class Worlds extends APIDisplay {
         return "";
     };
 
-    // Region, Assignment
     renderFilters = (): JSX.Element => {
         const filters: StringDict<string> = this.state.filters.extraFilters || {};
         const assignmentID = filters["assignment"] === undefined ? null : parseInt(filters["assignment"]);
@@ -372,4 +372,4 @@ class Worlds extends APIDisplay {
     };
 }
 
-export default connector(withTranslation()(Worlds));
+export default connector(withRouter(withTranslation()(Worlds)));
