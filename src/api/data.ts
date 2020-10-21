@@ -53,3 +53,14 @@ export const getSpecialType = (world: Components.Schemas.World | Components.Sche
 export const getStatusText = (item: Components.Schemas.SimpleWorld | Components.Schemas.World): string => {
     return item.is_locked ? "Locked" : item.active ? "Active" : "Inactive";
 };
+
+export const MachineToItemMap: StringDict<number | string> = {
+    COMPACTOR: 9809,
+    CRAFTING_TABLE: 9856,
+    DYE_MAKER: 11733,
+    EXTRACTOR: 9808,
+    FURNACE: "Furance",
+    MIXER: 9810,
+    REFINERY: 9811,
+    WORKBENCH: 9789,
+};

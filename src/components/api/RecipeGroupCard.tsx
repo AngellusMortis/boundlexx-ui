@@ -124,7 +124,13 @@ const RecipeGroupCard: React.FunctionComponent<Props> = (props) => {
                 {props.extra !== undefined && (
                     <Card.Section
                         styles={{
-                            root: { backgroundColor: theme.palette.themePrimary, width: 50, height: "100%", margin: 0 },
+                            root: {
+                                backgroundColor: theme.palette.themePrimary,
+                                width: 50,
+                                height: "100%",
+                                margin: 0,
+                                textAlign: "center",
+                            },
                         }}
                     >
                         <Text style={{ margin: "auto 0", color: theme.palette.white, fontWeight: "bold" }}>

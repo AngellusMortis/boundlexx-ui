@@ -13,6 +13,7 @@ export {
     getStatusText,
     getSpecialType,
     PointsToLevelsMap,
+    MachineToItemMap,
 } from "./data";
 export { config, getClient, throttle, getWorld, getItem, getColor } from "./core";
 

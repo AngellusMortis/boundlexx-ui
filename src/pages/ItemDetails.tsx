@@ -7,6 +7,7 @@ import NotFound from "../components/NotFound";
 import { getTheme } from "../themes";
 import { RootState } from "../store";
 import { connect, ConnectedProps } from "react-redux";
+import Recipe from "../components/Recipe";
 
 interface BaseProps {
     id: number;
@@ -101,7 +102,9 @@ class Page extends React.Component<Props> {
 
     setTitle = () => {
         const boundlexx = this.props.t("Boundlexx");
-        const page = `${this.props.t("Item")} - ${this.state.item === null ? "" : this.state.item.game_id}`;
+        const page = `${this.props.t("Item")} - ${
+            this.state.item === null ? "" : this.state.item.localization[0].name
+        }`;
 
         document.title = `${boundlexx} | ${page}`;
         window.history.replaceState(document.title, document.title);
@@ -178,8 +181,6 @@ class Page extends React.Component<Props> {
                             alignItems: "center",
                         }}
                     >
-                        <div className="grid-spacer"></div>
-                        <div className="grid-spacer"></div>
                         <Stack
                             style={{
                                 backgroundColor: theme.palette.neutralLighter,
@@ -216,6 +217,7 @@ class Page extends React.Component<Props> {
                                 {this.state.item.mint_value.toLocaleString(undefined, { maximumSignificantDigits: 3 })}c
                             </Text>
                         </Stack>
+                        <Recipe id={this.state.item.game_id} />
                     </div>
                 </div>
             </Stack>

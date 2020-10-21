@@ -1,5 +1,5 @@
 import React from "react";
-import { IStackTokens, Spinner, SpinnerSize, Stack, Text } from "@fluentui/react";
+import { IStackTokens, Spinner, SpinnerSize, Stack, Text, Pivot, PivotItem } from "@fluentui/react";
 import "react-toastify/dist/ReactToastify.css";
 import { withTranslation, WithTranslation } from "react-i18next";
 import { RootState } from "../store";
@@ -10,9 +10,9 @@ import * as api from "../api";
 import { getTheme } from "../themes";
 import NotFound from "../components/NotFound";
 import SkillRequirement from "../components/SkillRequirement";
-import Items from "./api/Items";
-import { group } from "console";
 import ItemCard from "../components/api/ItemCard";
+import RecipeGroupCard from "../components/api/RecipeGroupCard";
+import { timeUnits } from "../types";
 
 interface BaseProps {
     id: number;
@@ -119,14 +119,20 @@ class Recipe extends React.Component<Props> {
         }
     };
 
-    renderMachine = (recipe: Components.Schemas.Recipe): string | JSX.Element => {
+    renderMachine = (
+        recipe: Components.Schemas.Recipe,
+        machine: string | null | Components.Schemas.SimpleItem,
+    ): string | JSX.Element => {
         if (recipe.can_hand_craft) {
-            if (recipe.machine) {
+            if (machine !== null) {
                 return (
                     <div>
                         <Text variant="medium">Crafted in Hand</Text>
                         <br />
-                        <Text variant="medium">Can also be crafted in {recipe.machine}</Text>
+                        <Text variant="medium">
+                            Can also be crafted in{" "}
+                            {typeof machine === "string" ? this.props.t(machine) : machine.localization[0].name}
+                        </Text>
                     </div>
                 );
             }
@@ -138,47 +144,61 @@ class Recipe extends React.Component<Props> {
             );
         }
 
-        return (
-            <div>
-                <Text variant="medium">
-                    <strong>Requires:</strong> {recipe.machine}
-                </Text>
-            </div>
-        );
+        if (machine !== null) {
+            return (
+                <div>
+                    <Text variant="medium">
+                        <strong>Requires:</strong>{" "}
+                        {typeof machine === "string" ? this.props.t(machine) : machine.localization[0].name}
+                    </Text>
+                </div>
+            );
+        }
+        return "";
     };
 
-    makeLevelElement = (level: RecipeLevel): string | JSX.Element => {
-        const theme = getTheme();
+    makeDurationString = (duration: number): string => {
+        duration = duration * 1000;
 
-        let levelString = "";
-        let countString = "";
-        for (let index = 0; index < level.inputs.length; index++) {
-            if (level.inputs[index].group === null && level.inputs[index].item !== null) {
-                const itemString = level.inputs[index].item?.game_id;
-                const count = level.inputs[index].count.toString();
+        let timeString = "";
+        for (const u in timeUnits) {
+            if (duration > timeUnits[u]) {
+                const units = Math.floor(duration / timeUnits[u]);
+                duration = duration - units * timeUnits[u];
 
-                if (levelString === "" && itemString !== undefined && countString === "") {
-                    levelString = this.props.items.items[itemString].localization[0].name + " " + count;
-                    countString = count;
-                } else {
-                    if (itemString !== undefined) {
-                        levelString =
-                            `${levelString}, ${this.props.items.items[itemString].localization[0].name} ` + " " + count;
-                        countString = `${countString}, ${count}`;
-                    }
-                }
-            } else {
-                const itemString = level.inputs[index].group?.id;
-
-                if (levelString === "" && itemString !== undefined) {
-                    levelString = this.props.recipeGroups.items[itemString].name;
-                } else {
-                    if (levelString === "" && itemString !== undefined) {
-                        levelString = `${levelString}, ${this.props.recipeGroups.items[itemString].name}`;
-                    }
-                }
+                timeString += `${units}${u[0]} `;
             }
         }
+        return timeString.trim();
+    };
+
+    makeLevelElement = (
+        level: RecipeLevel,
+        ouput_item: Components.Schemas.SimpleItem,
+        base_xp: number,
+        machine: string | null | Components.Schemas.SimpleItem,
+        heat?: number,
+    ): string | JSX.Element => {
+        const theme = getTheme();
+
+        level.inputs = level.inputs.sort((a, b) => {
+            let sortA = 0;
+            let sortB = 0;
+
+            if (a.item !== null) {
+                sortA = a.item.game_id;
+            } else if (a.group !== null) {
+                sortA = a.group.id;
+            }
+
+            if (b.item !== null) {
+                sortB = b.item.game_id;
+            } else if (b.group !== null) {
+                sortB = b.group.id;
+            }
+
+            return sortB - sortA;
+        });
 
         return (
             <Stack
@@ -189,43 +209,134 @@ class Recipe extends React.Component<Props> {
                     padding: "10px",
                 }}
             >
-                <Stack style={{}}>{levelString}</Stack>
-                <Stack style={{ padding: "10px" }}>{countString}</Stack>
+                {level.inputs.length > 0 && (
+                    <div>
+                        <Text
+                            block={true}
+                            variant="large"
+                            style={{ color: theme.palette.themePrimary, fontWeight: "bold" }}
+                        >
+                            Inputs:
+                        </Text>
+                        {level.inputs.map((input) => {
+                            if (input.group !== null) {
+                                const group = this.props.recipeGroups.items[input.group.id];
+
+                                return (
+                                    <RecipeGroupCard
+                                        key={`recipe-group-${group.id}`}
+                                        group={group}
+                                        extra={input.count.toString()}
+                                    />
+                                );
+                            } else if (input.item !== null) {
+                                const item = this.props.items.items[input.item.game_id];
+
+                                return (
+                                    <ItemCard
+                                        key={`recipe-item-${item.game_id}`}
+                                        item={item}
+                                        extra={input.count.toString()}
+                                    />
+                                );
+                            }
+                            return "";
+                        })}
+                    </div>
+                )}
+                {machine !== null && (
+                    <div>
+                        <Text
+                            block={true}
+                            variant="large"
+                            style={{ color: theme.palette.themePrimary, fontWeight: "bold" }}
+                        >
+                            Machine:
+                        </Text>
+                        <Text block={true} variant="large" style={{ fontWeight: "bold" }}>
+                            {typeof machine === "string" ? this.props.t(machine) : machine.localization[0].name}
+                        </Text>
+                        {heat !== undefined && (
+                            <Text variant="large" block={true}>
+                                <strong>Heat:</strong> {heat}
+                            </Text>
+                        )}
+                        {level.wear > 0 && (
+                            <Text variant="large" block={true}>
+                                <strong>Wear:</strong> {level.wear}
+                            </Text>
+                        )}
+                        {level.spark > 0 && (
+                            <Text variant="large" block={true}>
+                                <strong>Spark:</strong> {level.spark}
+                            </Text>
+                        )}
+                        {level.duration > 0 && (
+                            <Text variant="large" block={true}>
+                                <strong>Duration:</strong> {this.makeDurationString(level.duration)}
+                            </Text>
+                        )}
+                    </div>
+                )}
+                <Text block={true} variant="large" style={{ color: theme.palette.themePrimary, fontWeight: "bold" }}>
+                    Output:
+                </Text>
+                <ItemCard item={ouput_item} extra={level.output_quantity.toString()} />
+                {base_xp > 0 && (
+                    <Text variant="large">
+                        <strong>XP:</strong> {base_xp * level.output_quantity}
+                    </Text>
+                )}
             </Stack>
         );
     };
 
-    makeLevelsElements = (recipe: Components.Schemas.Recipe): (string | JSX.Element)[] => {
+    makeLevelsElements = (
+        recipe: Components.Schemas.Recipe,
+        machine: string | null | Components.Schemas.SimpleItem,
+    ): (string | JSX.Element)[] => {
         let single: string | JSX.Element = "";
         let bulk: string | JSX.Element = "";
         let mass: string | JSX.Element = "";
 
-        const levels = recipe.levels.sort((a, b) => a.level - b.level);
-
         if (recipe.levels !== null) {
-            single = this.makeLevelElement(levels[0]);
-            bulk = this.makeLevelElement(levels[1]);
-            mass = this.makeLevelElement(levels[2]);
+            const output_item = this.props.items.items[recipe.output.game_id];
+
+            const output_count = recipe.levels[0].output_quantity;
+            if (machine === "Furance" || recipe.levels.every((level) => level.output_quantity === output_count)) {
+                return [this.makeLevelElement(recipe.levels[0], output_item, recipe.craft_xp, machine, recipe.heat)];
+            }
+
+            for (let index = 0; index < recipe.levels.length; index++) {
+                const level = recipe.levels[index];
+
+                switch (level.level) {
+                    case 0:
+                        single = this.makeLevelElement(level, output_item, recipe.craft_xp, machine);
+                        break;
+                    case 1:
+                        bulk = this.makeLevelElement(level, output_item, recipe.craft_xp, machine);
+                        break;
+                    case 2:
+                        mass = this.makeLevelElement(level, output_item, recipe.craft_xp, machine);
+                        break;
+                }
+            }
         }
 
         return [single, bulk, mass];
     };
 
-    renderLevels = (recipe: Components.Schemas.Recipe): string | JSX.Element => {
-        const levels = this.makeLevelsElements(recipe);
-        const theme = getTheme();
+    renderLevels = (
+        recipe: Components.Schemas.Recipe,
+        machine: string | null | Components.Schemas.SimpleItem,
+    ): string | JSX.Element => {
+        const levels = this.makeLevelsElements(recipe, machine);
 
-        return (
-            <Stack className="levels">
-                <Stack>
-                    <Text
-                        block={true}
-                        variant="large"
-                        style={{ color: theme.palette.themePrimary, fontWeight: "bold" }}
-                    >
-                        {this.props.t("Single")}:
-                    </Text>
-                    {levels[0] && (
+        if (levels.length === 1) {
+            return (
+                <Stack className="levels">
+                    <Stack.Item>
                         <Stack
                             style={{
                                 padding: "10px",
@@ -233,62 +344,41 @@ class Recipe extends React.Component<Props> {
                         >
                             <Text>{levels[0]} </Text>
                         </Stack>
-                    )}
+                    </Stack.Item>
                 </Stack>
-                <Stack>
-                    <Text
-                        block={true}
-                        variant="large"
-                        style={{ color: theme.palette.themePrimary, fontWeight: "bold" }}
-                    >
-                        {this.props.t("Bulk")}:
-                    </Text>
-                    {levels[1] && (
-                        <Stack
-                            style={{
-                                padding: "10px",
-                            }}
-                        >
-                            <Text>{levels[1]} </Text>
-                        </Stack>
-                    )}
-                </Stack>
-                <Stack>
-                    <Text
-                        block={true}
-                        variant="large"
-                        style={{ color: theme.palette.themePrimary, fontWeight: "bold" }}
-                    >
-                        {this.props.t("Mass")}:
-                    </Text>
-                    {levels[2] && (
-                        <Stack
-                            style={{
-                                padding: "10px",
-                            }}
-                        >
-                            <Text>{levels[2]} </Text>
-                        </Stack>
-                    )}
-                </Stack>
-                <Stack>
-                    <Text
-                        block={true}
-                        variant="large"
-                        style={{ color: theme.palette.themePrimary, fontWeight: "bold" }}
-                    >
-                        Power:
-                    </Text>
+            );
+        }
 
+        return (
+            <Pivot className="levels">
+                <PivotItem headerText={this.props.t("Single")}>
                     <Stack
                         style={{
                             padding: "10px",
                         }}
                     >
-                        <Text>{this.state.recipe?.power}</Text>
+                        <Text>{levels[0]} </Text>
                     </Stack>
-                </Stack>
-            </Stack>
+                </PivotItem>
+                <PivotItem headerText={this.props.t("Bulk")}>
+                    <Stack
+                        style={{
+                            padding: "10px",
+                        }}
+                    >
+                        <Text>{levels[1]} </Text>
+                    </Stack>
+                </PivotItem>
+                <PivotItem headerText={this.props.t("Mass")}>
+                    <Stack
+                        style={{
+                            padding: "10px",
+                        }}
+                    >
+                        <Text>{levels[2]} </Text>
+                    </Stack>
+                </PivotItem>
+            </Pivot>
         );
     };
 
@@ -298,6 +388,19 @@ class Recipe extends React.Component<Props> {
         if (this.state.recipe === null) {
             return <NotFound pageName={this.props.t("Recipe Not Found")} />;
         }
+
+        let machine: string | null | Components.Schemas.SimpleItem = null;
+
+        if (this.state.recipe.machine) {
+            const machine_id = api.MachineToItemMap[this.state.recipe.machine];
+
+            if (typeof machine_id === "string") {
+                machine = machine_id;
+            } else {
+                machine = this.props.items.items[machine_id];
+            }
+        }
+
         const sectionStackTokens: IStackTokens = { childrenGap: 10 };
         return (
             <Stack
@@ -328,18 +431,27 @@ class Recipe extends React.Component<Props> {
                         Recipe:
                     </Text>
 
-                    {this.renderMachine(this.state.recipe)}
-
                     {this.state.recipe.requirements.map((requirement) => {
                         return (
-                            <SkillRequirement
-                                key={`requirement-${requirement.skill.id}`}
-                                level={requirement.level}
-                                skill={this.props.skills.items[requirement.skill.id]}
-                            />
+                            <span key={`requirement-${requirement.skill.id}`}>
+                                <strong>Skill: </strong>
+                                <SkillRequirement
+                                    level={requirement.level}
+                                    skill={this.props.skills.items[requirement.skill.id]}
+                                />
+                            </span>
                         );
                     })}
-                    {this.renderLevels(this.state.recipe)}
+
+                    {this.renderMachine(this.state.recipe, machine)}
+                    {this.state.recipe.power > 0 && (
+                        <Stack>
+                            <Text variant="medium">
+                                <strong>Power:</strong> {this.state.recipe.power}
+                            </Text>
+                        </Stack>
+                    )}
+                    {this.renderLevels(this.state.recipe, machine)}
                 </Stack>
             </Stack>
         );
