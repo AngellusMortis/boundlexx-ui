@@ -1,13 +1,12 @@
 import React from "react";
 import { withTranslation, WithTranslation } from "react-i18next";
 import * as api from "../api";
-import { Client as BoundlexxClient, Components } from "../api/client";
+import { Client as BoundlexxClient, Components } from "api/client";
 import { Image, Stack, Text, Spinner, SpinnerSize, IStackTokens } from "@fluentui/react";
-import NotFound from "../components/NotFound";
-import { getTheme } from "../themes";
-import { RootState } from "../store";
+import { NotFound, Recipe } from "components";
+import { getTheme } from "themes";
+import { RootState } from "store";
 import { connect, ConnectedProps } from "react-redux";
-import Recipe from "../components/Recipe";
 
 interface BaseProps {
     id: number;

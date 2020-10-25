@@ -53,7 +53,7 @@ class App extends React.Component {
                             path="/items/:id(\d+)/"
                             exact
                             strict
-                            render={(props) => <ItemDetails id={props.match.params.id} />}
+                            render={(props) => <ItemDetailsPage id={props.match.params.id} />}
                         />
                         <Route path="/items/:route(browse|resource-lookup|color-lookup)/" exact strict>
                             <ItemsPage />

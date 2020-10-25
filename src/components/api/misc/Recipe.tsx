@@ -2,17 +2,14 @@ import React from "react";
 import { IStackTokens, Spinner, SpinnerSize, Stack, Text, Pivot, PivotItem } from "@fluentui/react";
 import "react-toastify/dist/ReactToastify.css";
 import { withTranslation, WithTranslation } from "react-i18next";
-import { RootState } from "../store";
-import { changeShowUpdates, onUpdate, changeLanuage, changeTheme, changeVersion } from "../prefs/actions";
+import { RootState } from "store";
+import { changeShowUpdates, onUpdate, changeLanuage, changeTheme, changeVersion } from "prefs/actions";
 import { connect, ConnectedProps } from "react-redux";
-import { Client as BoundlexxClient, Components } from "../api/client";
-import * as api from "../api";
-import { getTheme } from "../themes";
-import NotFound from "../components/NotFound";
-import SkillRequirement from "../components/SkillRequirement";
-import ItemCard from "../components/api/ItemCard";
-import RecipeGroupCard from "../components/api/RecipeGroupCard";
-import { timeUnits } from "../types";
+import { Client as BoundlexxClient, Components } from "api/client";
+import * as api from "api";
+import { getTheme } from "themes";
+import { NotFound, ItemCard, RecipeGroupCard, SkillRequirement } from "components";
+import { timeUnits } from "types";
 
 interface BaseProps {
     id: number;
@@ -53,7 +50,7 @@ const connector = connect(mapState, mapDispatchToProps);
 
 type Props = WithTranslation & BaseProps & ConnectedProps<typeof connector>;
 
-class Recipe extends React.Component<Props> {
+class Component extends React.Component<Props> {
     client: BoundlexxClient | null = null;
     mounted = false;
 
@@ -476,4 +473,4 @@ class Recipe extends React.Component<Props> {
     }
 }
 
-export default connector(withTranslation()(Recipe));
+export const Recipe = connector(withTranslation()(Component));

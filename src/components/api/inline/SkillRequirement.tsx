@@ -1,7 +1,7 @@
 import React from "react";
 import { withTranslation, WithTranslation } from "react-i18next";
 import { Text, Image } from "@fluentui/react";
-import { Components } from "../api/client";
+import { Components } from "api/client";
 
 interface BaseProps {
     level: number;
@@ -10,7 +10,7 @@ interface BaseProps {
 
 type Props = BaseProps & WithTranslation;
 
-const SkillRequirement: React.FunctionComponent<Props> = (props) => {
+const Component: React.FunctionComponent<Props> = (props) => {
     return (
         <Text variant="medium">
             {props.skill.icon_url !== null && (
@@ -21,4 +21,4 @@ const SkillRequirement: React.FunctionComponent<Props> = (props) => {
     );
 };
 
-export default withTranslation()(SkillRequirement);
+export const SkillRequirement = withTranslation()(Component);
