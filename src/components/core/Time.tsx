@@ -20,7 +20,7 @@ const Component: React.FunctionComponent<Props> = (props) => {
             if (Math.abs(diff) > timeUnits[u] || u === "second") {
                 // eslint-disable-next-line
                 // @ts-ignore
-                return format.format(Math.round(diff / units[u]), u);
+                return format.format(Math.round(diff / timeUnits[u]), u);
             }
         }
     };

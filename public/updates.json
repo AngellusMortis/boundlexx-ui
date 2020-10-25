@@ -1,5 +1,9 @@
 [
     {
+        "date": "",
+        "changelogs": ["Adds item details page.", "Adds custom scrollbars."]
+    },
+    {
         "date": "2020-10-25T18:00:00.000Z",
         "changelogs": ["All pages should now wait for required data is loaded"]
     },
