@@ -1035,7 +1035,7 @@ export abstract class APIDisplay extends React.Component<APIDisplayProps> {
                         style: { position: "relative" },
                         getItemCountForPage: getItemCountForPage,
                         getPageHeight: () => {
-                            return 76;
+                            return 78;
                         },
                         usePageCache: true,
                         onPageAdded: onPageAdded,

@@ -83,7 +83,7 @@ const Component: React.FunctionComponent<Props> = (props) => {
                         position: "relative",
                         padding: 2,
                         width: width,
-                        height: 66,
+                        height: 68,
                     },
                 }}
                 onClick={onCardClick}

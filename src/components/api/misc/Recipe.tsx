@@ -8,8 +8,8 @@ import { connect, ConnectedProps } from "react-redux";
 import { Client as BoundlexxClient, Components } from "api/client";
 import * as api from "api";
 import { getTheme } from "themes";
-import { NotFound, ItemCard, RecipeGroupCard, SkillRequirement } from "components";
-import { timeUnits } from "types";
+import { NotFound, ItemCard, RecipeGroupCard, SkillRequirement, MachineCard } from "components";
+import { RecipeLevel } from "types";
 
 interface BaseProps {
     id: number;
@@ -18,23 +18,6 @@ interface BaseProps {
 interface State {
     loaded: boolean;
     recipe: null | Components.Schemas.Recipe;
-}
-
-interface RecipeLevel {
-    level: 0 | 1 | 2;
-    wear: number;
-    spark: number;
-    duration: number;
-    output_quantity: number;
-    inputs: {
-        group: {
-            id: number;
-        } | null;
-        item: {
-            game_id: number;
-        } | null;
-        count: number;
-    }[];
 }
 
 const mapState = (state: RootState) => ({
@@ -116,10 +99,9 @@ class Component extends React.Component<Props> {
         }
     };
 
-    renderMachine = (
-        recipe: Components.Schemas.Recipe,
-        machine: string | null | Components.Schemas.SimpleItem,
-    ): string | JSX.Element => {
+    renderMachine = (recipe: Components.Schemas.Recipe): string | JSX.Element => {
+        const machine = this.getMachine(recipe);
+
         if (recipe.can_hand_craft) {
             if (machine !== null) {
                 return (
@@ -145,7 +127,7 @@ class Component extends React.Component<Props> {
             return (
                 <div>
                     <Text variant="medium">
-                        <strong>Requires:</strong>{" "}
+                        <strong>Requires Machine:</strong>{" "}
                         {typeof machine === "string" ? this.props.t(machine) : machine.localization[0].name}
                     </Text>
                 </div>
@@ -154,31 +136,8 @@ class Component extends React.Component<Props> {
         return "";
     };
 
-    makeDurationString = (duration: number): string => {
-        duration = duration * 1000;
-
-        let timeString = "";
-        for (const u in timeUnits) {
-            if (duration > timeUnits[u]) {
-                const units = Math.floor(duration / timeUnits[u]);
-                duration = duration - units * timeUnits[u];
-
-                timeString += `${units}${u[0]} `;
-            }
-        }
-        return timeString.trim();
-    };
-
-    makeLevelElement = (
-        level: RecipeLevel,
-        ouput_item: Components.Schemas.SimpleItem,
-        base_xp: number,
-        machine: string | null | Components.Schemas.SimpleItem,
-        heat?: number,
-    ): string | JSX.Element => {
-        const theme = getTheme();
-
-        level.inputs = level.inputs.sort((a, b) => {
+    sortInputs = (level: RecipeLevel) => {
+        return level.inputs.sort((a, b) => {
             let sortA = 0;
             let sortB = 0;
 
@@ -196,6 +155,18 @@ class Component extends React.Component<Props> {
 
             return sortB - sortA;
         });
+    };
+
+    makeLevelElement = (
+        level: RecipeLevel,
+        ouput_item: Components.Schemas.SimpleItem,
+        base_xp: number,
+        machine: string | null | Components.Schemas.SimpleItem,
+        heat?: number,
+    ): string | JSX.Element => {
+        const theme = getTheme();
+
+        level.inputs = this.sortInputs(level);
 
         return (
             <Stack
@@ -215,30 +186,32 @@ class Component extends React.Component<Props> {
                         >
                             Inputs:
                         </Text>
-                        {level.inputs.map((input) => {
-                            if (input.group !== null) {
-                                const group = this.props.recipeGroups.items[input.group.id];
+                        <div style={{ maxHeight: 212, overflowY: "auto" }}>
+                            {level.inputs.map((input) => {
+                                if (input.group !== null) {
+                                    const group = this.props.recipeGroups.items[input.group.id];
 
-                                return (
-                                    <RecipeGroupCard
-                                        key={`recipe-group-${group.id}`}
-                                        group={group}
-                                        extra={input.count.toString()}
-                                    />
-                                );
-                            } else if (input.item !== null) {
-                                const item = this.props.items.items[input.item.game_id];
+                                    return (
+                                        <RecipeGroupCard
+                                            key={`recipe-group-${group.id}`}
+                                            group={group}
+                                            extra={input.count.toString()}
+                                        />
+                                    );
+                                } else if (input.item !== null) {
+                                    const item = this.props.items.items[input.item.game_id];
 
-                                return (
-                                    <ItemCard
-                                        key={`recipe-item-${item.game_id}`}
-                                        item={item}
-                                        extra={input.count.toString()}
-                                    />
-                                );
-                            }
-                            return "";
-                        })}
+                                    return (
+                                        <ItemCard
+                                            key={`recipe-item-${item.game_id}`}
+                                            item={item}
+                                            extra={input.count.toString()}
+                                        />
+                                    );
+                                }
+                                return "";
+                            })}
+                        </div>
                     </div>
                 )}
                 {machine !== null && (
@@ -250,29 +223,7 @@ class Component extends React.Component<Props> {
                         >
                             Machine:
                         </Text>
-                        <Text block={true} variant="large" style={{ fontWeight: "bold" }}>
-                            {typeof machine === "string" ? this.props.t(machine) : machine.localization[0].name}
-                        </Text>
-                        {heat !== undefined && (
-                            <Text variant="large" block={true}>
-                                <strong>Heat:</strong> {heat}
-                            </Text>
-                        )}
-                        {level.wear > 0 && (
-                            <Text variant="large" block={true}>
-                                <strong>Wear:</strong> {level.wear}
-                            </Text>
-                        )}
-                        {level.spark > 0 && (
-                            <Text variant="large" block={true}>
-                                <strong>Spark:</strong> {level.spark}
-                            </Text>
-                        )}
-                        {level.duration > 0 && (
-                            <Text variant="large" block={true}>
-                                <strong>Duration:</strong> {this.makeDurationString(level.duration)}
-                            </Text>
-                        )}
+                        <MachineCard machine={machine} heat={heat} level={level} />
                     </div>
                 )}
                 <Text block={true} variant="large" style={{ color: theme.palette.themePrimary, fontWeight: "bold" }}>
@@ -288,10 +239,9 @@ class Component extends React.Component<Props> {
         );
     };
 
-    makeLevelsElements = (
-        recipe: Components.Schemas.Recipe,
-        machine: string | null | Components.Schemas.SimpleItem,
-    ): (string | JSX.Element)[] => {
+    makeLevelsElements = (recipe: Components.Schemas.Recipe): (string | JSX.Element)[] => {
+        const machine = this.getMachine(recipe);
+
         let single: string | JSX.Element = "";
         let bulk: string | JSX.Element = "";
         let mass: string | JSX.Element = "";
@@ -324,11 +274,24 @@ class Component extends React.Component<Props> {
         return [single, bulk, mass];
     };
 
-    renderLevels = (
-        recipe: Components.Schemas.Recipe,
-        machine: string | null | Components.Schemas.SimpleItem,
-    ): string | JSX.Element => {
-        const levels = this.makeLevelsElements(recipe, machine);
+    getMachine = (recipe: Components.Schemas.Recipe): string | null | Components.Schemas.SimpleItem => {
+        let machine: string | null | Components.Schemas.SimpleItem = null;
+
+        if (recipe.machine) {
+            const machine_id = api.MachineToItemMap[recipe.machine];
+
+            if (typeof machine_id === "string") {
+                machine = machine_id;
+            } else {
+                machine = this.props.items.items[machine_id];
+            }
+        }
+
+        return machine;
+    };
+
+    renderLevels = (recipe: Components.Schemas.Recipe): string | JSX.Element => {
+        const levels = this.makeLevelsElements(recipe);
 
         if (levels.length === 1) {
             return (
@@ -386,18 +349,6 @@ class Component extends React.Component<Props> {
             return <NotFound pageName={this.props.t("Recipe Not Found")} />;
         }
 
-        let machine: string | null | Components.Schemas.SimpleItem = null;
-
-        if (this.state.recipe.machine) {
-            const machine_id = api.MachineToItemMap[this.state.recipe.machine];
-
-            if (typeof machine_id === "string") {
-                machine = machine_id;
-            } else {
-                machine = this.props.items.items[machine_id];
-            }
-        }
-
         const sectionStackTokens: IStackTokens = { childrenGap: 10 };
         return (
             <Stack
@@ -406,8 +357,9 @@ class Component extends React.Component<Props> {
                     root: {
                         maxWidth: 1200,
                         width: "60vw",
-                        minWidth: 480,
+                        minWidth: 470,
                         margin: "0 auto 50px 0",
+                        padding: "10px 5px 0 5px",
                         overflowX: "hidden",
                     },
                 }}
@@ -431,7 +383,7 @@ class Component extends React.Component<Props> {
                     {this.state.recipe.requirements.map((requirement) => {
                         return (
                             <span key={`requirement-${requirement.skill.id}`}>
-                                <strong>Skill: </strong>
+                                <strong>Requires Skill: </strong>
                                 <SkillRequirement
                                     level={requirement.level}
                                     skill={this.props.skills.items[requirement.skill.id]}
@@ -440,7 +392,7 @@ class Component extends React.Component<Props> {
                         );
                     })}
 
-                    {this.renderMachine(this.state.recipe, machine)}
+                    {this.renderMachine(this.state.recipe)}
                     {this.state.recipe.power > 0 && (
                         <Stack>
                             <Text variant="medium">
@@ -448,7 +400,7 @@ class Component extends React.Component<Props> {
                             </Text>
                         </Stack>
                     )}
-                    {this.renderLevels(this.state.recipe, machine)}
+                    {this.renderLevels(this.state.recipe)}
                 </Stack>
             </Stack>
         );

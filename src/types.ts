@@ -67,3 +67,20 @@ export const timeUnits: StringDict<number> = {
     minute: 60 * 1000,
     second: 1000,
 };
+
+export interface RecipeLevel {
+    level: 0 | 1 | 2;
+    wear: number;
+    spark: number;
+    duration: number;
+    output_quantity: number;
+    inputs: {
+        group: {
+            id: number;
+        } | null;
+        item: {
+            game_id: number;
+        } | null;
+        count: number;
+    }[];
+}

@@ -109,6 +109,29 @@ class Page extends React.Component<Props> {
         window.history.replaceState(document.title, document.title);
     };
 
+    renderMintValues = (item: Components.Schemas.Item): string | JSX.Element => {
+        if (item.mint_value > 0) {
+            const ss_size = item.max_stack * 9;
+
+            return (
+                <span>
+                    <Text variant="medium" block>
+                        <strong>Single</strong>:{" "}
+                        {item.mint_value.toLocaleString(undefined, { maximumSignificantDigits: 3 })}c
+                    </Text>
+                    <Text variant="medium" block>
+                        <strong>Smart Stack ({ss_size})</strong>:{" "}
+                        {(ss_size * item.mint_value).toLocaleString(undefined, {
+                            maximumSignificantDigits: 3,
+                        })}
+                        c
+                    </Text>
+                </span>
+            );
+        }
+        return <Text variant="medium">0c</Text>;
+    };
+
     renderItem = () => {
         const theme = getTheme();
 
@@ -168,16 +191,17 @@ class Page extends React.Component<Props> {
                             <Text variant="medium"> {this.state.item.description.strings[0].plain_text} </Text>
                         </h2>
                     </div>
-                    <div
+                    <Stack
                         className="item-details"
                         style={{
                             display: "grid",
                             gridGap: "0px",
-                            gridAutoRows: "minmax(100px, auto)",
+                            gridAutoRows: "max-content",
                             gridTemplateColumns: "repeat(auto-fill, 237px)",
                             flexWrap: "wrap",
                             verticalAlign: "middle",
                             alignItems: "center",
+                            marginTop: "10px",
                         }}
                     >
                         <Stack
@@ -186,6 +210,7 @@ class Page extends React.Component<Props> {
                                 borderBottom: "2px solid",
                                 borderBottomColor: theme.palette.themePrimary,
                                 padding: "10px",
+                                height: "100%",
                             }}
                         >
                             <Text
@@ -203,6 +228,7 @@ class Page extends React.Component<Props> {
                                 borderBottom: "2px solid",
                                 borderBottomColor: theme.palette.themePrimary,
                                 padding: "10px",
+                                height: "100%",
                             }}
                         >
                             <Text
@@ -212,12 +238,10 @@ class Page extends React.Component<Props> {
                             >
                                 Mint Value:
                             </Text>
-                            <Text variant="medium">
-                                {this.state.item.mint_value.toLocaleString(undefined, { maximumSignificantDigits: 3 })}c
-                            </Text>
+                            {this.renderMintValues(this.state.item)}
                         </Stack>
                         <Recipe id={this.state.item.game_id} />
-                    </div>
+                    </Stack>
                 </div>
             </Stack>
         );
