@@ -16,6 +16,7 @@ import {
 import { Stack } from "@fluentui/react";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { Scrollbar } from "react-scrollbars-custom";
 
 class App extends React.Component {
     render = (): JSX.Element => {
@@ -29,65 +30,67 @@ class App extends React.Component {
         }
 
         return (
-            <Router>
-                <Header />
-                <Stack
-                    id="content"
-                    horizontalAlign="center"
-                    verticalAlign="start"
-                    verticalFill
-                    tokens={{ childrenGap: 15 }}
-                    style={{ height: "calc(100vh - 119px)", textAlign: "center" }}
-                >
-                    <Switch>
-                        <Route path="/colors/:route(browse|item-lookup|sovereign)/" exact strict>
-                            <ColorsPage />
-                        </Route>
-                        <Route path="/emojis/" exact strict>
-                            <EmojisPage />
-                        </Route>
-                        <Route path="/forum/" exact strict>
-                            <ForumPage />
-                        </Route>
-                        <Route
-                            path="/items/:id(\d+)/"
-                            exact
-                            strict
-                            render={(props) => <ItemDetailsPage id={props.match.params.id} />}
-                        />
-                        <Route path="/items/:route(browse|resource-lookup|color-lookup)/" exact strict>
-                            <ItemsPage />
-                        </Route>
-                        <Route
-                            path="/worlds/:id(\d+)/"
-                            exact
-                            strict
-                            render={(props) => <WorldDetailsPage id={props.match.params.id} />}
-                        />
-                        <Route path="/worlds/:route(browse|resource-lookup|color-lookup)/" exact strict>
-                            <WorldsPage />
-                        </Route>
-                        <Route path="/" exact strict>
-                            <HomePage />
-                        </Route>
-                        <Route>
-                            <NotFoundPage />
-                        </Route>
-                    </Switch>
-                </Stack>
-                <ToastContainer
-                    position="top-right"
-                    autoClose={5000}
-                    hideProgressBar={false}
-                    newestOnTop={false}
-                    closeOnClick
-                    rtl={false}
-                    pauseOnFocusLoss
-                    draggable
-                    pauseOnHover
-                />
-                <UpdateModal />
-            </Router>
+            <Scrollbar style={{ height: "100vh" }}>
+                <Router>
+                    <Header />
+                    <Stack
+                        id="content"
+                        horizontalAlign="center"
+                        verticalAlign="start"
+                        verticalFill
+                        tokens={{ childrenGap: 15 }}
+                        style={{ height: "calc(100vh - 119px)", textAlign: "center" }}
+                    >
+                        <Switch>
+                            <Route path="/colors/:route(browse|item-lookup|sovereign)/" exact strict>
+                                <ColorsPage />
+                            </Route>
+                            <Route path="/emojis/" exact strict>
+                                <EmojisPage />
+                            </Route>
+                            <Route path="/forum/" exact strict>
+                                <ForumPage />
+                            </Route>
+                            <Route
+                                path="/items/:id(\d+)/"
+                                exact
+                                strict
+                                render={(props) => <ItemDetailsPage id={props.match.params.id} />}
+                            />
+                            <Route path="/items/:route(browse|resource-lookup|color-lookup)/" exact strict>
+                                <ItemsPage />
+                            </Route>
+                            <Route
+                                path="/worlds/:id(\d+)/"
+                                exact
+                                strict
+                                render={(props) => <WorldDetailsPage id={props.match.params.id} />}
+                            />
+                            <Route path="/worlds/:route(browse|resource-lookup|color-lookup)/" exact strict>
+                                <WorldsPage />
+                            </Route>
+                            <Route path="/" exact strict>
+                                <HomePage />
+                            </Route>
+                            <Route>
+                                <NotFoundPage />
+                            </Route>
+                        </Switch>
+                    </Stack>
+                    <ToastContainer
+                        position="top-right"
+                        autoClose={5000}
+                        hideProgressBar={false}
+                        newestOnTop={false}
+                        closeOnClick
+                        rtl={false}
+                        pauseOnFocusLoss
+                        draggable
+                        pauseOnHover
+                    />
+                    <UpdateModal />
+                </Router>
+            </Scrollbar>
         );
     };
 }

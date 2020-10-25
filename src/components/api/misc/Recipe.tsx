@@ -10,6 +10,7 @@ import * as api from "api";
 import { getTheme } from "themes";
 import { NotFound, ItemCard, RecipeGroupCard, SkillRequirement, MachineCard } from "components";
 import { RecipeLevel } from "types";
+import { Scrollbar } from "react-scrollbars-custom";
 
 interface BaseProps {
     id: number;
@@ -186,7 +187,7 @@ class Component extends React.Component<Props> {
                         >
                             Inputs:
                         </Text>
-                        <div style={{ maxHeight: 212, overflowY: "auto" }}>
+                        <Scrollbar style={{ height: 210 }}>
                             {level.inputs.map((input) => {
                                 if (input.group !== null) {
                                     const group = this.props.recipeGroups.items[input.group.id];
@@ -211,7 +212,7 @@ class Component extends React.Component<Props> {
                                 }
                                 return "";
                             })}
-                        </div>
+                        </Scrollbar>
                     </div>
                 )}
                 {machine !== null && (
