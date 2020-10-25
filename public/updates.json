@@ -1,5 +1,9 @@
 [
     {
+        "date": "2020-10-25T18:00:00.000Z",
+        "changelogs": ["All pages should now wait for required data is loaded"]
+    },
+    {
         "date": "2020-10-20T03:40:00.000Z",
         "changelogs": ["Changes boolean icons on 'By Resource' to be colored"]
     },
