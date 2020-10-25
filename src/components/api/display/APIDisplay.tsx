@@ -291,27 +291,42 @@ export abstract class APIDisplay extends React.Component<APIDisplayProps> {
     };
 
     componentDidUpdate(prevProps: APIDisplayProps): void {
-        if (this.props.locale !== prevProps.locale) {
+        const newState: Partial<State> = {};
+
+        if (this.props.locale !== null && this.props.locale !== prevProps.locale) {
             // lang changed, clear stored items
             this.resetStore();
-            this.resetState(this.state.filters);
+            newState.results = {
+                items: [],
+                nextUrl: null,
+                count: null,
+                lang: this.props.locale,
+            };
         }
 
         if (this.props.theme !== prevProps.theme) {
-            this.setState({ results: this.state.results });
+            newState.results = this.state.results;
         }
 
         if (this.props.showGroups !== prevProps.showGroups) {
-            const newResults = this.state.results;
-            newResults.items = this.groupResults(newResults.items);
-
-            this.setState({ results: newResults });
+            newState.results = this.state.results;
+            newState.results.items = this.groupResults(newState.results.items);
         }
 
         const hasRequired = this.getHasRequiredFilters();
 
         if (hasRequired !== this.state.hasRequiredFilters) {
-            this.setState({ hasRequiredFilters: hasRequired });
+            newState.hasRequiredFilters = hasRequired;
+        }
+
+        if (
+            this.state.loadedFromStore &&
+            this.props.results !== undefined &&
+            this.props.results !== prevProps.results
+        ) {
+            this.resetState(this.state.filters, newState);
+        } else if (Reflect.ownKeys(newState).length > 0) {
+            this.setState(newState);
         }
     }
 
@@ -322,6 +337,7 @@ export abstract class APIDisplay extends React.Component<APIDisplayProps> {
 
     resetStore = (): void => {
         if (this.props.updateItems !== undefined) {
+            console.debug("Resetting store...");
             if (this.props.locale === null) {
                 this.props.updateItems([], null, null);
             } else {
@@ -399,7 +415,7 @@ export abstract class APIDisplay extends React.Component<APIDisplayProps> {
         return newResults;
     };
 
-    resetState = (filters?: Filters | null): void => {
+    resetState = (filters?: Filters | null, extraState?: Partial<State>): void => {
         if (filters === undefined || filters === null) {
             filters = {
                 search: null,
@@ -411,9 +427,16 @@ export abstract class APIDisplay extends React.Component<APIDisplayProps> {
             }
         }
 
-        const newState: Partial<State> = {
+        let newState: Partial<State> = {
             filters: filters,
         };
+
+        if (extraState !== undefined) {
+            newState = {
+                ...newState,
+                ...extraState,
+            };
+        }
 
         // reload items from props if that is where they came from
         if (
