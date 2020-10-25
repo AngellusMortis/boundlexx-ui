@@ -217,6 +217,13 @@ const resources = {
             "World Tier": "World Tier",
             Browse: "Browse",
             Sovereign: "Sovereign",
+            Data: "Data",
+            Data_plural: "Data",
+            "Loading Data..._plural": "Loading Data...",
+            "Loading World..._plural": "Loading Worlds...",
+            "Loading Item..._plural": "Loading Items...",
+            "Loading Resource..._plural": "Loading Resources...",
+            "Loading Color..._plural": "Loading Colors...",
         },
     },
     fr: {
@@ -432,6 +439,8 @@ const resources = {
             "World Tier": "World Tier",
             Browse: "Browse",
             Sovereign: "Sovereign",
+            Data: "Data",
+            Data_plural: "Data",
         },
     },
     de: {
@@ -647,6 +656,8 @@ const resources = {
             "World Tier": "World Tier",
             Browse: "Browse",
             Sovereign: "Sovereign",
+            Data: "Data",
+            Data_plural: "Data",
         },
     },
     it: {
@@ -862,6 +873,8 @@ const resources = {
             "World Tier": "World Tier",
             Browse: "Browse",
             Sovereign: "Sovereign",
+            Data: "Data",
+            Data_plural: "Data",
         },
     },
     es: {
@@ -1077,6 +1090,8 @@ const resources = {
             "World Tier": "World Tier",
             Browse: "Browse",
             Sovereign: "Sovereign",
+            Data: "Data",
+            Data_plural: "Data",
         },
     },
 };

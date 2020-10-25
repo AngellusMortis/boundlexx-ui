@@ -1,7 +1,6 @@
 import React from "react";
 import { withTranslation, WithTranslation } from "react-i18next";
-import Colors from "../components/api/Colors";
-import ColorItemLookup from "../components/api/ColorItemLookup";
+import { ColorDisplay, ColorItemLookup, SovereignBlocksLookup } from "components";
 import {
     Stack,
     CommandBar,
@@ -11,8 +10,7 @@ import {
     AnimationStyles,
 } from "@fluentui/react";
 import { Switch, Route, RouteComponentProps, withRouter } from "react-router-dom";
-import { MenuLink } from "../types";
-import SovereignBlocks from "../components/api/SovereignBlocks";
+import { MenuLink } from "types";
 
 const links: MenuLink[] = [
     { key: "browse", text: "Browse", icon: "Color", href: "/colors/browse/" },
@@ -63,13 +61,13 @@ class Page extends React.Component<Props> {
                 />
                 <Switch>
                     <Route path="/colors/browse/" exact strict>
-                        <Colors />
+                        <ColorDisplay />
                     </Route>
                     <Route path="/colors/item-lookup/" exact strict>
                         <ColorItemLookup />
                     </Route>
                     <Route path="/colors/sovereign/" exact strict>
-                        <SovereignBlocks />
+                        <SovereignBlocksLookup />
                     </Route>
                 </Switch>
             </Stack>
@@ -77,4 +75,4 @@ class Page extends React.Component<Props> {
     }
 }
 
-export default withRouter(withTranslation()(Page));
+export const ColorsPage = withRouter(withTranslation()(Page));

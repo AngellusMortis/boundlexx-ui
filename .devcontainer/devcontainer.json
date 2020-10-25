@@ -16,6 +16,10 @@
         "terminal.integrated.shell.linux": "/bin/bash",
         "tslint.configFile": "${workspaceFolder}/tsconfig.json",
         "tslint.jsEnable": true,
+        "typescript.updateImportsOnFileMove.enabled": "always",
+        "typescript.preferences.importModuleSpecifier": "auto",
+        "javascript.updateImportsOnFileMove.enabled": "always",
+        "javascript.preferences.importModuleSpecifier": "auto",
         "eslint.validate": ["javascript", "javascriptreact", "typescript", "typescriptreact"],
         "[javascriptreact]": {
             "editor.codeActionsOnSave": {

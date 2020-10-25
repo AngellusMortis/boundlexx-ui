@@ -8,9 +8,9 @@ import {
 } from "@fluentui/react";
 import React from "react";
 import { withTranslation, WithTranslation } from "react-i18next";
-import Worlds from "../components/api/Worlds";
 import { Switch, Route, RouteComponentProps, withRouter } from "react-router-dom";
-import { MenuLink } from "../types";
+import { MenuLink } from "types";
+import { WorldDisplay } from "components";
 
 const links: MenuLink[] = [
     { key: "browse", text: "Browse", icon: "World", href: "/worlds/browse/" },
@@ -61,7 +61,7 @@ class Page extends React.Component<Props> {
                 />
                 <Switch>
                     <Route path="/worlds/browse/" exact strict>
-                        <Worlds />
+                        <WorldDisplay />
                     </Route>
                 </Switch>
             </Stack>
@@ -69,4 +69,4 @@ class Page extends React.Component<Props> {
     }
 }
 
-export default withRouter(withTranslation()(Page));
+export const WorldsPage = withRouter(withTranslation()(Page));

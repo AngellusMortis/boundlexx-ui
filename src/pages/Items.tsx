@@ -1,6 +1,5 @@
 import React from "react";
 import { withTranslation, WithTranslation } from "react-i18next";
-import Items from "../components/api/Items";
 import {
     Stack,
     CommandBar,
@@ -10,9 +9,8 @@ import {
     AnimationStyles,
 } from "@fluentui/react";
 import { Switch, Route, RouteComponentProps, withRouter } from "react-router-dom";
-import { MenuLink } from "../types";
-import ItemColorLookup from "../components/api/ItemColorLookup";
-import ResourceLookup from "../components/api/ResourceLookup";
+import { MenuLink } from "types";
+import { ItemColorLookup, ItemDisplay, ResourceLookup } from "components";
 
 const links: MenuLink[] = [
     { key: "browse", text: "Browse", icon: "Stack", href: "/items/browse/" },
@@ -63,7 +61,7 @@ class Page extends React.Component<Props> {
                 />
                 <Switch>
                     <Route path="/items/browse/" exact strict>
-                        <Items />
+                        <ItemDisplay />
                     </Route>
                     <Route path="/items/resource-lookup/" exact strict>
                         <ResourceLookup />
@@ -77,4 +75,4 @@ class Page extends React.Component<Props> {
     }
 }
 
-export default withRouter(withTranslation()(Page));
+export const ItemsPage = withRouter(withTranslation()(Page));

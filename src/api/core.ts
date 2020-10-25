@@ -1,11 +1,11 @@
-import { RootState } from "../store";
+import { RootState } from "store";
 import { OpenAPIClientAxios, OpenAPIV3 } from "openapi-client-axios";
-import { Client as BoundlexxClient, Components } from "./client";
+import { Client as BoundlexxClient, Components } from "api/client";
 import { Mutex } from "async-mutex";
 import msgpack from "msgpack-lite";
 import { AxiosRequestConfig } from "axios";
-import { store } from "../store";
-import { changeAPIDefinition } from "./def";
+import { store } from "store";
+import { changeAPIDefinition } from "api/def";
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 const mapMsgpack = (root: any, key_map: string[]) => {
@@ -109,4 +109,52 @@ export const getItem = (id: number): Components.Schemas.SimpleItem | undefined =
 
 export const getColor = (id: number): Components.Schemas.Color | undefined => {
     return store.getState().colors.items[id];
+};
+
+export const requireWorlds = async (): Promise<void> => {
+    let loaded = false;
+    while (!loaded) {
+        const state = store.getState();
+        loaded = state.worlds.count !== null && Reflect.ownKeys(state.worlds.items).length === state.worlds.count;
+
+        if (!loaded) {
+            await throttle();
+        }
+    }
+};
+
+export const requireItems = async (): Promise<void> => {
+    let loaded = false;
+    while (!loaded) {
+        const state = store.getState();
+        loaded = state.items.count !== null && Reflect.ownKeys(state.items.items).length === state.items.count;
+
+        if (!loaded) {
+            await throttle();
+        }
+    }
+};
+
+export const requireColors = async (): Promise<void> => {
+    let loaded = false;
+    while (!loaded) {
+        const state = store.getState();
+        loaded = state.colors.count !== null && Reflect.ownKeys(state.colors.items).length === state.colors.count;
+
+        if (!loaded) {
+            await throttle();
+        }
+    }
+};
+
+export const requireSkills = async (): Promise<void> => {
+    let loaded = false;
+    while (!loaded) {
+        const state = store.getState();
+        loaded = state.skills.count !== null && Reflect.ownKeys(state.skills.items).length === state.skills.count;
+
+        if (!loaded) {
+            await throttle();
+        }
+    }
 };

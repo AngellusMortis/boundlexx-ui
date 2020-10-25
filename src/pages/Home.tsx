@@ -1,7 +1,7 @@
 import React from "react";
 import { withTranslation, WithTranslation } from "react-i18next";
 import { Stack, Text, Link } from "@fluentui/react";
-import { config } from "../api";
+import { config } from "api";
 
 class Home extends React.Component<WithTranslation> {
     render() {
@@ -32,4 +32,4 @@ class Home extends React.Component<WithTranslation> {
     }
 }
 
-export default withTranslation()(Home);
+export const HomePage = withTranslation()(Home);

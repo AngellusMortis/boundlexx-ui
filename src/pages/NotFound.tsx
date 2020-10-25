@@ -1,6 +1,6 @@
 import React from "react";
 import { Stack } from "@fluentui/react";
-import NotFound from "../components/NotFound";
+import { NotFound } from "components";
 
 class Page extends React.Component {
     render(): JSX.Element {
@@ -12,4 +12,4 @@ class Page extends React.Component {
     }
 }
 
-export default Page;
+export const NotFoundPage = Page;

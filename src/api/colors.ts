@@ -1,5 +1,5 @@
-import { Components } from "./client";
-import { NumberDict, LocalizedNumericAPIItems } from "../types";
+import { Components } from "api/client";
+import { NumberDict, LocalizedNumericAPIItems } from "types";
 
 export interface Colors extends LocalizedNumericAPIItems {
     items: NumberDict<Components.Schemas.Color>;

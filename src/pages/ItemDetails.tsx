@@ -244,4 +244,4 @@ class Page extends React.Component<Props> {
     }
 }
 
-export default connector(withTranslation()(Page));
+export const ItemDetailsPage = connector(withTranslation()(Page));

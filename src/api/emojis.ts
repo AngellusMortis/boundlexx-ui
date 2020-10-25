@@ -1,5 +1,5 @@
-import { Components } from "./client";
-import { StringDict, StringAPIItems } from "../types";
+import { Components } from "api/client";
+import { StringDict, StringAPIItems } from "types";
 
 interface Emojis extends StringAPIItems {
     items: StringDict<Components.Schemas.Emoji>;

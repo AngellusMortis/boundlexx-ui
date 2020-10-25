@@ -1,5 +1,5 @@
-import { Components } from "./client";
-import { LocalizedNumericAPIItems, NumberDict } from "../types";
+import { Components } from "api/client";
+import { LocalizedNumericAPIItems, NumberDict } from "types";
 
 interface RecipeGroups extends LocalizedNumericAPIItems {
     items: NumberDict<Components.Schemas.RecipeGroup>;

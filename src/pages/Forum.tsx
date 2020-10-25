@@ -16,14 +16,14 @@ import {
     SpinnerSize,
 } from "@fluentui/react";
 import "./Forum.css";
-import WorldSelector from "../components/WorldSelector";
-import { Components, Client as BoundlexxClient } from "../api/client";
-import { StringDict } from "../types";
-import * as api from "../api";
+import { WorldSelector } from "components";
+import { Components, Client as BoundlexxClient } from "api/client";
+import { StringDict } from "types";
+import * as api from "api";
 import { connect, ConnectedProps } from "react-redux";
-import { RootState } from "../store";
-import { getTheme } from "../themes";
-import toast from "../toast";
+import { RootState } from "store";
+import { getTheme } from "themes";
+import toast from "toast";
 
 const mapState = (state: RootState) => ({
     theme: getTheme(state.prefs.theme),
@@ -78,27 +78,14 @@ class Forum extends React.Component<Props> {
                 this.state.initalWorldID = worldID;
             }
         }
-
-        if (
-            this.props.worlds.count !== null &&
-            Reflect.ownKeys(this.props.worlds.items).length === this.props.worlds.count
-        ) {
-            this.state.loaded = true;
-        }
     }
 
     componentDidMount = async () => {
         this.client = await api.getClient();
-    };
 
-    componentDidUpdate = () => {
-        if (
-            !this.state.loaded &&
-            this.props.worlds.count !== null &&
-            Reflect.ownKeys(this.props.worlds.items).length === this.props.worlds.count
-        ) {
-            this.setState({ loaded: true });
-        }
+        await api.requireWorlds();
+
+        this.setState({ loaded: true });
     };
 
     copyToClipboard = (
@@ -400,4 +387,4 @@ class Forum extends React.Component<Props> {
     };
 }
 
-export default connector(withTranslation()(Forum));
+export const ForumPage = connector(withTranslation()(Forum));

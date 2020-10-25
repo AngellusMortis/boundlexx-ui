@@ -1,17 +1,13 @@
 import React from "react";
 import { withTranslation, WithTranslation } from "react-i18next";
-import * as api from "../api";
-import { Client as BoundlexxClient, Components } from "../api/client";
+import * as api from "api";
+import { Client as BoundlexxClient, Components } from "api/client";
 import { Image, Stack, Text, Spinner, SpinnerSize, Link, IStackTokens } from "@fluentui/react";
-import NotFound from "../components/NotFound";
-import Time from "../components/Time";
-import Atmosphere from "../components/Atmosphere";
-import { getTheme } from "../themes";
-import { RootState } from "../store";
+import { AtmosphereInline, NotFound, Time, BlockColors, WorldResources } from "components";
+import { getTheme } from "themes";
+import { RootState } from "store";
 import { connect, ConnectedProps } from "react-redux";
 import "./WorldDetails.css";
-import BlockColors from "../components/BlockColors";
-import WorldResources from "../components/WorldResources";
 import { withRouter, RouteComponentProps } from "react-router-dom";
 
 interface BaseProps {
@@ -50,6 +46,9 @@ class Page extends React.Component<Props> {
             return;
         }
 
+        await api.requireWorlds();
+        await api.requireSkills();
+
         await this.getWorld();
     };
 
@@ -65,29 +64,12 @@ class Page extends React.Component<Props> {
                 return;
             }
 
-            this.setState(
-                {
-                    world: response.data,
-                },
-                this.checkLoaded,
-            );
+            this.setState({
+                world: response.data,
+                loaded: true,
+            });
         } catch (err) {
             if (err.response !== undefined && err.response.status === 404) {
-                this.setState({ loaded: true });
-            }
-        }
-    };
-
-    checkLoaded = () => {
-        if (!this.state.loaded && this.state.world !== null) {
-            const worldsLoaded =
-                this.props.worlds.count !== null &&
-                Reflect.ownKeys(this.props.worlds.items).length === this.props.worlds.count;
-            const skillsLoaded =
-                this.props.skills.count !== null &&
-                Reflect.ownKeys(this.props.skills.items).length === this.props.skills.count;
-
-            if (worldsLoaded && skillsLoaded) {
                 this.setState({ loaded: true });
             }
         }
@@ -98,9 +80,7 @@ class Page extends React.Component<Props> {
     };
 
     componentDidUpdate = (prevProp: Props) => {
-        if (this.props.id === prevProp.id) {
-            this.checkLoaded();
-        } else {
+        if (this.props.id !== prevProp.id) {
             this.setState({ world: null, loaded: false }, () => {
                 this.getWorld();
             });
@@ -441,7 +421,7 @@ class Page extends React.Component<Props> {
                                 </Text>
                                 {this.state.world.protection_points !== null &&
                                     this.state.world.protection_skill !== null && (
-                                        <Atmosphere
+                                        <AtmosphereInline
                                             points={this.state.world.protection_points}
                                             skill={this.props.skills.items[this.state.world.protection_skill.id]}
                                         />
@@ -619,4 +599,4 @@ class Page extends React.Component<Props> {
     }
 }
 
-export default connector(withRouter(withTranslation()(Page)));
+export const WorldDetailsPage = connector(withRouter(withTranslation()(Page)));
