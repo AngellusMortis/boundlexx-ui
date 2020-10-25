@@ -1,5 +1,5 @@
-import { StringDict, NumberDict } from "../types";
-import { Components } from "./client";
+import { StringDict, NumberDict } from "types";
+import { Components } from "api/client";
 
 export const TierNameMap = ["Placid", "Temperate", "Rugged", "Inhospitable", "Turbulent", "Fierce", "Savage", "Brutal"];
 

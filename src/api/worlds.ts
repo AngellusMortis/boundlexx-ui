@@ -1,5 +1,5 @@
-import { Components } from "./client";
-import { NumberDict, NumericAPIItems } from "../types";
+import { Components } from "api/client";
+import { NumberDict, NumericAPIItems } from "types";
 
 interface Worlds extends NumericAPIItems {
     items: NumberDict<Components.Schemas.SimpleWorld>;

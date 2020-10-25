@@ -1,5 +1,5 @@
-import { Components } from "./client";
-import { NumberDict, LocalizedNumericAPIItems } from "../types";
+import { Components } from "api/client";
+import { NumberDict, LocalizedNumericAPIItems } from "types";
 
 interface Skills extends LocalizedNumericAPIItems {
     items: NumberDict<Components.Schemas.Skill>;

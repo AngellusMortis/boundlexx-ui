@@ -1,6 +1,6 @@
 import React from "react";
 import { withTranslation, WithTranslation } from "react-i18next";
-import Emojis from "../components/api/Emojis";
+import { EmojisDisplay } from "components";
 
 class Page extends React.Component<WithTranslation> {
     render() {
@@ -10,8 +10,8 @@ class Page extends React.Component<WithTranslation> {
         document.title = `${boundlexx} | ${page}`;
         window.history.replaceState(document.title, document.title);
 
-        return <Emojis />;
+        return <EmojisDisplay />;
     }
 }
 
-export default withTranslation()(Page);
+export const EmojisPage = withTranslation()(Page);

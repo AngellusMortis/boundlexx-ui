@@ -1,19 +1,20 @@
 import React from "react";
 import "./App.css";
-import Header from "./components/Header";
+import { Header, UpdateModal } from "components";
 import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
-import Home from "./pages/Home";
-import Worlds from "./pages/Worlds";
-import Items from "./pages/Items";
-import Colors from "./pages/Colors";
-import Emojis from "./pages/Emojis";
-import NotFound from "./pages/NotFound";
-import Forum from "./pages/Forum";
+import {
+    HomePage,
+    WorldsPage,
+    ItemsPage,
+    ColorsPage,
+    EmojisPage,
+    NotFoundPage,
+    ForumPage,
+    WorldDetailsPage,
+} from "pages";
 import { Stack } from "@fluentui/react";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import WorldDetails from "./pages/WorldDetails";
-import UpdateModal from "./components/UpdateModal";
 
 class App extends React.Component {
     render = (): JSX.Element => {
@@ -39,31 +40,31 @@ class App extends React.Component {
                 >
                     <Switch>
                         <Route path="/colors/:route(browse|item-lookup|sovereign)/" exact strict>
-                            <Colors />
+                            <ColorsPage />
                         </Route>
                         <Route path="/emojis/" exact strict>
-                            <Emojis />
+                            <EmojisPage />
                         </Route>
                         <Route path="/forum/" exact strict>
-                            <Forum />
+                            <ForumPage />
                         </Route>
                         <Route path="/items/:route(browse|resource-lookup|color-lookup)/" exact strict>
-                            <Items />
+                            <ItemsPage />
                         </Route>
                         <Route
                             path="/worlds/:id(\d+)/"
                             exact
                             strict
-                            render={(props) => <WorldDetails id={props.match.params.id} />}
+                            render={(props) => <WorldDetailsPage id={props.match.params.id} />}
                         />
                         <Route path="/worlds/:route(browse|resource-lookup|color-lookup)/" exact strict>
-                            <Worlds />
+                            <WorldsPage />
                         </Route>
                         <Route path="/" exact strict>
-                            <Home />
+                            <HomePage />
                         </Route>
                         <Route>
-                            <NotFound />
+                            <NotFoundPage />
                         </Route>
                     </Switch>
                 </Stack>
