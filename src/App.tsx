@@ -17,9 +17,12 @@ import { Stack } from "@fluentui/react";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { Scrollbar } from "react-scrollbars-custom";
+import { getTheme } from "themes";
 
 class App extends React.Component {
     render = (): JSX.Element => {
+        const theme = getTheme();
+
         // enforce trailing slash
         if (!window.location.pathname.endsWith("/")) {
             window.history.replaceState(
@@ -30,7 +33,11 @@ class App extends React.Component {
         }
 
         return (
-            <Scrollbar style={{ height: "100vh" }}>
+            <Scrollbar
+                style={{ height: "100vh" }}
+                thumbYProps={{ style: { backgroundColor: theme.palette.themeDark } }}
+                trackYProps={{ style: { backgroundColor: theme.palette.neutralLight } }}
+            >
                 <Router>
                     <Header />
                     <Stack

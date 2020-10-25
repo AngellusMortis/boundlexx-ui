@@ -187,7 +187,11 @@ class Component extends React.Component<Props> {
                         >
                             Inputs:
                         </Text>
-                        <Scrollbar style={{ height: 210 }}>
+                        <Scrollbar
+                            style={{ height: 210 }}
+                            thumbYProps={{ style: { backgroundColor: theme.palette.themeDark } }}
+                            trackYProps={{ style: { backgroundColor: theme.palette.neutralLight } }}
+                        >
                             {level.inputs.map((input) => {
                                 if (input.group !== null) {
                                     const group = this.props.recipeGroups.items[input.group.id];
