@@ -6,3 +6,4 @@ export { ItemsPage } from "./Items";
 export { NotFoundPage } from "./NotFound";
 export { WorldDetailsPage } from "./WorldDetails";
 export { WorldsPage } from "./Worlds";
+export { ItemDetailsPage } from "./ItemDetails";

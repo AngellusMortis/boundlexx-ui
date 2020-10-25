@@ -2,7 +2,7 @@ import React from "react";
 import { withTranslation, WithTranslation } from "react-i18next";
 import { TooltipHost, Text, FontIcon } from "@fluentui/react";
 import { useId } from "@uifabric/react-hooks";
-import { StringDict } from "../../types";
+import { timeUnits } from "types";
 
 interface BaseProps {
     date: Date;
@@ -10,24 +10,14 @@ interface BaseProps {
 
 type Props = BaseProps & WithTranslation;
 
-// in miliseconds
-const units: StringDict<number> = {
-    year: 24 * 60 * 60 * 1000 * 365,
-    month: (24 * 60 * 60 * 1000 * 365) / 12,
-    day: 24 * 60 * 60 * 1000,
-    hour: 60 * 60 * 1000,
-    minute: 60 * 1000,
-    second: 1000,
-};
-
 const Component: React.FunctionComponent<Props> = (props) => {
     const getRealtive = () => {
         const format = new Intl.RelativeTimeFormat(undefined, { numeric: "auto" });
         const now = new Date();
         const diff = props.date.getTime() - now.getTime();
 
-        for (const u in units) {
-            if (Math.abs(diff) > units[u] || u === "second") {
+        for (const u in timeUnits) {
+            if (Math.abs(diff) > timeUnits[u] || u === "second") {
                 // eslint-disable-next-line
                 // @ts-ignore
                 return format.format(Math.round(diff / units[u]), u);

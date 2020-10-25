@@ -11,6 +11,7 @@ import {
     NotFoundPage,
     ForumPage,
     WorldDetailsPage,
+    ItemDetailsPage,
 } from "pages";
 import { Stack } from "@fluentui/react";
 import { ToastContainer } from "react-toastify";
@@ -48,6 +49,12 @@ class App extends React.Component {
                         <Route path="/forum/" exact strict>
                             <ForumPage />
                         </Route>
+                        <Route
+                            path="/items/:id(\d+)/"
+                            exact
+                            strict
+                            render={(props) => <ItemDetailsPage id={props.match.params.id} />}
+                        />
                         <Route path="/items/:route(browse|resource-lookup|color-lookup)/" exact strict>
                             <ItemsPage />
                         </Route>
