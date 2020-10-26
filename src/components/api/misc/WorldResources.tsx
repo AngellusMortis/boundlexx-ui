@@ -18,6 +18,8 @@ import { connect, ConnectedProps } from "react-redux";
 import { Client as BoundlexxClient, Components } from "api/client";
 import * as api from "api";
 import { getTheme } from "themes";
+import { Link } from "components";
+import "./WorldResources.css";
 
 interface BaseProps {
     worldID: number;
@@ -193,9 +195,12 @@ class Component extends React.Component<Props> {
                 ]}
                 item={{
                     item: (
-                        <Text block={true} style={{ fontWeight: "bold", width: 175 }}>
+                        <Link
+                            style={{ display: "block", fontWeight: "bold", width: 135 }}
+                            href={`/items/${actualItem.game_id}/`}
+                        >
                             {actualItem.localization[0].name}
-                        </Text>
+                        </Link>
                     ),
                     count: (
                         <Text block={true} style={{ width: 80 }}>
@@ -332,6 +337,7 @@ class Component extends React.Component<Props> {
                 <div>
                     <h3 style={{ color: theme.palette.themePrimary }}>{this.props.t("Resources")}</h3>
                     <GroupedList
+                        className="world-resources"
                         compact={true}
                         items={resources}
                         onRenderCell={this.onRenderResources}

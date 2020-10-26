@@ -1,5 +1,13 @@
 [
     {
+        "date": "2020-10-26T04:40:00.000Z",
+        "changelogs": ["Adds links to Item details to Resource/Color lookups"]
+    },
+    {
+        "date": "2020-10-26T04:23:00.000Z",
+        "changelogs": ["Adds links to items on World Details page"]
+    },
+    {
         "date": "2020-10-26T04:10:00.000Z",
         "changelogs": ["Minor styling fixes"]
     },

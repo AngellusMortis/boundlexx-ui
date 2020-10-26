@@ -3,7 +3,7 @@ import { withTranslation, WithTranslation } from "react-i18next";
 import * as api from "../api";
 import { Client as BoundlexxClient, Components } from "api/client";
 import { Image, Stack, Text, Spinner, SpinnerSize, IStackTokens } from "@fluentui/react";
-import { NotFound, Recipe, ItemInputsDisplay, SovereignColors } from "components";
+import { NotFound, Recipe, ItemInputsDisplay, SovereignColors, Link } from "components";
 import { getTheme } from "themes";
 import { RootState } from "store";
 import { connect, ConnectedProps } from "react-redux";
@@ -190,6 +190,24 @@ class Page extends React.Component<Props> {
                                 </Text>
                                 <Text variant="medium"> {this.state.item.description.strings[0].plain_text} </Text>
                             </h2>
+                            <div style={{ textAlign: "center" }}>
+                                {this.state.item.is_resource && (
+                                    <Link
+                                        href={`/items/resource-lookup/?item__game_id=${this.state.item.game_id}`}
+                                        style={{ margin: "0 20px" }}
+                                    >
+                                        {this.props.t("Find Worlds with Resource")}
+                                    </Link>
+                                )}
+                                {this.state.item.has_colors && (
+                                    <Link
+                                        href={`/items/color-lookup/?item__game_id=${this.state.item.game_id}`}
+                                        style={{ margin: "0 20px" }}
+                                    >
+                                        {this.props.t("Find Worlds by Color")}
+                                    </Link>
+                                )}
+                            </div>
                         </div>
                         <Stack
                             className="item-details"

@@ -22,6 +22,8 @@ import * as api from "api";
 import { getTheme } from "themes";
 import { NumberDict, StringDict } from "types";
 import { withRouter, RouteComponentProps } from "react-router-dom";
+import { Link } from "components";
+import "./BlockColors.css";
 
 interface BaseProps {
     worldID: number;
@@ -361,9 +363,12 @@ class Component extends React.Component<Props> {
                         />
                     ),
                     item: (
-                        <Text block={true} style={{ fontWeight: "bold", width: 135 }}>
+                        <Link
+                            style={{ display: "block", fontWeight: "bold", width: 135 }}
+                            href={`/items/${actualItem.game_id}/`}
+                        >
                             {actualItem.localization[0].name}
-                        </Text>
+                        </Link>
                     ),
                     color: (
                         <Text block={true} style={{ fontStyle: "italic", width: 135 }}>
@@ -496,6 +501,7 @@ class Component extends React.Component<Props> {
                 <div>
                     <h3 style={{ color: theme.palette.themePrimary }}>{this.props.t("Block Colors")}</h3>
                     <GroupedList
+                        className="block-colors"
                         compact={true}
                         items={blockColors}
                         onRenderCell={this.onRenderColors}
