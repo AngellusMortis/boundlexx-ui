@@ -17,6 +17,8 @@ interface BaseProps {
 
 type Props = BaseProps & WithTranslation;
 
+// TODO
+// eslint-disable-next-line
 const Component: React.FunctionComponent<Props> = (props) => {
     const theme = getTheme();
     const longNameTooltip = useId("tooltip");

@@ -72,6 +72,7 @@ const Component: React.FunctionComponent<Props> = (props) => {
                                 width: 57,
                                 height: 57,
                                 display: "inline-flex",
+                                marginTop: 4,
                             },
                             dataWrapper: {
                                 height: "100%",

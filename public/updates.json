@@ -1,6 +1,18 @@
 [
     {
-        "date": "",
+        "date": "2020-10-26T04:10:00.000Z",
+        "changelogs": ["Minor styling fixes"]
+    },
+    {
+        "date": "2020-10-26T03:57:00.000Z",
+        "changelogs": ["Fixes Color hex colors"]
+    },
+    {
+        "date": "2020-10-26T03:55:00.000Z",
+        "changelogs": ["Fixes Emoji copy to clipboard", "Adds Color formating codes to Color Cards", "Adds Color formatting copy to clipboard"]
+    },
+    {
+        "date": "2020-10-26T03:30:00.000Z",
         "changelogs": ["Adds item details page.", "Adds custom scrollbars."]
     },
     {

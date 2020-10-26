@@ -395,7 +395,7 @@ class Resources extends APIDisplay {
 
         return (
             <DetailsList
-                styles={{ root: { width: "90vw" } }}
+                styles={{ root: { width: "100%" } }}
                 items={this.state.results.items}
                 compact={true}
                 columns={this.state.columns || this.getDefaultColumns()}

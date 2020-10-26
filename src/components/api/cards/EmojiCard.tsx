@@ -4,6 +4,8 @@ import { Components } from "api/client";
 import { Card } from "@uifabric/react-cards";
 import { getTheme } from "themes";
 import { Shimmer, Text, Image, ImageFit } from "@fluentui/react";
+import toast from "toast";
+import { Mutex } from "async-mutex";
 
 interface BaseProps {
     emoji: Components.Schemas.Emoji | undefined;
@@ -11,11 +13,42 @@ interface BaseProps {
 
 type Props = BaseProps & WithTranslation;
 
+const copyLock = new Mutex();
 const Component: React.FunctionComponent<Props> = (props) => {
     const theme = getTheme();
 
-    const onCardClick = () => {
-        return;
+    const onCardClick = (event: React.MouseEvent<HTMLElement, MouseEvent> | undefined) => {
+        if (event === undefined) {
+            return;
+        }
+
+        const card = (event.target as HTMLElement).closest(".ms-List-cell");
+
+        if (card === null) {
+            return;
+        }
+
+        const pre = card.querySelector(".names");
+
+        if (pre === null) {
+            return;
+        }
+
+        if (!copyLock.isLocked()) {
+            copyLock.runExclusive(async () => {
+                const names = pre.innerHTML.split(" ");
+                const name = names[names.length - 1];
+                await navigator.clipboard.writeText(name);
+
+                const message = (
+                    <Text>
+                        Emoji (<pre style={{ display: "inline" }}>{name}</pre>) copied to clipboard!
+                    </Text>
+                );
+
+                toast(message);
+            });
+        }
     };
 
     const getNames = (item: Components.Schemas.Emoji) => {
@@ -70,6 +103,7 @@ const Component: React.FunctionComponent<Props> = (props) => {
                             width: 57,
                             height: 57,
                             display: "inline-flex",
+                            marginTop: 4,
                         },
                         dataWrapper: {
                             height: "100%",

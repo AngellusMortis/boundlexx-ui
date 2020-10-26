@@ -1211,7 +1211,7 @@ export abstract class APIDisplay extends React.Component<APIDisplayProps> {
         return (
             <Stack
                 horizontalAlign={"center"}
-                styles={{ root: { width: "100vw", textAlign: "left", marginBottom: 20 } }}
+                styles={{ root: { width: "98vw", textAlign: "left", marginBottom: 20 } }}
                 className="api-display"
             >
                 <Stack.Item
