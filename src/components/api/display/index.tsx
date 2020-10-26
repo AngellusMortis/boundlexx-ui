@@ -6,3 +6,4 @@ export { ItemColorLookup } from "./ItemColorLookup";
 export { ItemDisplay } from "./Items";
 export { ResourceLookup } from "./ResourceLookup";
 export { WorldDisplay } from "./Worlds";
+export { ItemInputsDisplay } from "./ItemInputsDisplay";

@@ -158,3 +158,17 @@ export const requireSkills = async (): Promise<void> => {
         }
     }
 };
+
+export const requireRecipeGroups = async (): Promise<void> => {
+    let loaded = false;
+    while (!loaded) {
+        const state = store.getState();
+        loaded =
+            state.recipeGroups.count !== null &&
+            Reflect.ownKeys(state.recipeGroups.items).length === state.recipeGroups.count;
+
+        if (!loaded) {
+            await throttle();
+        }
+    }
+};

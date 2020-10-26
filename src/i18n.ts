@@ -224,6 +224,12 @@ const resources = {
             "Loading Item..._plural": "Loading Items...",
             "Loading Resource..._plural": "Loading Resources...",
             "Loading Color..._plural": "Loading Colors...",
+            "Used In_plural": "Used In",
+            "Used In FoundWithCount": "{{ count }} Recipes",
+            "Loading Item...": "Loading Item...",
+            "Loading Recipe...": "Loading Recipe...",
+            "Loading Used In..._plural": "Loading Used In...",
+            "No Recipes Found": "No Recipes Found",
         },
     },
     fr: {
@@ -441,6 +447,8 @@ const resources = {
             Sovereign: "Sovereign",
             Data: "Data",
             Data_plural: "Data",
+            "Used In_plural": "Used In",
+            "Used In FoundWithCount": "# Recipes",
         },
     },
     de: {
@@ -658,6 +666,8 @@ const resources = {
             Sovereign: "Sovereign",
             Data: "Data",
             Data_plural: "Data",
+            "Used In_plural": "Used In",
+            "Used In FoundWithCount": "# Recipes",
         },
     },
     it: {
@@ -875,6 +885,8 @@ const resources = {
             Sovereign: "Sovereign",
             Data: "Data",
             Data_plural: "Data",
+            "Used In_plural": "Used In",
+            "Used In FoundWithCount": "# Recipes",
         },
     },
     es: {
@@ -1092,6 +1104,8 @@ const resources = {
             Sovereign: "Sovereign",
             Data: "Data",
             Data_plural: "Data",
+            "Used In_plural": "Used In",
+            "Used In FoundWithCount": "# Recipes",
         },
     },
 };

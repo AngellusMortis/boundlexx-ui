@@ -27,6 +27,7 @@ import { Client as BoundlexxClient } from "api/client";
 import { StringAPIItems, NumericAPIItems, BaseItemsAsArray, BaseItems, StringDict, APIParams } from "types";
 import { AxiosResponse } from "axios";
 import { RouteComponentProps } from "react-router-dom";
+import { Mutex } from "async-mutex";
 
 export interface FilterValidator {
     name: string;
@@ -72,6 +73,8 @@ interface BaseProps {
     showGroups: boolean;
     allowSearch?: boolean;
     title?: string;
+    maxWidth?: number;
+    hideIfEmpty?: boolean;
 
     changeShowGroups: (showGroups: boolean) => unknown;
     updateItems?: api.updateGeneric;
@@ -166,6 +169,7 @@ export const mapStringStoreToItems = (store: StringAPIItems): BaseItemsAsArray |
 export type APIDisplayProps = WithTranslation & BaseProps & RouteComponentProps;
 
 const SEARCH_TIMEOUT = 1000;
+const lock = new Mutex();
 
 export abstract class APIDisplay extends React.Component<APIDisplayProps> {
     mounted = false;
@@ -219,7 +223,13 @@ export abstract class APIDisplay extends React.Component<APIDisplayProps> {
     };
 
     calculateColumns = (): void => {
-        const newColumns = Math.floor(window.innerWidth / 304);
+        let width = window.innerWidth;
+
+        if (this.props.maxWidth !== undefined) {
+            width = Math.min(width, this.props.maxWidth);
+        }
+
+        const newColumns = Math.floor(width / 304);
 
         if (newColumns !== this.state.columnCount) {
             this.setState({ columnCount: newColumns });
@@ -753,37 +763,16 @@ export abstract class APIDisplay extends React.Component<APIDisplayProps> {
         return !(this.state.initialLoad && this.state.results.nextUrl === null);
     };
 
+    transformResults = (results: BaseItemsAsArray): BaseItemsAsArray => {
+        return results;
+    };
+
     // TODO:
     // eslint-disable-next-line
-    getData = async (): Promise<void> => {
-        // do not double load
-        if (this.state.loading || this.client === null) {
+    private _getData = async (): Promise<void> => {
+        if (this.client === null) {
             return;
         }
-
-        // no more data, do not update
-        if (!this.hasMore()) {
-            return;
-        }
-
-        if (this.props.extraFilterKeys !== undefined && this.state.hasRequiredFilters) {
-            const currentFilters: StringDict<string> = this.state.filters.extraFilters || {};
-
-            for (let index = 0; index < this.props.extraFilterKeys.length; index++) {
-                const filter = this.props.extraFilterKeys[index];
-
-                if (filter.required && !(filter.name in currentFilters)) {
-                    return;
-                }
-            }
-        }
-
-        // add placeholder cards
-        let items = this.state.results.items;
-        if (items.length < api.config.pageSize) {
-            items = generatePlaceholders(api.config.pageSize, items);
-        }
-        this.setState({ loading: true, error: null, results: { ...this.state.results, items: items } });
 
         let response: AxiosResponse | null = null;
         try {
@@ -871,20 +860,22 @@ export abstract class APIDisplay extends React.Component<APIDisplayProps> {
             }
         }
 
-        // remove placeholder results, add new results
-        const newResults = this.groupResults(
-            this.state.results.items
-                .filter((v: unknown) => {
-                    return v !== undefined;
-                })
-                .concat(response.data.results),
-        );
+        const newResults = this.state.results.items
+            .filter((v: unknown) => {
+                return v !== undefined;
+            })
+            .concat(response.data.results);
 
-        const newItems: BaseItemsAsArray = {
-            items: newResults.concat(generatePlaceholders(response.data.count - newResults.length)),
+        let newItems: BaseItemsAsArray = {
+            items: newResults,
             count: response.data.count,
             nextUrl: response.data.next,
         };
+        newItems = this.transformResults(newItems);
+
+        const newCount = newItems.count || response.data.count;
+        newItems.items = this.groupResults(newItems.items);
+        newItems.items = newItems.items.concat(generatePlaceholders(newCount - newItems.items.length));
 
         if (this.props.locale !== null) {
             newItems.lang = this.props.locale.toString();
@@ -899,6 +890,47 @@ export abstract class APIDisplay extends React.Component<APIDisplayProps> {
                 }, api.config.throttle);
             }
         });
+    };
+
+    // TODO:
+    // eslint-disable-next-line
+    getData = async (): Promise<void> => {
+        const canLoad = await lock.runExclusive(async () => {
+            // do not double load
+            if (this.state.loading) {
+                return false;
+            }
+
+            // no more data, do not update
+            if (!this.hasMore()) {
+                return false;
+            }
+
+            if (this.props.extraFilterKeys !== undefined && this.state.hasRequiredFilters) {
+                const currentFilters: StringDict<string> = this.state.filters.extraFilters || {};
+
+                for (let index = 0; index < this.props.extraFilterKeys.length; index++) {
+                    const filter = this.props.extraFilterKeys[index];
+
+                    if (filter.required && !(filter.name in currentFilters)) {
+                        return false;
+                    }
+                }
+            }
+
+            // add placeholder cards
+            let items = this.state.results.items;
+            if (items.length < api.config.pageSize) {
+                items = generatePlaceholders(api.config.pageSize, items);
+            }
+            this.setState({ loading: true, error: null, results: { ...this.state.results, items: items } });
+
+            return true;
+        });
+
+        if (canLoad) {
+            await this._getData();
+        }
     };
 
     abstract renderFilters(): string | JSX.Element;
@@ -1107,7 +1139,7 @@ export abstract class APIDisplay extends React.Component<APIDisplayProps> {
         return "";
     };
 
-    render(): JSX.Element {
+    render(): string | JSX.Element {
         if (this.state.error) {
             return (
                 <Stack horizontalAlign={"center"}>
@@ -1134,10 +1166,14 @@ export abstract class APIDisplay extends React.Component<APIDisplayProps> {
             );
         }
 
+        if (this.props.hideIfEmpty && this.state.results.count === 0) {
+            return "";
+        }
+
         return (
             <Stack
                 horizontalAlign={"center"}
-                styles={{ root: { width: "100%", height: "100%", textAlign: "left" } }}
+                styles={{ root: { width: "100%", textAlign: "left", marginBottom: 20 } }}
                 className="api-display"
             >
                 <Stack.Item

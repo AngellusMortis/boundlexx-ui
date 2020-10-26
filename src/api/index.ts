@@ -26,6 +26,7 @@ export {
     requireItems,
     requireWorlds,
     requireSkills,
+    requireRecipeGroups,
 } from "api/core";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any

@@ -3,7 +3,7 @@ import { withTranslation, WithTranslation } from "react-i18next";
 import * as api from "../api";
 import { Client as BoundlexxClient, Components } from "api/client";
 import { Image, Stack, Text, Spinner, SpinnerSize, IStackTokens } from "@fluentui/react";
-import { NotFound, Recipe } from "components";
+import { NotFound, Recipe, ItemInputsDisplay } from "components";
 import { getTheme } from "themes";
 import { RootState } from "store";
 import { connect, ConnectedProps } from "react-redux";
@@ -142,108 +142,122 @@ class Page extends React.Component<Props> {
         const sectionStackTokens: IStackTokens = { childrenGap: 10 };
 
         return (
-            <Stack
-                tokens={sectionStackTokens}
-                styles={{
-                    root: {
-                        maxWidth: 1200,
-                        width: "60vw",
-                        minWidth: 480,
-                        margin: "0 auto 50px 0",
-                        overflowX: "hidden",
-                    },
-                }}
-            >
-                <div
-                    style={{
-                        display: "grid",
-                        gridGap: "10px",
-                        gridAutoRows: "minmax(500px, auto)",
-                        gridTemplateColumns: "repeat(auto-fill, 475px)",
-                        flexWrap: "wrap",
-                        textAlign: "left",
+            <div>
+                <Stack
+                    tokens={sectionStackTokens}
+                    styles={{
+                        root: {
+                            maxWidth: 1200,
+                            width: "60vw",
+                            minWidth: 480,
+                            margin: "auto",
+                            overflowX: "hidden",
+                        },
                     }}
                 >
-                    <div>
-                        <Image
-                            src={"https://cdn.boundlexx.app/worlds/unknown.png"}
-                            style={{ padding: 50, width: "80%", minWidth: "80%" }}
-                            alt="Item"
-                        />
-                        <h2
-                            style={{
-                                textAlign: "center",
-                                backgroundColor: theme.palette.neutralLighter,
-                                borderBottom: "2px solid",
-                                borderBottomColor: theme.palette.themePrimary,
-                                padding: "10px",
-                            }}
-                        >
-                            <span
-                                style={{ display: "block" }}
-                                dangerouslySetInnerHTML={{
-                                    __html: this.state.item.localization[0].name,
-                                }}
-                            ></span>
-                            <Text variant="large" style={{ display: "block" }}>
-                                {this.state.item.item_subtitle.localization[0].name}
-                            </Text>
-                            <Text variant="medium"> {this.state.item.description.strings[0].plain_text} </Text>
-                        </h2>
-                    </div>
-                    <Stack
-                        className="item-details"
+                    <div
                         style={{
                             display: "grid",
-                            gridGap: "0px",
-                            gridAutoRows: "max-content",
-                            gridTemplateColumns: "repeat(auto-fill, 237px)",
+                            gridGap: "10px",
+                            gridAutoRows: "min-content",
+                            gridTemplateColumns: "repeat(auto-fill, 475px)",
                             flexWrap: "wrap",
-                            verticalAlign: "middle",
-                            alignItems: "center",
-                            marginTop: "10px",
+                            textAlign: "left",
+                            justifyContent: "center",
                         }}
                     >
+                        <div>
+                            <Image
+                                src={"https://cdn.boundlexx.app/worlds/unknown.png"}
+                                style={{ padding: 50, width: "80%", minWidth: "80%" }}
+                                alt="Item"
+                            />
+                            <h2
+                                style={{
+                                    textAlign: "center",
+                                    backgroundColor: theme.palette.neutralLighter,
+                                    borderBottom: "2px solid",
+                                    borderBottomColor: theme.palette.themePrimary,
+                                    padding: "10px",
+                                }}
+                            >
+                                <span
+                                    style={{ display: "block" }}
+                                    dangerouslySetInnerHTML={{
+                                        __html: this.state.item.localization[0].name,
+                                    }}
+                                ></span>
+                                <Text variant="large" style={{ display: "block" }}>
+                                    {this.state.item.item_subtitle.localization[0].name}
+                                </Text>
+                                <Text variant="medium"> {this.state.item.description.strings[0].plain_text} </Text>
+                            </h2>
+                        </div>
                         <Stack
+                            className="item-details"
                             style={{
-                                backgroundColor: theme.palette.neutralLighter,
-                                borderBottom: "2px solid",
-                                borderBottomColor: theme.palette.themePrimary,
-                                padding: "10px",
-                                height: "100%",
+                                display: "grid",
+                                gridGap: "0px",
+                                gridAutoRows: "max-content",
+                                gridTemplateColumns: "repeat(auto-fill, 237px)",
+                                flexWrap: "wrap",
+                                verticalAlign: "middle",
+                                alignItems: "center",
+                                marginTop: "10px",
                             }}
                         >
-                            <Text
-                                block={true}
-                                variant="large"
-                                style={{ color: theme.palette.themePrimary, fontWeight: "bold" }}
+                            <Stack
+                                style={{
+                                    backgroundColor: theme.palette.neutralLighter,
+                                    borderBottom: "2px solid",
+                                    borderBottomColor: theme.palette.themePrimary,
+                                    padding: "10px",
+                                    height: "100%",
+                                }}
                             >
-                                ID:
-                            </Text>
-                            <Text variant="medium">{this.state.item.game_id} </Text>
-                        </Stack>
-                        <Stack
-                            style={{
-                                backgroundColor: theme.palette.neutralLighter,
-                                borderBottom: "2px solid",
-                                borderBottomColor: theme.palette.themePrimary,
-                                padding: "10px",
-                                height: "100%",
-                            }}
-                        >
-                            <Text
-                                block={true}
-                                variant="large"
-                                style={{ color: theme.palette.themePrimary, fontWeight: "bold" }}
+                                <Text
+                                    block={true}
+                                    variant="large"
+                                    style={{ color: theme.palette.themePrimary, fontWeight: "bold" }}
+                                >
+                                    ID:
+                                </Text>
+                                <Text variant="medium">{this.state.item.game_id} </Text>
+                            </Stack>
+                            <Stack
+                                style={{
+                                    backgroundColor: theme.palette.neutralLighter,
+                                    borderBottom: "2px solid",
+                                    borderBottomColor: theme.palette.themePrimary,
+                                    padding: "10px",
+                                    height: "100%",
+                                }}
                             >
-                                Mint Value:
-                            </Text>
-                            {this.renderMintValues(this.state.item)}
+                                <Text
+                                    block={true}
+                                    variant="large"
+                                    style={{ color: theme.palette.themePrimary, fontWeight: "bold" }}
+                                >
+                                    Mint Value:
+                                </Text>
+                                {this.renderMintValues(this.state.item)}
+                            </Stack>
+                            <Recipe id={this.state.item.game_id} />
                         </Stack>
-                        <Recipe id={this.state.item.game_id} />
-                    </Stack>
-                </div>
-            </Stack>
+                    </div>
+                </Stack>
+                {this.state.item !== undefined && (
+                    <ItemInputsDisplay
+                        extraDefaultFilters={[
+                            {
+                                name: "input_id",
+                                value: this.state.item.game_id,
+                                in: "query",
+                            },
+                        ]}
+                    />
+                )}
+            </div>
         );
     };
 

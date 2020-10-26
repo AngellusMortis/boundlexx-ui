@@ -8,7 +8,7 @@ import { connect, ConnectedProps } from "react-redux";
 import { Client as BoundlexxClient, Components } from "api/client";
 import * as api from "api";
 import { getTheme } from "themes";
-import { NotFound, ItemCard, RecipeGroupCard, SkillRequirement, MachineCard } from "components";
+import { ItemCard, RecipeGroupCard, SkillRequirement, MachineCard } from "components";
 import { RecipeLevel } from "types";
 import { Scrollbar } from "react-scrollbars-custom";
 
@@ -47,26 +47,13 @@ class Component extends React.Component<Props> {
         this.mounted = true;
         this.client = await api.getClient();
 
+        await api.requireRecipeGroups();
+        await api.requireSkills();
         await this.setRecipe();
     };
 
     componentWillUnmount = () => {
         this.mounted = false;
-    };
-
-    checkLoaded = () => {
-        if (!this.state.loaded && this.state.recipe !== null) {
-            const recipeGroupsLoaded =
-                this.props.recipeGroups.count !== null &&
-                Reflect.ownKeys(this.props.recipeGroups.items).length === this.props.recipeGroups.count;
-            const skillsLoaded =
-                this.props.skills.count !== null &&
-                Reflect.ownKeys(this.props.skills.items).length === this.props.skills.count;
-
-            if (recipeGroupsLoaded && skillsLoaded) {
-                this.setState({ loaded: true });
-            }
-        }
     };
 
     setRecipe = async () => {
@@ -88,11 +75,9 @@ class Component extends React.Component<Props> {
             }
 
             if (response.data.count !== undefined && response.data.results !== undefined && response.data.count > 0) {
-                this.setState({ recipe: response.data.results[0] }, () => {
-                    this.checkLoaded();
-                });
+                this.setState({ recipe: response.data.results[0], loaded: true });
             } else {
-                this.checkLoaded();
+                this.setState({ loaded: true });
             }
         } catch (err) {
             await api.throttle(3000);
@@ -188,7 +173,7 @@ class Component extends React.Component<Props> {
                             Inputs:
                         </Text>
                         <Scrollbar
-                            style={{ height: 210 }}
+                            style={{ height: 212 }}
                             thumbYProps={{ style: { backgroundColor: theme.palette.themeDark } }}
                             trackYProps={{ style: { backgroundColor: theme.palette.neutralLight } }}
                         >
@@ -349,12 +334,42 @@ class Component extends React.Component<Props> {
 
     renderItem = () => {
         const theme = getTheme();
+        const sectionStackTokens: IStackTokens = { childrenGap: 10 };
 
         if (this.state.recipe === null) {
-            return <NotFound pageName={this.props.t("Recipe Not Found")} />;
+            return (
+                <Stack
+                    tokens={sectionStackTokens}
+                    styles={{
+                        root: {
+                            maxWidth: 1200,
+                            width: "60vw",
+                            minWidth: 470,
+                            margin: "0 auto 50px 0",
+                            padding: "10px 5px 0 5px",
+                            overflowX: "hidden",
+                        },
+                    }}
+                >
+                    <Stack
+                        style={{
+                            backgroundColor: theme.palette.neutralLighter,
+                            borderBottom: "2px solid",
+                            borderBottomColor: theme.palette.themePrimary,
+                            padding: "10px",
+                        }}
+                    >
+                        <Text
+                            block={true}
+                            variant="large"
+                            style={{ color: theme.palette.themePrimary, fontWeight: "bold" }}
+                        >
+                            {this.props.t("No Recipes Found")}
+                        </Text>
+                    </Stack>
+                </Stack>
+            );
         }
-
-        const sectionStackTokens: IStackTokens = { childrenGap: 10 };
         return (
             <Stack
                 tokens={sectionStackTokens}

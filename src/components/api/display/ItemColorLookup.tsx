@@ -3,7 +3,7 @@ import { RootState } from "store";
 import { connect } from "react-redux";
 import { withTranslation } from "react-i18next";
 import * as api from "api";
-import { APIDisplay, mapNumericStoreToItems, APIDisplayProps } from "./APIDisplay";
+import { APIDisplay, APIDisplayProps } from "./APIDisplay";
 import { Components } from "api/client";
 import { getTheme } from "themes";
 import { changeShowGroups } from "prefs/actions";
@@ -18,7 +18,7 @@ const mapState = (state: RootState) => ({
     operationID: "listItemColors",
     title: "Find Color/World By Item",
     name: "Data",
-    results: mapNumericStoreToItems(state.colors),
+    results: undefined,
     showGroups: state.prefs.showGroups,
     loadAll: true,
     allowSearch: false,
