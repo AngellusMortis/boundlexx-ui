@@ -3,7 +3,7 @@ import { withTranslation, WithTranslation } from "react-i18next";
 import * as api from "../api";
 import { Client as BoundlexxClient, Components } from "api/client";
 import { Image, Stack, Text, Spinner, SpinnerSize, IStackTokens } from "@fluentui/react";
-import { NotFound, Recipe, ItemInputsDisplay } from "components";
+import { NotFound, Recipe, ItemInputsDisplay, SovereignColors } from "components";
 import { getTheme } from "themes";
 import { RootState } from "store";
 import { connect, ConnectedProps } from "react-redux";
@@ -246,6 +246,17 @@ class Page extends React.Component<Props> {
                         </Stack>
                     </div>
                 </Stack>
+                {this.state.item !== undefined && this.state.item.has_colors && (
+                    <SovereignColors
+                        extraDefaultFilters={[
+                            {
+                                name: "game_id",
+                                value: this.state.item.game_id,
+                                in: "path",
+                            },
+                        ]}
+                    />
+                )}
                 {this.state.item !== undefined && (
                     <ItemInputsDisplay
                         extraDefaultFilters={[

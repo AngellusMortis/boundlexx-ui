@@ -7,21 +7,19 @@ import { APIDisplay, APIDisplayProps } from "./APIDisplay";
 import { Components } from "api/client";
 import { getTheme } from "themes";
 import { changeShowGroups } from "prefs/actions";
-import { ItemCard } from "components";
+import { ColorCard } from "components";
 import { withRouter } from "react-router-dom";
 import { BaseItemsAsArray } from "types";
 
 const mapState = (state: RootState) => ({
     theme: getTheme(state.prefs.theme),
     locale: null,
-    operationID: "listRecipes",
-    name: "Recipe",
-    title: "Used In",
+    operationID: "listItemSovereignColors",
+    name: "Sovereign Color",
     results: undefined,
     showGroups: state.prefs.showGroups,
     loadAll: true,
     allowSearch: false,
-    groupBy: "list_type.strings.0.plain_text",
     hideIfEmpty: true,
 });
 
@@ -47,20 +45,20 @@ class Items extends APIDisplay {
     };
 
     transformResults = (results: BaseItemsAsArray): BaseItemsAsArray => {
-        const items: Set<Components.Schemas.SimpleItem> = new Set();
+        const items: Set<Components.Schemas.Color> = new Set();
         let count = results.count || 0;
         const hasAll = results.count === results.items.length;
 
         for (let index = 0; index < results.items.length; index++) {
-            let item: Components.Schemas.SimpleItem | Components.Schemas.Recipe | unknown | undefined =
+            let item: Components.Schemas.PossibleWBC | Components.Schemas.Color | unknown | undefined =
                 results.items[index];
 
             // eslint-disable-next-line
             // @ts-ignore
-            if ("output" in item) {
+            if ("color" in item) {
                 // eslint-disable-next-line
                 // @ts-ignore
-                item = api.getItem(item.output.game_id);
+                item = api.getColor(item.color.game_id);
             }
 
             // eslint-disable-next-line
@@ -85,13 +83,13 @@ class Items extends APIDisplay {
         return results;
     };
 
-    onRenderCell = (item: Components.Schemas.SimpleItem | undefined): string | JSX.Element => {
-        if (item === undefined || "output" in item) {
+    onRenderCell = (color: Components.Schemas.Color | undefined): string | JSX.Element => {
+        if (color === undefined || "output" in color) {
             return "";
         }
 
-        return <ItemCard item={item} />;
+        return <ColorCard color={color} />;
     };
 }
 
-export const ItemInputsDisplay = connector(withRouter(withTranslation()(Items)));
+export const SovereignColors = connector(withRouter(withTranslation()(Items)));

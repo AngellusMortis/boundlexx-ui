@@ -1104,7 +1104,13 @@ export abstract class APIDisplay extends React.Component<APIDisplayProps> {
 
         const actualCount = this.state.results.count == null ? api.config.pageSize : this.state.results.count;
         const displayCount = !this.state.initialLoad ? "#" : actualCount.toString();
-        const foundName = `${this.getName(" FoundWithCount", true, { count: actualCount })}`.replace(
+
+        let extra = " FoundWithCount";
+        if (actualCount !== 1) {
+            extra += "_plural";
+        }
+
+        const foundName = `${this.getName(extra, true, { count: actualCount })}`.replace(
             actualCount.toString(),
             displayCount,
         );
