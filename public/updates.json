@@ -1,5 +1,17 @@
 [
     {
+        "date": "2020-10-26T16:50:00.000Z",
+        "changelogs": ["Adds world class to Resource Lookup table"]
+    },
+    {
+        "date": "2020-10-26T14:48:00.000Z",
+        "changelogs": ["Adds global error handler"]
+    },
+    {
+        "date": "2020-10-26T14:25:00.000Z",
+        "changelogs": ["Fixes update modal when content overflows", "Adds 'Reset Data' button"]
+    },
+    {
         "date": "2020-10-26T04:40:00.000Z",
         "changelogs": ["Adds links to Item details to Resource/Color lookups"]
     },

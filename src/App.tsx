@@ -1,6 +1,6 @@
 import React from "react";
 import "./App.css";
-import { Header, UpdateModal } from "components";
+import { Header, UpdateModal, ErrorBoundary } from "components";
 import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
 import {
     HomePage,
@@ -40,50 +40,52 @@ class App extends React.Component {
             >
                 <Router>
                     <Header />
-                    <Stack
-                        id="content"
-                        horizontalAlign="center"
-                        verticalAlign="start"
-                        verticalFill
-                        tokens={{ childrenGap: 15 }}
-                        style={{ height: "calc(100vh - 119px)", textAlign: "center" }}
-                    >
-                        <Switch>
-                            <Route path="/colors/:route(browse|item-lookup|sovereign)/" exact strict>
-                                <ColorsPage />
-                            </Route>
-                            <Route path="/emojis/" exact strict>
-                                <EmojisPage />
-                            </Route>
-                            <Route path="/forum/" exact strict>
-                                <ForumPage />
-                            </Route>
-                            <Route
-                                path="/items/:id(\d+)/"
-                                exact
-                                strict
-                                render={(props) => <ItemDetailsPage id={props.match.params.id} />}
-                            />
-                            <Route path="/items/:route(browse|resource-lookup|color-lookup)/" exact strict>
-                                <ItemsPage />
-                            </Route>
-                            <Route
-                                path="/worlds/:id(\d+)/"
-                                exact
-                                strict
-                                render={(props) => <WorldDetailsPage id={props.match.params.id} />}
-                            />
-                            <Route path="/worlds/:route(browse|resource-lookup|color-lookup)/" exact strict>
-                                <WorldsPage />
-                            </Route>
-                            <Route path="/" exact strict>
-                                <HomePage />
-                            </Route>
-                            <Route>
-                                <NotFoundPage />
-                            </Route>
-                        </Switch>
-                    </Stack>
+                    <ErrorBoundary>
+                        <Stack
+                            id="content"
+                            horizontalAlign="center"
+                            verticalAlign="start"
+                            verticalFill
+                            tokens={{ childrenGap: 15 }}
+                            style={{ height: "calc(100vh - 119px)", textAlign: "center" }}
+                        >
+                            <Switch>
+                                <Route path="/colors/:route(browse|item-lookup|sovereign)/" exact strict>
+                                    <ColorsPage />
+                                </Route>
+                                <Route path="/emojis/" exact strict>
+                                    <EmojisPage />
+                                </Route>
+                                <Route path="/forum/" exact strict>
+                                    <ForumPage />
+                                </Route>
+                                <Route
+                                    path="/items/:id(\d+)/"
+                                    exact
+                                    strict
+                                    render={(props) => <ItemDetailsPage id={props.match.params.id} />}
+                                />
+                                <Route path="/items/:route(browse|resource-lookup|color-lookup)/" exact strict>
+                                    <ItemsPage />
+                                </Route>
+                                <Route
+                                    path="/worlds/:id(\d+)/"
+                                    exact
+                                    strict
+                                    render={(props) => <WorldDetailsPage id={props.match.params.id} />}
+                                />
+                                <Route path="/worlds/:route(browse|resource-lookup|color-lookup)/" exact strict>
+                                    <WorldsPage />
+                                </Route>
+                                <Route path="/" exact strict>
+                                    <HomePage />
+                                </Route>
+                                <Route>
+                                    <NotFoundPage />
+                                </Route>
+                            </Switch>
+                        </Stack>
+                    </ErrorBoundary>
                     <ToastContainer
                         position="top-right"
                         autoClose={5000}

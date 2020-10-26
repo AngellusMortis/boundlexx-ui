@@ -254,6 +254,7 @@ const resources = {
             Single: "Single",
             Sovereign: "Sovereign",
             XP: "XP",
+            "Reset Data": "Reset Data",
         },
     },
     fr: {
@@ -506,6 +507,7 @@ const resources = {
             Single: "Single",
             Sovereign: "Sovereign",
             XP: "XP",
+            "Reset Data": "Reset Data",
         },
     },
     de: {
@@ -758,6 +760,7 @@ const resources = {
             Single: "Single",
             Sovereign: "Sovereign",
             XP: "XP",
+            "Reset Data": "Reset Data",
         },
     },
     it: {
@@ -1010,6 +1013,7 @@ const resources = {
             Single: "Single",
             Sovereign: "Sovereign",
             XP: "XP",
+            "Reset Data": "Reset Data",
         },
     },
     es: {
@@ -1262,6 +1266,7 @@ const resources = {
             Single: "Single",
             Sovereign: "Sovereign",
             XP: "XP",
+            "Reset Data": "Reset Data",
         },
     },
 };

@@ -10,11 +10,13 @@ import {
     mergeStyles,
     TooltipHost,
     IconButton,
+    PrimaryButton,
 } from "@fluentui/react";
 import { ThemeSelector } from "./ThemeSelector";
 import { LanguageSelector } from "./LanguageSelector";
+import { CollapsibleInput } from "./CollapsibleInput";
 import { Link } from "./Link";
-import { RootState } from "store";
+import { purgeData, RootState } from "store";
 import { connect, ConnectedProps } from "react-redux";
 import * as api from "api";
 import { Client as BoundlexxClient } from "api/client";
@@ -187,6 +189,10 @@ class Component extends React.Component<Props> {
         }
     };
 
+    onClickReset = () => {
+        purgeData();
+    };
+
     render = () => {
         const updateButtonText = this.props.t("See Updates");
         const items: ICommandBarItemProps[] = [];
@@ -266,6 +272,12 @@ class Component extends React.Component<Props> {
                             </TooltipHost>
                         )}
 
+                        <CollapsibleInput
+                            icon={{ className: mergeStyles(AnimationStyles.fadeIn400), iconName: "ReturnToSession" }}
+                            name={this.props.t("Reset Data")}
+                        >
+                            <PrimaryButton onClick={this.onClickReset}>{this.props.t("Reset Data")}</PrimaryButton>
+                        </CollapsibleInput>
                         <ThemeSelector />
                         <LanguageSelector />
                     </Stack>

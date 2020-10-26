@@ -173,6 +173,27 @@ class Resources extends APIDisplay {
                 },
             },
             {
+                key: "world-class",
+                name: this.props.t("World Class"),
+                fieldName: "world.world_class",
+                minWidth: 150,
+                maxWidth: 150,
+                isRowHeader: true,
+                onColumnClick: this.onColumnClick,
+                data: "string",
+                isPadded: true,
+                // eslint-disable-next-line react/display-name
+                onRender: (item: Components.Schemas.ItemResourceCount) => {
+                    const world = api.getWorld(item.world.id);
+
+                    if (world === undefined) {
+                        return "";
+                    }
+
+                    return this.props.t(world.world_class);
+                },
+            },
+            {
                 key: "world-tier",
                 name: this.props.t("World Tier"),
                 fieldName: "world.tier",
