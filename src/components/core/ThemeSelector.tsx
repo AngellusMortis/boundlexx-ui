@@ -23,9 +23,16 @@ class Component extends React.Component<Props> {
         this.handleChange.bind(this);
         this.updateTheme.bind(this);
 
-        window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () => {
-            this.updateTheme();
-        });
+        const query = window.matchMedia("(prefers-color-scheme: dark)");
+        if ("addEventListener" in query) {
+            (query as MediaQueryList).addEventListener("change", () => {
+                this.updateTheme();
+            });
+        } else {
+            (query as MediaQueryList).addListener(() => {
+                this.updateTheme();
+            });
+        }
     }
 
     handleChange = (event: React.FormEvent<HTMLDivElement>, option?: IDropdownOption) => {
