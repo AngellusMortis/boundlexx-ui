@@ -22,6 +22,17 @@
     height: 12px;
 }
 
+.api-display #collapse-results-button i {
+    transition: 0.2s;
+}
+.api-display #collapse-results-button.expand i {
+    transform: rotate(90deg);
+}
+
+.api-display .results.collapsed {
+    display: none;
+}
+
 @media (max-width: 600px) {
     .api-display .api-display-search {
         width: 100%;

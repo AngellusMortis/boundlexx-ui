@@ -48,6 +48,26 @@ class Page extends React.Component<Props> {
         await api.requireRecipeGroups();
         await api.requireSkills();
 
+        await this.getItem();
+    };
+
+    componentWillUnmount = () => {
+        this.mounted = false;
+    };
+
+    componentDidUpdate = (prevProp: Props) => {
+        if (this.props.id !== prevProp.id) {
+            this.setState({ item: null, loaded: false }, () => {
+                this.getItem();
+            });
+        }
+    };
+
+    getItem = async () => {
+        if (this.client === null) {
+            return;
+        }
+
         try {
             const response = await this.client.retrieveItem([
                 {
@@ -75,10 +95,6 @@ class Page extends React.Component<Props> {
                 this.setState({ loaded: true });
             }
         }
-    };
-
-    componentWillUnmount = () => {
-        this.mounted = false;
     };
 
     setTitle = () => {
@@ -230,6 +246,7 @@ class Page extends React.Component<Props> {
                 </Stack>
                 {this.state.item !== undefined && this.state.item.has_colors && (
                     <SovereignColors
+                        collapsible={true}
                         extraDefaultFilters={[
                             {
                                 name: "game_id",
@@ -241,6 +258,7 @@ class Page extends React.Component<Props> {
                 )}
                 {this.state.item !== undefined && (
                     <ItemInputsDisplay
+                        collapsible={true}
                         extraDefaultFilters={[
                             {
                                 name: "input_id",

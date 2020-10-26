@@ -3,45 +3,23 @@ import { withTranslation, WithTranslation } from "react-i18next";
 import { Components } from "api/client";
 import { Card } from "@uifabric/react-cards";
 import { getTheme } from "themes";
-import { Shimmer, Text, Image, ImageFit, Link } from "@fluentui/react";
+import { Shimmer, Text, Image, ImageFit } from "@fluentui/react";
 import * as api from "api";
-import { withRouter, RouteComponentProps } from "react-router-dom";
+import { Link } from "components";
 
 interface BaseProps {
     world: Components.Schemas.SimpleWorld | undefined;
 }
 
-type Props = BaseProps & RouteComponentProps & WithTranslation;
+type Props = BaseProps & WithTranslation;
 
 // TODO
 // eslint-disable-next-line
 const Component: React.FunctionComponent<Props> = (props) => {
     const theme = getTheme();
 
-    const onCardClick = (event: React.MouseEvent<HTMLElement, MouseEvent> | undefined) => {
-        if (event === undefined) {
-            return;
-        }
-
-        const card = (event.target as HTMLElement).closest(".ms-List-cell");
-
-        if (card === null) {
-            return;
-        }
-
-        const details = card.querySelector(".api-card");
-
-        if (details === null) {
-            return;
-        }
-
-        const id = details.getAttribute("data-world-id");
-
-        if (id === null) {
-            return;
-        }
-
-        props.history.push(`/worlds/${id}/`);
+    const onCardClick = () => {
+        return;
     };
 
     let specialType = null;
@@ -53,7 +31,7 @@ const Component: React.FunctionComponent<Props> = (props) => {
         <Link
             className="card-link"
             href={`/worlds/${props.world === undefined ? "" : props.world.id}/`}
-            styles={{ root: { color: theme.palette.black } }}
+            style={{ color: theme.palette.black }}
         >
             <Card
                 className="api-card"
@@ -149,4 +127,4 @@ const Component: React.FunctionComponent<Props> = (props) => {
     );
 };
 
-export const WorldCard = withRouter(withTranslation()(Component));
+export const WorldCard = withTranslation()(Component);

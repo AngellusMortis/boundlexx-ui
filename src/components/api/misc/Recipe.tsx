@@ -8,9 +8,10 @@ import { connect, ConnectedProps } from "react-redux";
 import { Client as BoundlexxClient, Components } from "api/client";
 import * as api from "api";
 import { getTheme } from "themes";
-import { ItemCard, RecipeGroupCard, SkillRequirement, MachineCard } from "components";
+import { ItemCard, RecipeGroupCard, SkillRequirement, MachineCard, MachineInline } from "components";
 import { RecipeLevel } from "types";
 import { Scrollbar } from "react-scrollbars-custom";
+import { Trans } from "react-i18next";
 
 interface BaseProps {
     id: number;
@@ -94,13 +95,14 @@ class Component extends React.Component<Props> {
             if (machine !== null) {
                 return (
                     <div>
-                        <Text variant="medium">Crafted in Hand</Text>
-                        <br />
+                        <Text block={true} variant="medium">
+                            Crafted in Hand
+                        </Text>
                         <Text variant="medium">
-                            {this.props.t("Can also be crafted in MACHINE", {
-                                machine:
-                                    typeof machine === "string" ? this.props.t(machine) : machine.localization[0].name,
-                            })}
+                            <Trans
+                                i18nKey="Can also be crafted in MACHINE"
+                                components={[<MachineInline machine={machine} />]}
+                            />
                         </Text>
                     </div>
                 );
@@ -117,8 +119,7 @@ class Component extends React.Component<Props> {
             return (
                 <div>
                     <Text variant="medium">
-                        <strong>{this.props.t("Requires Machine")}:</strong>{" "}
-                        {typeof machine === "string" ? this.props.t(machine) : machine.localization[0].name}
+                        <strong>{this.props.t("Requires Machine")}:</strong> <MachineInline machine={machine} />
                     </Text>
                 </div>
             );

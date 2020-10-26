@@ -231,7 +231,7 @@ const resources = {
             "Loading Recipe...": "Loading Recipe...",
             "Loading Recipe..._plural": "Loading Recipes...",
             "No Recipes Found": "No Recipes Found",
-            "Can also be crafted in MACHINE": "Can also be crafted in {{ machine }}",
+            "Can also be crafted in MACHINE": "Can also be crafted in <0>",
             "Crafted in Hand": "Crafted in Hand",
             "Requires Machine": "Requires Machine",
             Output: "Output",

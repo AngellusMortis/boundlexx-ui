@@ -19,6 +19,7 @@ import {
     IColumn,
     Spinner,
     SpinnerSize,
+    AnimationClassNames,
 } from "@fluentui/react";
 import "./APIDisplay.css";
 import { WithTranslation } from "react-i18next";
@@ -57,6 +58,7 @@ interface State {
     columnCount: number;
     hasRequiredFilters: boolean;
     columns?: IColumn[];
+    collapsed: boolean;
 }
 
 interface BaseProps {
@@ -75,6 +77,7 @@ interface BaseProps {
     title?: string;
     maxWidth?: number;
     hideIfEmpty?: boolean;
+    collapsible?: boolean;
 
     changeShowGroups: (showGroups: boolean) => unknown;
     updateItems?: api.updateGeneric;
@@ -189,6 +192,7 @@ export abstract class APIDisplay extends React.Component<APIDisplayProps> {
         filtersVisible: false,
         filtersHelp: false,
         columnCount: 0,
+        collapsed: this.props.collapsible || false,
         results: {
             items: generatePlaceholders(api.config.pageSize),
             count: null,
@@ -1097,6 +1101,27 @@ export abstract class APIDisplay extends React.Component<APIDisplayProps> {
         );
     };
 
+    toggleCollapse = (): void => {
+        this.setState({ collapsed: !this.state.collapsed });
+    };
+
+    renderCollapse = (): string | JSX.Element => {
+        if (this.props.collapsible) {
+            return (
+                <IconButton
+                    className={this.state.collapsed ? "" : "expand"}
+                    id="collapse-results-button"
+                    iconProps={{ iconName: "ChevronRightMed" }}
+                    style={{ marginRight: 10 }}
+                    onClick={this.toggleCollapse}
+                    ariaLabel="expand collapse group"
+                    aria-expanded={this.state.collapsed ? "false" : "true"}
+                ></IconButton>
+            );
+        }
+        return "";
+    };
+
     renderResultsHeader = (): string | JSX.Element => {
         if (this.state.hasRequiredFilters) {
             return "";
@@ -1176,10 +1201,17 @@ export abstract class APIDisplay extends React.Component<APIDisplayProps> {
             return "";
         }
 
+        let resultsClass = "results";
+        if (this.state.collapsed) {
+            resultsClass += " collapsed " + (AnimationClassNames.slideUpIn20 || "");
+        } else {
+            resultsClass += " " + (AnimationClassNames.slideDownIn20 || "");
+        }
+
         return (
             <Stack
                 horizontalAlign={"center"}
-                styles={{ root: { width: "100%", textAlign: "left", marginBottom: 20 } }}
+                styles={{ root: { width: "100vw", textAlign: "left", marginBottom: 20 } }}
                 className="api-display"
             >
                 <Stack.Item
@@ -1196,7 +1228,10 @@ export abstract class APIDisplay extends React.Component<APIDisplayProps> {
                         },
                     }}
                 >
-                    <h2 style={{ display: "inline-flex", margin: "0 20px" }}>{this.getTitle("_plural")}</h2>
+                    <h2 style={{ display: "inline-flex", margin: "0 20px" }}>
+                        {this.renderCollapse()}
+                        {this.getTitle("_plural")}
+                    </h2>
                     {this.renderResultsHeader()}
                     <div
                         style={{ display: "inline-flex", margin: "0 20px", justifyContent: "center" }}
@@ -1227,6 +1262,7 @@ export abstract class APIDisplay extends React.Component<APIDisplayProps> {
                     </Stack.Item>
                 )}
                 <Stack.Item
+                    className={resultsClass}
                     styles={{
                         root: {
                             position: "relative",
