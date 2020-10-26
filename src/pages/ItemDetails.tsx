@@ -45,6 +45,9 @@ class Page extends React.Component<Props> {
             return;
         }
 
+        await api.requireRecipeGroups();
+        await api.requireSkills();
+
         try {
             const response = await this.client.retrieveItem([
                 {
@@ -63,12 +66,10 @@ class Page extends React.Component<Props> {
                 return;
             }
 
-            this.setState(
-                {
-                    item: response.data,
-                },
-                this.checkLoaded,
-            );
+            this.setState({
+                item: response.data,
+                loaded: true,
+            });
         } catch (err) {
             if (err.response !== undefined && err.response.status === 404) {
                 this.setState({ loaded: true });
@@ -76,27 +77,8 @@ class Page extends React.Component<Props> {
         }
     };
 
-    checkLoaded = () => {
-        if (!this.state.loaded && this.state.item !== null) {
-            const recipeGroupsLoaded =
-                this.props.recipeGroups.count !== null &&
-                Reflect.ownKeys(this.props.recipeGroups.items).length === this.props.recipeGroups.count;
-            const skillsLoaded =
-                this.props.skills.count !== null &&
-                Reflect.ownKeys(this.props.skills.items).length === this.props.skills.count;
-
-            if (recipeGroupsLoaded && skillsLoaded) {
-                this.setState({ loaded: true });
-            }
-        }
-    };
-
     componentWillUnmount = () => {
         this.mounted = false;
-    };
-
-    componentDidUpdate = () => {
-        this.checkLoaded();
     };
 
     setTitle = () => {
