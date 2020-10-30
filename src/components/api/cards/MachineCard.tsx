@@ -6,7 +6,8 @@ import { getTheme } from "themes";
 import { Text, TooltipHost } from "@fluentui/react";
 import { useId } from "@uifabric/react-hooks";
 import { getItem } from "api";
-import { RecipeLevel, timeUnits } from "types";
+import { RecipeLevel } from "types";
+import { timeUnits } from "utils";
 import { Link } from "components";
 
 interface BaseProps {

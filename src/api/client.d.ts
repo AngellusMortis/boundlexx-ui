@@ -214,7 +214,11 @@ declare namespace Components {
         }
         export interface ItemRequestBasketPrice {
             time: string; // date-time
-            location: string;
+            location: {
+                x: number;
+                y: number;
+                z: number;
+            };
             world: {
                 id: number;
             };
@@ -257,7 +261,11 @@ declare namespace Components {
         }
         export interface ItemShopStandPrice {
             time: string; // date-time
-            location: string;
+            location: {
+                x: number;
+                y: number;
+                z: number;
+            };
             world: {
                 id: number;
             };
@@ -537,6 +545,7 @@ declare namespace Components {
             } | null;
             next_request_basket_update: string | null; // date-time
             next_shop_stand_update: string | null; // date-time
+            atlas_image_url: string | null; // binary
         }
         export interface WorldBlockColor {
             item: {
@@ -763,7 +772,11 @@ declare namespace Components {
         }
         export interface WorldRequestBasketPrice {
             time: string; // date-time
-            location: string;
+            location: {
+                x: number;
+                y: number;
+                z: number;
+            };
             item: {
                 game_id: number;
             };
@@ -777,7 +790,11 @@ declare namespace Components {
         }
         export interface WorldShopStandPrice {
             time: string; // date-time
-            location: string;
+            location: {
+                x: number;
+                y: number;
+                z: number;
+            };
             item: {
                 game_id: number;
             };

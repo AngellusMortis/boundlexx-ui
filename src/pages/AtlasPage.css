@@ -1,0 +1,7 @@
+.atlas img.emoji {
+    max-width: 25px;
+}
+
+.atlas img.leaflet-image-layer {
+    image-rendering: pixelated;
+}

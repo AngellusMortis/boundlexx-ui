@@ -2,7 +2,7 @@ import React from "react";
 import { withTranslation, WithTranslation } from "react-i18next";
 import { TooltipHost, Text, FontIcon } from "@fluentui/react";
 import { useId } from "@uifabric/react-hooks";
-import { timeUnits } from "types";
+import { timeUnits } from "utils";
 
 interface BaseProps {
     date: Date;

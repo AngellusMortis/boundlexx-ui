@@ -345,10 +345,15 @@ class Page extends React.Component<Props> {
                                 )}`}
                             </Text>
                             {this.state.world.forum_url !== null && (
-                                <Text variant="medium">
+                                <Text variant="medium" style={{ margin: "0 20px" }}>
                                     <Link target="_blank" href={this.state.world.forum_url}>
                                         {this.props.t("Forum Post")}
                                     </Link>
+                                </Text>
+                            )}
+                            {this.state.world.atlas_image_url !== null && (
+                                <Text variant="medium" style={{ margin: "0 20px" }}>
+                                    <Link href={`/atlas/${this.state.world.id}/`}>{this.props.t("World Atlas")}</Link>
                                 </Text>
                             )}
                         </h2>

@@ -6,3 +6,8 @@
 .api-card .ms-CardSection > :not(:first-child) {
     margin-top: 0;
 }
+
+.atlas-control {
+    padding: 5px;
+    background-color: #f4f4f4;
+}

@@ -1,5 +1,17 @@
 [
     {
+        "date": "2020-10-30T16:05:00.000Z",
+        "changelogs": ["Adds toast notifications and update modal to Atlas page"]
+    },
+    {
+        "date": "2020-10-30T15:50:00.000Z",
+        "changelogs": ["Adds shops to Atlas map", "Makes Atlas map not blurry at high zoom levels"]
+    },
+    {
+        "date": "2020-10-29T22:30:00.000Z",
+        "changelogs": ["Adds Atlas images as interactive map", "Adds more Italian translations"]
+    },
+    {
         "date": "2020-10-26T17:20:00.000Z",
         "changelogs": ["Attempts to fix media query event for Safari <14"]
     },
