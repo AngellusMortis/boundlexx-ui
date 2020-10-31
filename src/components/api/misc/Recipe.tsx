@@ -8,7 +8,7 @@ import { connect, ConnectedProps } from "react-redux";
 import { Client as BoundlexxClient, Components } from "api/client";
 import * as api from "api";
 import { getTheme } from "themes";
-import { ItemCard, RecipeGroupCard, SkillRequirement, MachineCard, MachineInline } from "components";
+import { ItemCard, RecipeGroupCard, SkillRequirement, MachineCard, MachineInline, ItemInline } from "components";
 import { RecipeLevel } from "types";
 import { Scrollbar } from "react-scrollbars-custom";
 import { Trans } from "react-i18next";
@@ -101,7 +101,7 @@ class Component extends React.Component<Props> {
                         <Text variant="medium">
                             <Trans
                                 i18nKey="Can also be crafted in MACHINE"
-                                components={[<MachineInline machine={machine} />]}
+                                components={[<MachineInline key="machine" machine={machine} />]}
                             />
                         </Text>
                     </div>
@@ -365,6 +365,43 @@ class Component extends React.Component<Props> {
                     <Stack>
                         <Text variant="medium">
                             <strong>{this.props.t("Power")}:</strong> {recipe.power}
+                        </Text>
+                    </Stack>
+                )}
+                {recipe.tints.length > 0 && (
+                    <Stack>
+                        <Text variant="medium">
+                            <strong>{this.props.t("Tint from")}:</strong>{" "}
+                            {recipe.tints
+                                .map<React.ReactNode>((item) => {
+                                    const theItem = api.getItem(item.game_id);
+
+                                    if (theItem === undefined) {
+                                        return "";
+                                    }
+
+                                    return <ItemInline key={`item-${theItem.game_id}`} item={theItem} />;
+                                })
+                                .filter((item) => {
+                                    return item !== "";
+                                })
+                                .reduce((prev, curr) => [prev, ", ", curr])}
+                        </Text>
+                    </Stack>
+                )}
+                {recipe.required_event && (
+                    <Stack>
+                        <Text variant="medium">
+                            <strong>{this.props.t("Requires Event")}:</strong>{" "}
+                            {this.props.t(api.EventNameMap[recipe.required_event])}
+                        </Text>
+                    </Stack>
+                )}
+                {recipe.required_backer_tier && (
+                    <Stack>
+                        <Text variant="medium">
+                            <strong>{this.props.t("Requires Backer Tier")}:</strong>{" "}
+                            {this.props.t(api.BackerTierMap[recipe.required_backer_tier])}
                         </Text>
                     </Stack>
                 )}

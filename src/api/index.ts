@@ -14,6 +14,8 @@ export {
     getSpecialType,
     PointsToLevelsMap,
     MachineToItemMap,
+    EventNameMap,
+    BackerTierMap,
 } from "api/data";
 export {
     config,

@@ -11,6 +11,9 @@ import {
     Text,
     Image,
     TooltipHost,
+    AnimationClassNames,
+    Stack,
+    IconButton,
 } from "@fluentui/react";
 import "react-toastify/dist/ReactToastify.css";
 import { withTranslation, WithTranslation } from "react-i18next";
@@ -23,7 +26,7 @@ import { getTheme } from "themes";
 import { NumberDict, StringDict } from "types";
 import { withRouter, RouteComponentProps } from "react-router-dom";
 import { Link } from "components";
-import "./BlockColors.css";
+import "components/api/display/APIDisplay.css";
 
 interface BaseProps {
     worldID: number;
@@ -32,6 +35,7 @@ interface BaseProps {
 }
 
 interface State {
+    collapsed: boolean;
     loaded: boolean;
     currentColors: Components.Schemas.WorldBlockColor[];
     defaultColors: Components.Schemas.WorldBlockColor[];
@@ -116,6 +120,7 @@ class Component extends React.Component<Props> {
     iconId = 0;
 
     state: State = {
+        collapsed: true,
         loaded: false,
         currentColors: [],
         defaultColors: [],
@@ -462,11 +467,15 @@ class Component extends React.Component<Props> {
                 name: name,
                 children: childrenGroups,
                 count: colors.length,
-                isCollapsed: true,
+                isCollapsed: false,
                 level: 0,
                 startIndex: startIndex,
             });
         }
+    };
+
+    toggleCollapse = (): void => {
+        this.setState({ collapsed: !this.state.collapsed });
     };
 
     render = (): string | JSX.Element => {
@@ -497,19 +506,67 @@ class Component extends React.Component<Props> {
             this.createGroup(this.state.defaultColors, blockColors, colorGroups, "default-colors", "Default Colors");
             this.createGroup(this.state.currentColors, blockColors, colorGroups, "current-colors", "Current Colors");
 
+            let resultsClass = "results";
+            if (this.state.collapsed) {
+                resultsClass += " collapsed " + (AnimationClassNames.slideUpIn20 || "");
+            } else {
+                resultsClass += " " + (AnimationClassNames.slideDownIn20 || "");
+            }
+
             return (
-                <div>
-                    <h3 style={{ color: theme.palette.themePrimary }}>{this.props.t("Block Colors")}</h3>
-                    <GroupedList
-                        className="block-colors"
-                        compact={true}
-                        items={blockColors}
-                        onRenderCell={this.onRenderColors}
-                        selectionMode={SelectionMode.none}
-                        groups={colorGroups}
-                        groupProps={{ onRenderHeader: this.onRenderHeader }}
-                    />
-                </div>
+                <Stack
+                    horizontalAlign={"center"}
+                    styles={{ root: { width: "98vw", textAlign: "left", marginBottom: 20 } }}
+                    className="api-display"
+                >
+                    <Stack.Item
+                        styles={{
+                            root: {
+                                display: "flex",
+                                flexWrap: "wrap",
+                                justifyContent: "space-between",
+                                alignContent: "center",
+                                verticalAlign: "middle",
+                                width: "100%",
+                                paddingBottom: 10,
+                                borderBottom: `${theme.palette.themePrimary} 1px solid`,
+                            },
+                        }}
+                    >
+                        <h2 style={{ display: "inline-flex", margin: "0 20px" }}>
+                            <IconButton
+                                className={this.state.collapsed ? "" : "expand"}
+                                id="collapse-results-button"
+                                iconProps={{ iconName: "ChevronRightMed" }}
+                                style={{ marginRight: 10 }}
+                                onClick={this.toggleCollapse}
+                                ariaLabel="expand collapse group"
+                                aria-expanded={this.state.collapsed ? "false" : "true"}
+                            ></IconButton>
+                            {this.props.t("Block Colors")}
+                        </h2>
+                    </Stack.Item>
+                    <Stack.Item
+                        className={resultsClass}
+                        styles={{
+                            root: {
+                                position: "relative",
+                                height: "100%",
+                                width: "100%",
+                            },
+                        }}
+                    >
+                        <GroupedList
+                            className="block-colors"
+                            compact={true}
+                            items={blockColors}
+                            onRenderCell={this.onRenderColors}
+                            selectionMode={SelectionMode.none}
+                            groups={colorGroups}
+                            groupProps={{ onRenderHeader: this.onRenderHeader }}
+                        />
+                    </Stack.Item>
+                </Stack>
             );
         }
 

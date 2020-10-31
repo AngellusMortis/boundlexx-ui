@@ -896,6 +896,21 @@ export abstract class APIDisplay extends React.Component<APIDisplayProps> {
         });
     };
 
+    requiredFilteredPassed = (): boolean => {
+        if (this.props.extraFilterKeys !== undefined && this.state.hasRequiredFilters) {
+            const currentFilters: StringDict<string> = this.state.filters.extraFilters || {};
+
+            for (let index = 0; index < this.props.extraFilterKeys.length; index++) {
+                const filter = this.props.extraFilterKeys[index];
+
+                if (filter.required && !(filter.name in currentFilters)) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    };
+
     // TODO:
     // eslint-disable-next-line
     getData = async (): Promise<void> => {
@@ -910,16 +925,8 @@ export abstract class APIDisplay extends React.Component<APIDisplayProps> {
                 return false;
             }
 
-            if (this.props.extraFilterKeys !== undefined && this.state.hasRequiredFilters) {
-                const currentFilters: StringDict<string> = this.state.filters.extraFilters || {};
-
-                for (let index = 0; index < this.props.extraFilterKeys.length; index++) {
-                    const filter = this.props.extraFilterKeys[index];
-
-                    if (filter.required && !(filter.name in currentFilters)) {
-                        return false;
-                    }
-                }
+            if (!this.requiredFilteredPassed()) {
+                return false;
             }
 
             // add placeholder cards

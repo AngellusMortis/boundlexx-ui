@@ -3,26 +3,14 @@ import { RootState } from "store";
 import { connect } from "react-redux";
 import { withTranslation } from "react-i18next";
 import * as api from "api";
-import { APIDisplay, mapNumericStoreToItems, APIDisplayProps } from "./APIDisplay";
+import { mapNumericStoreToItems, APIDisplayProps } from "./APIDisplay";
+import { APIListDisplay } from "./APIListDisplay";
 import { Components } from "api/client";
 import { getTheme } from "themes";
 import { changeShowGroups } from "prefs/actions";
 import { StringDict } from "types";
 import { ResourceItemSelector } from "components";
-import {
-    IColumn,
-    Stack,
-    Image,
-    ImageFit,
-    DetailsList,
-    SelectionMode,
-    DetailsListLayoutMode,
-    FontIcon,
-    Spinner,
-    SpinnerSize,
-    Link,
-    LinkBase,
-} from "@fluentui/react";
+import { IColumn, Stack, Image, ImageFit, FontIcon, Link, LinkBase } from "@fluentui/react";
 import { withRouter } from "react-router-dom";
 
 const mapState = (state: RootState) => ({
@@ -92,7 +80,7 @@ function copyAndSort(
     });
 }
 
-class Resources extends APIDisplay {
+class Resources extends APIListDisplay {
     constructor(props: APIDisplayProps) {
         super(props);
 
@@ -394,40 +382,6 @@ class Resources extends APIDisplay {
         }
 
         return item.world.id.toString();
-    };
-
-    renderItems = (): string | JSX.Element => {
-        const filters: StringDict<string> = this.state.filters.extraFilters || {};
-
-        if (filters["item__game_id"] === undefined) {
-            return "";
-        }
-
-        if (this.state.loading || this.hasMore()) {
-            return (
-                <Spinner
-                    size={SpinnerSize.large}
-                    style={{ height: "50vh" }}
-                    label={this.props.t("Loading Resources...")}
-                    ariaLive="assertive"
-                />
-            );
-        }
-
-        return (
-            <DetailsList
-                styles={{ root: { width: "100%" } }}
-                items={this.state.results.items}
-                compact={true}
-                columns={this.state.columns || this.getDefaultColumns()}
-                selectionMode={SelectionMode.none}
-                getKey={this.getKey}
-                setKey="multiple"
-                layoutMode={DetailsListLayoutMode.justified}
-                isHeaderVisible={true}
-                enterModalSelectionOnTouch={true}
-            />
-        );
     };
 }
 

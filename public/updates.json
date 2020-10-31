@@ -1,5 +1,13 @@
 [
     {
+        "date": "",
+        "changelogs": ["Updates Block Colors and Resources sections on World Details to match Item Details"]
+    },
+    {
+        "date": "2020-10-31T04:37:00.000Z",
+        "changelogs": ["Adds missing recipe data for tints, required event and required backer tier"]
+    },
+    {
         "date": "2020-10-31T01:20:00.000Z",
         "changelogs": ["Fixes order of coords in bottom corner"]
     },
