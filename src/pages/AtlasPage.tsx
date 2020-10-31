@@ -21,9 +21,7 @@ import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import "react-leaflet-markercluster/dist/styles.min.css";
 import MarkerClusterGroup from "react-leaflet-markercluster";
-// eslint-disable-next-line
-// @ts-ignore
-import { CoordinatesControl } from "react-leaflet-coordinates";
+import { getTheme, setTheme, isDark } from "themes";
 
 /* get all of the Leaflet markers to load correctly */
 // eslint-disable-next-line
@@ -58,6 +56,7 @@ interface State {
 const mapState = (state: RootState) => ({
     worlds: state.worlds,
     skills: state.skills,
+    theme: state.prefs.theme,
 });
 
 const connector = connect(mapState);
@@ -103,6 +102,8 @@ class Page extends React.Component<Props> {
     }
 
     componentDidMount = async () => {
+        setTheme(this.props.theme);
+
         this.mounted = true;
         this.client = await api.getClient();
 
@@ -283,6 +284,16 @@ class Page extends React.Component<Props> {
         );
     };
 
+    onMouseMove = (event: L.LeafletMouseEvent) => {
+        const coordsContainer = document.querySelector("#coords-container");
+
+        if (coordsContainer === null) {
+            return;
+        }
+
+        coordsContainer.innerHTML = this.getGameCoords(event.latlng.lng, event.latlng.lat);
+    };
+
     renderBeaconName = (beaconName: string, guildTag: string) => {
         return (
             <span>
@@ -296,21 +307,67 @@ class Page extends React.Component<Props> {
         );
     };
 
-    renderShopStand = (
-        shop: Components.Schemas.WorldShopStandPrice | Components.Schemas.WorldRequestBasketPrice,
-    ): string | JSX.Element => {
-        return this.renderMarker(shop, "Shop Stand");
+    renderShopStand = (shop: Components.Schemas.WorldShopStandPrice): string | JSX.Element => {
+        return this.renderMarker(
+            shop,
+            "Shop Stand",
+            new L.Icon({
+                iconUrl: "https://cdn.boundlexx.app/images/shop_stand.png",
+                shadowUrl: "https://cdn.boundlexx.app/images/shop_standshadow.png",
+                shadowAnchor: [0, 0],
+                shadowSize: [45, 45],
+                iconSize: [40, 40],
+                iconAnchor: [0, 0],
+                popupAnchor: [20, 0],
+            }),
+        );
     };
 
-    renderRequestBasket = (
-        shop: Components.Schemas.WorldShopStandPrice | Components.Schemas.WorldRequestBasketPrice,
-    ): string | JSX.Element => {
-        return this.renderMarker(shop, "Request Basket");
+    renderRequestBasket = (shop: Components.Schemas.WorldRequestBasketPrice): string | JSX.Element => {
+        return this.renderMarker(
+            shop,
+            "Request Basket",
+            new L.Icon({
+                iconUrl: "https://cdn.boundlexx.app/images/request_basket.png",
+                shadowUrl: "https://cdn.boundlexx.app/images/request_basketshadow.png",
+                shadowAnchor: [0, 0],
+                shadowSize: [45, 45],
+                iconSize: [40, 40],
+                iconAnchor: [0, 0],
+                popupAnchor: [20, 0],
+            }),
+        );
+    };
+
+    getGameCoords = (x: number | undefined, z: number | undefined, y?: number) => {
+        if (x === undefined || z === undefined) {
+            return "";
+        }
+
+        let directionX = "N";
+        let directionZ = "W";
+
+        if (x < 0) {
+            directionX = "S";
+        }
+
+        if (z < 0) {
+            directionZ = "E";
+        }
+
+        if (y === undefined) {
+            return `${Math.floor(x).toLocaleString()}${directionX} ${Math.floor(z).toLocaleString()}${directionZ}`;
+        }
+
+        return `${Math.floor(x).toLocaleString()}${directionX} ${Math.floor(
+            z,
+        ).toLocaleString()}${directionZ} (Altitude: ${y})`;
     };
 
     renderMarker = (
         shop: Components.Schemas.WorldShopStandPrice | Components.Schemas.WorldRequestBasketPrice,
         type: string,
+        icon: L.Icon,
     ): string | JSX.Element => {
         const item = api.getItem(shop.item.game_id);
 
@@ -319,7 +376,7 @@ class Page extends React.Component<Props> {
         }
 
         return (
-            <Marker key={`marker-${++this.markerID}`} position={[shop.location.z, shop.location.x]}>
+            <Marker key={`marker-${++this.markerID}`} position={[shop.location.z, shop.location.x]} icon={icon}>
                 <Popup>
                     <Text block>
                         <strong>{item.localization[0].name}</strong>
@@ -344,11 +401,46 @@ class Page extends React.Component<Props> {
                     </Text>
                     <Text block>
                         <strong>{this.props.t("Location")}</strong>:{" "}
-                        {`(${shop.location.x}, ${shop.location.z}) Alt: ${shop.location.y}`}
+                        {this.getGameCoords(shop.location.x, shop.location.z, shop.location.y)}
                     </Text>
                 </Popup>
             </Marker>
         );
+    };
+
+    createShopStandCluster = (cluster: L.MarkerCluster) => {
+        return this.createClusterIcon(
+            cluster,
+            "https://cdn.boundlexx.app/images/shop_stand.png",
+            "https://cdn.boundlexx.app/images/shop_standshadow.png",
+        );
+    };
+
+    createRequestBasketCluster = (cluster: L.MarkerCluster) => {
+        return this.createClusterIcon(
+            cluster,
+            "https://cdn.boundlexx.app/images/request_basket.png",
+            "https://cdn.boundlexx.app/images/request_basketshadow.png",
+        );
+    };
+
+    createClusterIcon = (cluster: L.MarkerCluster, iconURL: string, shadowURL: string) => {
+        const childCount = cluster.getChildCount();
+
+        let c = "";
+        if (childCount < 10) {
+            c += "small";
+        } else if (childCount < 100) {
+            c += "medium";
+        } else {
+            c += "large";
+        }
+
+        return new L.DivIcon({
+            html: `<div><img class="icon" src="${iconURL}"><img class="shadow" src="${shadowURL}"><span>${childCount}</span></div>`,
+            className: `shop-cluster ${c}`,
+            iconSize: new L.Point(40, 40),
+        });
     };
 
     renderMap = () => {
@@ -359,10 +451,11 @@ class Page extends React.Component<Props> {
 
         const bounds: LatLngBounds = this.getBounds();
         const maxBounds: LatLngBounds = this.getBounds(true);
+        const theme = getTheme();
 
         return (
             <div
-                className="atlas"
+                className={`atlas${isDark(this.props.theme) ? " dark" : ""}`}
                 style={{
                     width: "100vw",
                     height: "100vh",
@@ -381,41 +474,54 @@ class Page extends React.Component<Props> {
                     zoom={this.initialViewport.zoom || 0}
                     style={{ height: "100%", width: "100%" }}
                     onViewportChanged={this.onViewportChanged}
+                    onmousemove={this.onMouseMove}
                 >
                     <ImageOverlay url={this.state.world.atlas_image_url} bounds={bounds}></ImageOverlay>
                     <Control position="topleft">
-                        <div className="atlas-control">
+                        <div className="atlas-control" style={{ backgroundColor: theme.palette.white }}>
                             <Link href={`/worlds/${this.state.world.id}/`}>
-                                <Trans
-                                    i18nKey="Back to WORLD"
-                                    components={[
-                                        <span
-                                            key="world-link"
-                                            dangerouslySetInnerHTML={{
-                                                __html: this.state.world.html_name || this.state.world.display_name,
-                                            }}
-                                        ></span>,
-                                    ]}
-                                />
+                                <span style={{ color: theme.palette.themePrimary }}>
+                                    <Trans
+                                        i18nKey="Back to WORLD"
+                                        components={[
+                                            <span
+                                                key="world-link"
+                                                dangerouslySetInnerHTML={{
+                                                    __html: this.state.world.html_name || this.state.world.display_name,
+                                                }}
+                                            ></span>,
+                                        ]}
+                                    />
+                                </span>
                             </Link>
                         </div>
                     </Control>
                     <ZoomControl position="topleft" />
                     <LayersControl position="topleft">
                         <LayersControl.Overlay name={this.props.t("Shop Stand_plural")} checked>
-                            <MarkerClusterGroup disableClusteringAtZoom={5}>
+                            <MarkerClusterGroup
+                                disableClusteringAtZoom={5}
+                                iconCreateFunction={this.createShopStandCluster}
+                            >
                                 {this.state.shopStands !== null &&
                                     this.state.shopStands.items.map(this.renderShopStand)}
                             </MarkerClusterGroup>
                         </LayersControl.Overlay>
                         <LayersControl.Overlay name={this.props.t("Request Basket_plural")} checked>
-                            <MarkerClusterGroup disableClusteringAtZoom={5}>
+                            <MarkerClusterGroup
+                                disableClusteringAtZoom={5}
+                                iconCreateFunction={this.createRequestBasketCluster}
+                            >
                                 {this.state.requestBaskets !== null &&
                                     this.state.requestBaskets.items.map(this.renderRequestBasket)}
                             </MarkerClusterGroup>
                         </LayersControl.Overlay>
                     </LayersControl>
-                    <CoordinatesControl position="bottomleft" coordinates="decimal" />
+                    <Control position="bottomleft">
+                        <div className="atlas-control" style={{ backgroundColor: theme.palette.white }}>
+                            <Text id="coords-container"> </Text>
+                        </div>
+                    </Control>
                 </Map>
                 <ToastContainer
                     position="top-right"

@@ -5,3 +5,74 @@
 .atlas img.leaflet-image-layer {
     image-rendering: pixelated;
 }
+
+.atlas .shop-cluster img.icon {
+    position: relative;
+    width: 40px;
+    z-index: 10;
+}
+
+.atlas .shop-cluster img.shadow {
+    position: absolute;
+    left: 0;
+    z-index: 9;
+    width: 45px;
+}
+
+.atlas .shop-cluster div {
+    position: relative;
+}
+
+.atlas .shop-cluster span {
+    position: absolute;
+    bottom: 0;
+    right: -4px;
+    padding: 5px;
+    border-radius: 50%;
+    z-index: 11;
+}
+
+.atlas-control {
+    padding: 5px;
+}
+
+.atlas .shop-cluster.small span {
+    background-color: rgba(181, 226, 140, 0.6);
+}
+
+.atlas .shop-cluster.medium span {
+    background-color: rgba(241, 211, 87, 0.6);
+}
+
+.atlas .shop-cluster.large span {
+    background-color: rgba(253, 156, 115, 0.6);
+}
+
+.atlas .leaflet-oldie .shop-cluster.small span {
+    background-color: #b5e28c;
+}
+
+.atlas .leaflet-oldie .shop-cluster.medium span {
+    background-color: #f1d357;
+}
+
+.atlas .leaflet-oldie .shop-cluster.large span {
+    background-color: #fd9c73;
+}
+
+.atlas.dark .leaflet-control .leaflet-disabled {
+    background-color: #37373b;
+}
+
+.atlas.dark .leaflet-control,
+.atlas.dark .leaflet-control .leaflet-control-zoom-in,
+.atlas.dark .leaflet-control .leaflet-control-zoom-out,
+.atlas.dark .leaflet-popup-content-wrapper,
+.atlas.dark .leaflet-popup-tip {
+    background-color: #18181a;
+    color: #f8f8f8;
+}
+
+.atlas .leaflet-popup-content strong {
+    color: #ec375e;
+}

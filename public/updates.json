@@ -1,5 +1,13 @@
 [
     {
+        "date": "2020-10-31T01:20:00.000Z",
+        "changelogs": ["Fixes order of coords in bottom corner"]
+    },
+    {
+        "date": "2020-10-31T01:15:00.000Z",
+        "changelogs": ["Replaces default map markers with Boundless ones", "Fixes coords everything to mirror how coords in game appears", "Theming for Atlas map"]
+    },
+    {
         "date": "2020-10-30T16:05:00.000Z",
         "changelogs": ["Adds toast notifications and update modal to Atlas page"]
     },
