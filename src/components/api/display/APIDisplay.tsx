@@ -20,6 +20,7 @@ import {
     Spinner,
     SpinnerSize,
     AnimationClassNames,
+    Image,
 } from "@fluentui/react";
 import "./APIDisplay.css";
 import { WithTranslation } from "react-i18next";
@@ -75,9 +76,10 @@ interface BaseProps {
     showGroups: boolean;
     allowSearch?: boolean;
     title?: string;
+    titleIcon?: string;
     maxWidth?: number;
-    hideIfEmpty?: boolean;
     collapsible?: boolean;
+    extra?: unknown;
 
     changeShowGroups: (showGroups: boolean) => unknown;
     updateItems?: api.updateGeneric;
@@ -653,6 +655,15 @@ export abstract class APIDisplay extends React.Component<APIDisplayProps> {
         return name;
     };
 
+    renderTitle = (): string | JSX.Element => {
+        return (
+            <span>
+                {this.props.titleIcon !== undefined && <Image className="title-icon" src={this.props.titleIcon} />}
+                <span style={{ display: "inline-block" }}>{this.getTitle("_plural")}</span>
+            </span>
+        );
+    };
+
     callOperation = async (params: APIParams[], operationID?: string): Promise<AxiosResponse> => {
         if (this.client === null) {
             this.client = await api.getClient();
@@ -915,8 +926,8 @@ export abstract class APIDisplay extends React.Component<APIDisplayProps> {
     // eslint-disable-next-line
     getData = async (): Promise<void> => {
         const canLoad = await lock.runExclusive(async () => {
-            // do not double load
-            if (this.state.loading) {
+            // do not double load or load data before user requests it
+            if (this.state.loading || this.state.collapsed) {
                 return false;
             }
 
@@ -1109,7 +1120,12 @@ export abstract class APIDisplay extends React.Component<APIDisplayProps> {
     };
 
     toggleCollapse = (): void => {
-        this.setState({ collapsed: !this.state.collapsed });
+        const collapsed = !this.state.collapsed;
+        this.setState({ collapsed: collapsed }, () => {
+            if (!collapsed) {
+                this.getData();
+            }
+        });
     };
 
     renderCollapse = (): string | JSX.Element => {
@@ -1181,7 +1197,7 @@ export abstract class APIDisplay extends React.Component<APIDisplayProps> {
         if (this.state.error) {
             return (
                 <Stack horizontalAlign={"center"}>
-                    <h2>{this.getTitle("_plural")}</h2>
+                    <h2>{this.renderTitle()}</h2>
                     <Text>
                         {this.props.t("Error:")} {this.state.error.message}
                     </Text>
@@ -1193,7 +1209,7 @@ export abstract class APIDisplay extends React.Component<APIDisplayProps> {
         if (!this.state.requiredDataLoaded) {
             return (
                 <Stack horizontalAlign={"center"}>
-                    <h2>{this.getTitle("_plural")}</h2>
+                    <h2>{this.renderTitle()}</h2>
                     <Spinner
                         size={SpinnerSize.large}
                         style={{ height: "50vh" }}
@@ -1202,10 +1218,6 @@ export abstract class APIDisplay extends React.Component<APIDisplayProps> {
                     />
                 </Stack>
             );
-        }
-
-        if (this.props.hideIfEmpty && this.state.results.count === 0) {
-            return "";
         }
 
         let resultsClass = "results";
@@ -1235,9 +1247,9 @@ export abstract class APIDisplay extends React.Component<APIDisplayProps> {
                         },
                     }}
                 >
-                    <h2 style={{ display: "inline-flex", margin: "0 20px" }}>
+                    <h2 style={{ display: "table-cell", margin: "0 20px", width: 250, verticalAlign: "middle" }}>
                         {this.renderCollapse()}
-                        {this.getTitle("_plural")}
+                        {this.renderTitle()}
                     </h2>
                     {this.renderResultsHeader()}
                     <div

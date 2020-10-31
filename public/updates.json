@@ -1,7 +1,10 @@
 [
     {
-        "date": "",
-        "changelogs": ["Updates Block Colors and Resources sections on World Details to match Item Details"]
+        "date": "2020-10-31T07:32:00.000Z",
+        "changelogs": [
+            "Updates Block Colors and Resources sections on World Details to match Item Details",
+            "Adds Shop data to Item/World Details pages"
+        ]
     },
     {
         "date": "2020-10-31T04:37:00.000Z",
@@ -13,7 +16,11 @@
     },
     {
         "date": "2020-10-31T01:15:00.000Z",
-        "changelogs": ["Replaces default map markers with Boundless ones", "Fixes coords everything to mirror how coords in game appears", "Theming for Atlas map"]
+        "changelogs": [
+            "Replaces default map markers with Boundless ones",
+            "Fixes coords everything to mirror how coords in game appears",
+            "Theming for Atlas map"
+        ]
     },
     {
         "date": "2020-10-30T16:05:00.000Z",
@@ -21,11 +28,17 @@
     },
     {
         "date": "2020-10-30T15:50:00.000Z",
-        "changelogs": ["Adds shops to Atlas map", "Makes Atlas map not blurry at high zoom levels"]
+        "changelogs": [
+            "Adds shops to Atlas map",
+            "Makes Atlas map not blurry at high zoom levels"
+        ]
     },
     {
         "date": "2020-10-29T22:30:00.000Z",
-        "changelogs": ["Adds Atlas images as interactive map", "Adds more Italian translations"]
+        "changelogs": [
+            "Adds Atlas images as interactive map",
+            "Adds more Italian translations"
+        ]
     },
     {
         "date": "2020-10-26T17:20:00.000Z",
@@ -41,7 +54,10 @@
     },
     {
         "date": "2020-10-26T14:25:00.000Z",
-        "changelogs": ["Fixes update modal when content overflows", "Adds 'Reset Data' button"]
+        "changelogs": [
+            "Fixes update modal when content overflows",
+            "Adds 'Reset Data' button"
+    ]
     },
     {
         "date": "2020-10-26T04:40:00.000Z",
@@ -61,11 +77,18 @@
     },
     {
         "date": "2020-10-26T03:55:00.000Z",
-        "changelogs": ["Fixes Emoji copy to clipboard", "Adds Color formating codes to Color Cards", "Adds Color formatting copy to clipboard"]
+        "changelogs": [
+            "Fixes Emoji copy to clipboard",
+            "Adds Color formating codes to Color Cards",
+            "Adds Color formatting copy to clipboard"
+        ]
     },
     {
         "date": "2020-10-26T03:30:00.000Z",
-        "changelogs": ["Adds item details page.", "Adds custom scrollbars."]
+        "changelogs": [
+            "Adds item details page.",
+            "Adds custom scrollbars."
+        ]
     },
     {
         "date": "2020-10-25T18:00:00.000Z",
@@ -81,11 +104,20 @@
     },
     {
         "date": "2020-10-20T03:20:00.000Z",
-        "changelogs": ["Adds 'Find By Color' world API view", "Adds 'By Resource' item API view", "Adds 'Find Color' item API view", "Adds 'Find By Color' color API view", "Adds 'Sovereign' color API view"]
+        "changelogs": [
+            "Adds 'Find By Color' world API view",
+            "Adds 'By Resource' item API view",
+            "Adds 'Find Color' item API view",
+            "Adds 'Find By Color' color API view",
+            "Adds 'Sovereign' color API view"
+        ]
     },
     {
         "date": "2020-10-19T14:00:00.000Z",
-        "changelogs": ["Fixes going to world details page", "Changes World cards so they be used as links as well"]
+        "changelogs": [
+            "Fixes going to world details page",
+            "Changes World cards so they be used as links as well"
+        ]
     },
     {
         "date": "2020-10-19T13:30:00.000Z",
@@ -97,7 +129,10 @@
     },
     {
         "date": "2020-10-11T18:00:00.000Z",
-        "changelogs": ["Fixes rendering issues with Show Groups.", "Adds groups for Worlds Display page"]
+        "changelogs": [
+            "Fixes rendering issues with Show Groups.",
+            "Adds groups for Worlds Display page"
+        ]
     },
     {
         "date": "2020-10-11T16:35:00.000Z",
@@ -132,6 +167,9 @@
     },
     {
         "date": "2020-10-10T02:00:00.000Z",
-        "changelogs": ["Adds patch notes to updates", "Adds filtering to pages"]
+        "changelogs": [
+            "Adds patch notes to updates",
+            "Adds filtering to pages"
+        ]
     }
 ]

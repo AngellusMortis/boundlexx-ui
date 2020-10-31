@@ -22,6 +22,7 @@ import "leaflet/dist/leaflet.css";
 import "react-leaflet-markercluster/dist/styles.min.css";
 import MarkerClusterGroup from "react-leaflet-markercluster";
 import { getTheme, setTheme, isDark } from "themes";
+import { getGameCoords } from "utils";
 
 /* get all of the Leaflet markers to load correctly */
 // eslint-disable-next-line
@@ -95,7 +96,7 @@ class Page extends React.Component<Props> {
             const zoom = parseInt(zoomString);
 
             if (!isNaN(x) && !isNaN(z) && !isNaN(zoom)) {
-                this.initialViewport.center = [x, z];
+                this.initialViewport.center = [z, x];
                 this.initialViewport.zoom = zoom;
             }
         }
@@ -270,8 +271,8 @@ class Page extends React.Component<Props> {
         }
 
         const params: StringDict<string> = {
-            x: viewport.center[0].toString(),
-            z: viewport.center[1].toString(),
+            x: viewport.center[1].toString(),
+            z: viewport.center[0].toString(),
             zoom: viewport.zoom.toString(),
         };
 
@@ -291,7 +292,7 @@ class Page extends React.Component<Props> {
             return;
         }
 
-        coordsContainer.innerHTML = this.getGameCoords(event.latlng.lng, event.latlng.lat);
+        coordsContainer.innerHTML = getGameCoords(event.latlng.lng, event.latlng.lat);
     };
 
     renderBeaconName = (beaconName: string, guildTag: string) => {
@@ -339,31 +340,6 @@ class Page extends React.Component<Props> {
         );
     };
 
-    getGameCoords = (x: number | undefined, z: number | undefined, y?: number) => {
-        if (x === undefined || z === undefined) {
-            return "";
-        }
-
-        let directionX = "N";
-        let directionZ = "W";
-
-        if (x < 0) {
-            directionX = "S";
-        }
-
-        if (z < 0) {
-            directionZ = "E";
-        }
-
-        if (y === undefined) {
-            return `${Math.floor(x).toLocaleString()}${directionX} ${Math.floor(z).toLocaleString()}${directionZ}`;
-        }
-
-        return `${Math.floor(x).toLocaleString()}${directionX} ${Math.floor(
-            z,
-        ).toLocaleString()}${directionZ} (Altitude: ${y})`;
-    };
-
     renderMarker = (
         shop: Components.Schemas.WorldShopStandPrice | Components.Schemas.WorldRequestBasketPrice,
         type: string,
@@ -401,7 +377,7 @@ class Page extends React.Component<Props> {
                     </Text>
                     <Text block>
                         <strong>{this.props.t("Location")}</strong>:{" "}
-                        {this.getGameCoords(shop.location.x, shop.location.z, shop.location.y)}
+                        {getGameCoords(shop.location.x, shop.location.z, shop.location.y)}
                     </Text>
                 </Popup>
             </Marker>

@@ -3,7 +3,15 @@ import { withTranslation, WithTranslation } from "react-i18next";
 import * as api from "api";
 import { Client as BoundlexxClient, Components } from "api/client";
 import { Image, Stack, Text, Spinner, SpinnerSize, Link, IStackTokens } from "@fluentui/react";
-import { AtmosphereInline, NotFound, Time, BlockColors, WorldResources } from "components";
+import {
+    AtmosphereInline,
+    NotFound,
+    Time,
+    BlockColors,
+    WorldResources,
+    WorldShopStandsDisplay,
+    WorldRequestBasketsDisplay,
+} from "components";
 import { getTheme } from "themes";
 import { RootState } from "store";
 import { connect, ConnectedProps } from "react-redux";
@@ -585,7 +593,31 @@ class Page extends React.Component<Props> {
                     />
                 )}
                 {!this.state.world.is_creative && (
-                    <WorldResources worldID={this.state.world.id} isExo={this.state.world.is_exo} />
+                    <div>
+                        <WorldResources worldID={this.state.world.id} isExo={this.state.world.is_exo} />
+                        <WorldShopStandsDisplay
+                            collapsible={true}
+                            extraDefaultFilters={[
+                                {
+                                    name: "id",
+                                    value: this.state.world.id,
+                                    in: "path",
+                                },
+                            ]}
+                            extra={this.state.world}
+                        />
+                        <WorldRequestBasketsDisplay
+                            collapsible={true}
+                            extraDefaultFilters={[
+                                {
+                                    name: "id",
+                                    value: this.state.world.id,
+                                    in: "path",
+                                },
+                            ]}
+                            extra={this.state.world}
+                        />
+                    </div>
                 )}
             </div>
         );

@@ -33,6 +33,17 @@
     display: none;
 }
 
+.api-display .title-icon {
+    display: inline-block;
+    position: relative;
+    top: 10px;
+}
+
+.api-display .title-icon img {
+    width: 32px;
+    margin: 0 5px;
+}
+
 @media (max-width: 600px) {
     .api-display .api-display-search {
         width: 100%;

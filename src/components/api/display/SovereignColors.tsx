@@ -20,7 +20,6 @@ const mapState = (state: RootState) => ({
     showGroups: state.prefs.showGroups,
     loadAll: true,
     allowSearch: false,
-    hideIfEmpty: true,
 });
 
 const mapDispatchToProps = { changeShowGroups };

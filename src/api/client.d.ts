@@ -422,6 +422,7 @@ declare namespace Components {
             is_public: boolean;
             is_public_edit: boolean;
             is_public_claim: boolean;
+            atlas_image_url: string | null; // binary
         }
         export interface Skill {
             id: number;

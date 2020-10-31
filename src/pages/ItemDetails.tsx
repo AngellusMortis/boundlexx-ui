@@ -3,7 +3,15 @@ import { withTranslation, WithTranslation } from "react-i18next";
 import * as api from "../api";
 import { Client as BoundlexxClient, Components } from "api/client";
 import { Image, Stack, Text, Spinner, SpinnerSize, IStackTokens } from "@fluentui/react";
-import { NotFound, Recipe, ItemInputsDisplay, SovereignColors, Link } from "components";
+import {
+    NotFound,
+    Recipe,
+    ItemInputsDisplay,
+    SovereignColors,
+    Link,
+    ItemShopStandDisplay,
+    ItemRequestBasketDisplay,
+} from "components";
 import { getTheme } from "themes";
 import { RootState } from "store";
 import { connect, ConnectedProps } from "react-redux";
@@ -275,16 +283,38 @@ class Page extends React.Component<Props> {
                     />
                 )}
                 {this.state.item !== undefined && (
-                    <ItemInputsDisplay
-                        collapsible={true}
-                        extraDefaultFilters={[
-                            {
-                                name: "input_id",
-                                value: this.state.item.game_id,
-                                in: "query",
-                            },
-                        ]}
-                    />
+                    <div>
+                        <ItemInputsDisplay
+                            collapsible={true}
+                            extraDefaultFilters={[
+                                {
+                                    name: "input_id",
+                                    value: this.state.item.game_id,
+                                    in: "query",
+                                },
+                            ]}
+                        />
+                        <ItemShopStandDisplay
+                            collapsible={true}
+                            extraDefaultFilters={[
+                                {
+                                    name: "game_id",
+                                    value: this.state.item.game_id,
+                                    in: "path",
+                                },
+                            ]}
+                        />
+                        <ItemRequestBasketDisplay
+                            collapsible={true}
+                            extraDefaultFilters={[
+                                {
+                                    name: "game_id",
+                                    value: this.state.item.game_id,
+                                    in: "path",
+                                },
+                            ]}
+                        />
+                    </div>
                 )}
             </div>
         );
