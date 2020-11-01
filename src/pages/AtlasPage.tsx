@@ -452,7 +452,11 @@ class Page extends React.Component<Props> {
                     onViewportChanged={this.onViewportChanged}
                     onmousemove={this.onMouseMove}
                 >
-                    <ImageOverlay url={this.state.world.atlas_image_url} bounds={bounds}></ImageOverlay>
+                    <ImageOverlay
+                        url={this.state.world.atlas_image_url}
+                        bounds={bounds}
+                        attribution={this.props.t("Boundlexx - Unofficial Boundless API")}
+                    ></ImageOverlay>
                     <Control position="topleft">
                         <div className="atlas-control" style={{ backgroundColor: theme.palette.white }}>
                             <Link href={`/worlds/${this.state.world.id}/`}>

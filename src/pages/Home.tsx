@@ -19,6 +19,7 @@ class Home extends React.Component<WithTranslation> {
                     width="300"
                     height="300"
                     className="logo"
+                    style={{ margin: "auto" }}
                 />
                 <h1>{boundlexx}</h1>
                 <h2>{page}</h2>
@@ -26,6 +27,11 @@ class Home extends React.Component<WithTranslation> {
                     <Link href={config.apiBase} target="_blank">
                         {this.props.t("API Documentation")}
                     </Link>
+                </Text>
+                <Text variant="large">
+                    {this.props.t(
+                        "Boundlexx is an unoffical API for the game Boundless. There is no affiliation with Wonderstuck Games",
+                    )}
                 </Text>
             </Stack>
         );

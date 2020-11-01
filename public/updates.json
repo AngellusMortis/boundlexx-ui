@@ -1,5 +1,11 @@
 [
     {
+        "date": "2020-11-01T13:32:00.000Z",
+        "changelogs": [
+            "Adds disclaimers for Boundlexx not being affiliated with Wonderstuck"
+        ]
+    },
+    {
         "date": "2020-10-31T07:32:00.000Z",
         "changelogs": [
             "Updates Block Colors and Resources sections on World Details to match Item Details",
