@@ -9,3 +9,22 @@ body {
 code {
     font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New", monospace;
 }
+
+@keyframes slideMe {
+    0% {
+        transform: translateX(-500px);
+        opacity: 0;
+    }
+    60% {
+        transform: translateX(0px);
+    }
+    62% {
+        transform: translateX(30px);
+    }
+    70% {
+        opacity: 1;
+    }
+    80% {
+        transform: translate(0);
+    }
+}

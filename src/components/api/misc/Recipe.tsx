@@ -346,7 +346,7 @@ class Component extends React.Component<Props> {
 
     renderRecipe = (recipe: Components.Schemas.Recipe): string | JSX.Element => {
         return (
-            <div>
+            <div style={{ animation: "slideMe .4s ease-in" }}>
                 {recipe.requirements.map((requirement) => {
                     return (
                         <span key={`requirement-${requirement.skill.id}`}>
@@ -370,6 +370,16 @@ class Component extends React.Component<Props> {
                 {this.renderLevels(recipe)}
             </div>
         );
+    };
+
+    componentDidUpdate = (prevProps: unknown, prevState: { currentIndex: number }) => {
+        if (this.state.recipes !== null && prevState.currentIndex !== this.state.currentIndex) {
+            return (
+                <div style={{ animation: "slideMe .4s ease-in" }}>
+                    {this.renderLevels(this.state.recipes[this.state.currentIndex])}
+                </div>
+            );
+        }
     };
 
     handlePrevClick = (): void => {
