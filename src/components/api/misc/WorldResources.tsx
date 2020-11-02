@@ -379,7 +379,7 @@ class Component extends React.Component<Props> {
                                 ariaLabel="expand collapse group"
                                 aria-expanded={this.state.collapsed ? "false" : "true"}
                             ></IconButton>
-                            {this.props.t("Resources")}
+                            {this.props.t("Resources (Blocks)")}
                         </h2>
                     </Stack.Item>
                     <Stack.Item

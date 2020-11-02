@@ -30,7 +30,7 @@ class Home extends React.Component<WithTranslation> {
                 </Text>
                 <Text variant="large">
                     {this.props.t(
-                        "Boundlexx is an unoffical API for the game Boundless. There is no affiliation with Wonderstuck Games",
+                        "Boundlexx is an unoffical API for the game Boundless. There is no affiliation with Wonderstruck Games",
                     )}
                 </Text>
             </Stack>

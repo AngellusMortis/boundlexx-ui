@@ -1,8 +1,21 @@
 [
     {
+        "date": "",
+        "changelogs": [
+            "Adds prestige, place/mine XP, type data and resource data to Item Details",
+            "Adds help link"
+        ]
+    },
+    {
+        "date": "2020-11-01T12:20:00.000Z",
+        "changelogs": [
+            "More Italian translations"
+        ]
+    },
+    {
         "date": "2020-11-01T13:32:00.000Z",
         "changelogs": [
-            "Adds disclaimers for Boundlexx not being affiliated with Wonderstuck"
+            "Adds disclaimers for Boundlexx not being affiliated with Wonderstruck"
         ]
     },
     {

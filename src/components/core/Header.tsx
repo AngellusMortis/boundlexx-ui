@@ -157,6 +157,13 @@ class Component extends React.Component<Props> {
                         </CollapsibleInput>
                         <ThemeSelector />
                         <LanguageSelector />
+                        <Link href="https://forum.playboundless.com/t/boundlexx-ui/51833" target="_blank">
+                            <IconButton
+                                iconProps={{ iconName: "Help" }}
+                                title={this.props.t("Help")}
+                                ariaLabel={this.props.t("Help")}
+                            />
+                        </Link>
                     </Stack>
                 </Stack>
                 <Stack

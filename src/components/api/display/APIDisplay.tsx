@@ -1208,7 +1208,7 @@ export abstract class APIDisplay extends React.Component<APIDisplayProps> {
 
         if (!this.state.requiredDataLoaded) {
             return (
-                <Stack horizontalAlign={"center"}>
+                <Stack horizontalAlign={"center"} className="api-display">
                     <h2>{this.renderTitle()}</h2>
                     <Spinner
                         size={SpinnerSize.large}
