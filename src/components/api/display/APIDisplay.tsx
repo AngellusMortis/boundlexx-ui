@@ -19,6 +19,8 @@ import {
     IColumn,
     Spinner,
     SpinnerSize,
+    AnimationClassNames,
+    Image,
 } from "@fluentui/react";
 import "./APIDisplay.css";
 import { WithTranslation } from "react-i18next";
@@ -57,6 +59,7 @@ interface State {
     columnCount: number;
     hasRequiredFilters: boolean;
     columns?: IColumn[];
+    collapsed: boolean;
 }
 
 interface BaseProps {
@@ -73,8 +76,10 @@ interface BaseProps {
     showGroups: boolean;
     allowSearch?: boolean;
     title?: string;
+    titleIcon?: string;
     maxWidth?: number;
-    hideIfEmpty?: boolean;
+    collapsible?: boolean;
+    extra?: unknown;
 
     changeShowGroups: (showGroups: boolean) => unknown;
     updateItems?: api.updateGeneric;
@@ -189,6 +194,7 @@ export abstract class APIDisplay extends React.Component<APIDisplayProps> {
         filtersVisible: false,
         filtersHelp: false,
         columnCount: 0,
+        collapsed: this.props.collapsible || false,
         results: {
             items: generatePlaceholders(api.config.pageSize),
             count: null,
@@ -649,6 +655,15 @@ export abstract class APIDisplay extends React.Component<APIDisplayProps> {
         return name;
     };
 
+    renderTitle = (): string | JSX.Element => {
+        return (
+            <span>
+                {this.props.titleIcon !== undefined && <Image className="title-icon" src={this.props.titleIcon} />}
+                <span style={{ display: "inline-block" }}>{this.getTitle("_plural")}</span>
+            </span>
+        );
+    };
+
     callOperation = async (params: APIParams[], operationID?: string): Promise<AxiosResponse> => {
         if (this.client === null) {
             this.client = await api.getClient();
@@ -892,12 +907,27 @@ export abstract class APIDisplay extends React.Component<APIDisplayProps> {
         });
     };
 
+    requiredFilteredPassed = (): boolean => {
+        if (this.props.extraFilterKeys !== undefined && this.state.hasRequiredFilters) {
+            const currentFilters: StringDict<string> = this.state.filters.extraFilters || {};
+
+            for (let index = 0; index < this.props.extraFilterKeys.length; index++) {
+                const filter = this.props.extraFilterKeys[index];
+
+                if (filter.required && !(filter.name in currentFilters)) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    };
+
     // TODO:
     // eslint-disable-next-line
     getData = async (): Promise<void> => {
         const canLoad = await lock.runExclusive(async () => {
-            // do not double load
-            if (this.state.loading) {
+            // do not double load or load data before user requests it
+            if (this.state.loading || this.state.collapsed) {
                 return false;
             }
 
@@ -906,16 +936,8 @@ export abstract class APIDisplay extends React.Component<APIDisplayProps> {
                 return false;
             }
 
-            if (this.props.extraFilterKeys !== undefined && this.state.hasRequiredFilters) {
-                const currentFilters: StringDict<string> = this.state.filters.extraFilters || {};
-
-                for (let index = 0; index < this.props.extraFilterKeys.length; index++) {
-                    const filter = this.props.extraFilterKeys[index];
-
-                    if (filter.required && !(filter.name in currentFilters)) {
-                        return false;
-                    }
-                }
+            if (!this.requiredFilteredPassed()) {
+                return false;
             }
 
             // add placeholder cards
@@ -1097,6 +1119,32 @@ export abstract class APIDisplay extends React.Component<APIDisplayProps> {
         );
     };
 
+    toggleCollapse = (): void => {
+        const collapsed = !this.state.collapsed;
+        this.setState({ collapsed: collapsed }, () => {
+            if (!collapsed) {
+                this.getData();
+            }
+        });
+    };
+
+    renderCollapse = (): string | JSX.Element => {
+        if (this.props.collapsible) {
+            return (
+                <IconButton
+                    className={this.state.collapsed ? "" : "expand"}
+                    id="collapse-results-button"
+                    iconProps={{ iconName: "ChevronRightMed" }}
+                    style={{ marginRight: 10 }}
+                    onClick={this.toggleCollapse}
+                    ariaLabel="expand collapse group"
+                    aria-expanded={this.state.collapsed ? "false" : "true"}
+                ></IconButton>
+            );
+        }
+        return "";
+    };
+
     renderResultsHeader = (): string | JSX.Element => {
         if (this.state.hasRequiredFilters) {
             return "";
@@ -1149,7 +1197,7 @@ export abstract class APIDisplay extends React.Component<APIDisplayProps> {
         if (this.state.error) {
             return (
                 <Stack horizontalAlign={"center"}>
-                    <h2>{this.getTitle("_plural")}</h2>
+                    <h2>{this.renderTitle()}</h2>
                     <Text>
                         {this.props.t("Error:")} {this.state.error.message}
                     </Text>
@@ -1160,8 +1208,8 @@ export abstract class APIDisplay extends React.Component<APIDisplayProps> {
 
         if (!this.state.requiredDataLoaded) {
             return (
-                <Stack horizontalAlign={"center"}>
-                    <h2>{this.getTitle("_plural")}</h2>
+                <Stack horizontalAlign={"center"} className="api-display">
+                    <h2>{this.renderTitle()}</h2>
                     <Spinner
                         size={SpinnerSize.large}
                         style={{ height: "50vh" }}
@@ -1172,14 +1220,17 @@ export abstract class APIDisplay extends React.Component<APIDisplayProps> {
             );
         }
 
-        if (this.props.hideIfEmpty && this.state.results.count === 0) {
-            return "";
+        let resultsClass = "results";
+        if (this.state.collapsed) {
+            resultsClass += " collapsed " + (AnimationClassNames.slideUpIn20 || "");
+        } else {
+            resultsClass += " " + (AnimationClassNames.slideDownIn20 || "");
         }
 
         return (
             <Stack
                 horizontalAlign={"center"}
-                styles={{ root: { width: "100%", textAlign: "left", marginBottom: 20 } }}
+                styles={{ root: { width: "98vw", textAlign: "left", marginBottom: 20 } }}
                 className="api-display"
             >
                 <Stack.Item
@@ -1196,7 +1247,10 @@ export abstract class APIDisplay extends React.Component<APIDisplayProps> {
                         },
                     }}
                 >
-                    <h2 style={{ display: "inline-flex", margin: "0 20px" }}>{this.getTitle("_plural")}</h2>
+                    <h2 style={{ display: "table-cell", margin: "0 20px", width: 250, verticalAlign: "middle" }}>
+                        {this.renderCollapse()}
+                        {this.renderTitle()}
+                    </h2>
                     {this.renderResultsHeader()}
                     <div
                         style={{ display: "inline-flex", margin: "0 20px", justifyContent: "center" }}
@@ -1227,6 +1281,7 @@ export abstract class APIDisplay extends React.Component<APIDisplayProps> {
                     </Stack.Item>
                 )}
                 <Stack.Item
+                    className={resultsClass}
                     styles={{
                         root: {
                             position: "relative",

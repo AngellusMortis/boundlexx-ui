@@ -22,6 +22,28 @@
     height: 12px;
 }
 
+.api-display #collapse-results-button i {
+    transition: 0.2s;
+}
+.api-display #collapse-results-button.expand i {
+    transform: rotate(90deg);
+}
+
+.api-display .results.collapsed {
+    display: none;
+}
+
+.api-display .title-icon {
+    display: inline-block;
+    position: relative;
+    top: 10px;
+}
+
+.api-display .title-icon img {
+    width: 32px;
+    margin: 0 5px;
+}
+
 @media (max-width: 600px) {
     .api-display .api-display-search {
         width: 100%;

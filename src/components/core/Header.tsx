@@ -10,39 +10,27 @@ import {
     mergeStyles,
     TooltipHost,
     IconButton,
+    PrimaryButton,
 } from "@fluentui/react";
 import { ThemeSelector } from "./ThemeSelector";
 import { LanguageSelector } from "./LanguageSelector";
+import { CollapsibleInput } from "./CollapsibleInput";
 import { Link } from "./Link";
-import { RootState } from "store";
+import { purgeData, RootState } from "store";
 import { connect, ConnectedProps } from "react-redux";
-import * as api from "api";
-import { Client as BoundlexxClient } from "api/client";
-import { AxiosResponse } from "axios";
-import { BaseItems, APIParams, MenuLink } from "types";
+import { MenuLink } from "types";
 import "./Header.css";
 import { getTheme } from "themes";
 import { RouteComponentProps, withRouter } from "react-router-dom";
 import { changeShowUpdates } from "prefs/actions";
 
 const mapState = (state: RootState) => ({
-    colors: state.colors,
-    worlds: state.worlds,
-    items: state.items,
-    recipeGroups: state.recipeGroups,
-    skills: state.skills,
     locale: state.prefs.language,
     theme: getTheme(state.prefs.theme),
     hasUpdate: state.prefs.newChanges !== undefined && state.prefs.newChanges.length > 0,
 });
 
 const mapDispatchToProps = {
-    changeAPIDefinition: api.changeAPIDefinition,
-    updateColors: api.updateColors,
-    updateItems: api.updateItems,
-    updateWorlds: api.updateWorlds,
-    updateRecipeGroups: api.updateRecipeGroups,
-    updateSkills: api.updateSkills,
     changeShowUpdates: changeShowUpdates,
 };
 
@@ -64,115 +52,6 @@ const myStyle1 = mergeStyles(AnimationStyles.fadeIn500);
 const myStyle2 = mergeStyles(AnimationStyles.slideDownIn20);
 
 class Component extends React.Component<Props> {
-    mounted = false;
-    loading = false;
-    client: BoundlexxClient | null = null;
-
-    componentDidMount = async () => {
-        this.mounted = true;
-
-        this.client = await api.getClient();
-
-        this.loadData();
-    };
-
-    loadData = async () => {
-        if (this.loading) {
-            return;
-        }
-        this.loading = true;
-
-        // load "essential data"
-        await this.loadAll(this.props.worlds, "listWorlds", this.props.updateWorlds, undefined, [
-            { name: "show_inactive", value: true, in: "query" },
-        ]);
-        await this.loadAll(this.props.colors, "listColors", this.props.updateColors, this.props.locale);
-        await this.loadAll(this.props.items, "listItems", this.props.updateItems, this.props.locale);
-
-        await this.loadAll(
-            this.props.recipeGroups,
-            "listRecipeGroups",
-            this.props.updateRecipeGroups,
-            this.props.locale,
-        );
-        await this.loadAll(this.props.skills, "listSkills", this.props.updateSkills, this.props.locale);
-
-        this.loading = false;
-    };
-
-    componentWillUnmount = () => {
-        this.mounted = false;
-    };
-
-    componentDidUpdate = () => {
-        this.loadData();
-    };
-
-    loadAll = async (
-        results: BaseItems,
-        operationID: string,
-        updateMethod: api.updateGeneric,
-        locale?: string,
-        params?: APIParams[],
-    ): Promise<void> => {
-        if (this.client === null || !this.mounted) {
-            return;
-        }
-
-        // already pre-loaded, skip
-        if (results.count !== null && Reflect.ownKeys(results.items).length >= results.count) {
-            return;
-        }
-
-        if (params === undefined) {
-            params = [];
-        }
-
-        params.push({ name: "limit", value: api.config.pageSize * 2, in: "query" });
-
-        if (locale !== undefined) {
-            params.push({ name: "lang", value: locale, in: "query" });
-        }
-
-        console.log(`Preloading ${operationID}...`);
-        // eslint-disable-next-line
-        // @ts-ignore
-        const operation = this.client[operationID];
-
-        if (operation === undefined) {
-            this.client = await api.getClient(true);
-            await this.loadAll(results, operationID, updateMethod, locale, params);
-            return;
-        }
-
-        let response = await operation(params);
-        let nextURL = this.setDataFromResponse(response, updateMethod, locale);
-
-        while (nextURL !== null) {
-            await api.throttle();
-
-            if (this.mounted && this.client !== null && nextURL !== null) {
-                response = await this.client.get(nextURL, { paramsSerializer: () => "" });
-                nextURL = this.setDataFromResponse(response, updateMethod, locale);
-            }
-        }
-    };
-
-    setDataFromResponse(response: AxiosResponse, updateMethod: api.updateGeneric, locale?: string) {
-        let nextURL: string | null = null;
-
-        if (this.mounted) {
-            if (locale === undefined) {
-                updateMethod(response.data.results, response.data.count, response.data.next);
-            } else {
-                updateMethod(response.data.results, response.data.count, response.data.next, locale);
-            }
-            nextURL = response.data.next;
-        }
-
-        return nextURL;
-    }
-
     onClickUpdates = () => {
         this.props.changeShowUpdates(true);
     };
@@ -185,6 +64,10 @@ class Component extends React.Component<Props> {
             event.preventDefault();
             this.props.history.push(item.href);
         }
+    };
+
+    onClickReset = () => {
+        purgeData();
     };
 
     render = () => {
@@ -266,8 +149,21 @@ class Component extends React.Component<Props> {
                             </TooltipHost>
                         )}
 
+                        <CollapsibleInput
+                            icon={{ className: mergeStyles(AnimationStyles.fadeIn400), iconName: "ReturnToSession" }}
+                            name={this.props.t("Reset Data")}
+                        >
+                            <PrimaryButton onClick={this.onClickReset}>{this.props.t("Reset Data")}</PrimaryButton>
+                        </CollapsibleInput>
                         <ThemeSelector />
                         <LanguageSelector />
+                        <Link href="https://forum.playboundless.com/t/boundlexx-ui/51833" target="_blank">
+                            <IconButton
+                                iconProps={{ iconName: "Help" }}
+                                title={this.props.t("Help")}
+                                ariaLabel={this.props.t("Help")}
+                            />
+                        </Link>
                     </Stack>
                 </Stack>
                 <Stack

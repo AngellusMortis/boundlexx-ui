@@ -14,16 +14,18 @@ import {
 } from "@fluentui/react";
 import "react-toastify/dist/ReactToastify.css";
 import { withTranslation, WithTranslation } from "react-i18next";
-import { RootState } from "store";
-import { changeShowUpdates, onUpdate, changeLanuage, changeTheme, changeVersion } from "prefs/actions";
+import { RootState, purgeData } from "store";
+import { changeShowUpdates, onUpdate } from "prefs/actions";
 import { connect, ConnectedProps } from "react-redux";
 import { Time } from "./Time";
+import Scrollbar from "react-scrollbars-custom";
+import { getTheme } from "themes";
 
 const mapState = (state: RootState) => ({
     prefs: state.prefs,
 });
 
-const mapDispatchToProps = { changeShowUpdates, onUpdate, changeLanuage, changeTheme, changeVersion };
+const mapDispatchToProps = { changeShowUpdates, onUpdate };
 
 const connector = connect(mapState, mapDispatchToProps);
 
@@ -38,6 +40,22 @@ class Component extends React.Component<Props> {
     //         { date: "2020-01-01T00:00:00", changelogs: ["Test 1", "Test 2"] },
     //         { date: "2020-02-01T00:00:00", changelogs: ["Test 1"] },
     //         { date: "2020-03-01T00:00:00", changelogs: ["Test 1", "Test 2", "Test 3"] },
+    //         { date: "2020-04-01T00:00:00", changelogs: ["Test 1", "Test 2", "Test 3"] },
+    //         { date: "2020-05-01T00:00:00", changelogs: ["Test 1", "Test 2", "Test 3"] },
+    //         { date: "2020-06-01T00:00:00", changelogs: ["Test 1", "Test 2", "Test 3"] },
+    //         { date: "2020-07-01T00:00:00", changelogs: ["Test 1", "Test 2", "Test 3"] },
+    //         { date: "2020-08-01T00:00:00", changelogs: ["Test 1", "Test 2", "Test 3"] },
+    //         { date: "2020-09-01T00:00:00", changelogs: ["Test 1", "Test 2", "Test 3"] },
+    //         { date: "2020-10-01T00:00:00", changelogs: ["Test 1", "Test 2", "Test 3"] },
+    //         { date: "2020-11-01T00:00:00", changelogs: ["Test 1", "Test 2", "Test 3"] },
+    //         { date: "2020-12-01T00:00:00", changelogs: ["Test 1", "Test 2", "Test 3"] },
+    //         { date: "2020-12-02T00:00:00", changelogs: ["Test 1", "Test 2", "Test 3"] },
+    //         { date: "2020-12-03T00:00:00", changelogs: ["Test 1", "Test 2", "Test 3"] },
+    //         { date: "2020-12-04T00:00:00", changelogs: ["Test 1", "Test 2", "Test 3"] },
+    //         { date: "2020-12-05T00:00:00", changelogs: ["Test 1", "Test 2", "Test 3"] },
+    //         { date: "2020-12-06T00:00:00", changelogs: ["Test 1", "Test 2", "Test 3"] },
+    //         { date: "2020-12-07T00:00:00", changelogs: ["Test 1", "Test 2", "Test 3"] },
+    //         { date: "2020-12-08T00:00:00", changelogs: ["Test 1", "Test 2", "Test 3"] },
     //     ]);
     // }
 
@@ -102,15 +120,7 @@ class Component extends React.Component<Props> {
                 const target = ev.target as ServiceWorker;
 
                 if (target !== null && target.state === "activated") {
-                    const lang = this.props.prefs.language;
-                    const theme = this.props.prefs.theme;
-                    const version = this.props.prefs.version;
-                    console.log(`Current version: ${version}`);
-                    localStorage.removeItem("persist:root");
-                    this.props.changeLanuage(lang);
-                    this.props.changeTheme(theme);
-                    this.props.changeVersion(version);
-                    window.location.reload();
+                    purgeData();
                 }
             });
         }
@@ -119,6 +129,7 @@ class Component extends React.Component<Props> {
     render = (): JSX.Element => {
         let updates: string[] = [];
         const updateGroups: IGroup[] = [];
+        const theme = getTheme();
 
         if (this.props.prefs.newChanges !== undefined) {
             for (let index = 0; index < this.props.prefs.newChanges.length; index++) {
@@ -145,25 +156,31 @@ class Component extends React.Component<Props> {
                         isOpen={this.props.prefs.showUpdates}
                         onDismiss={this.onUpdatesDismiss}
                         isBlocking={false}
-                        styles={{ main: { width: "90vw", height: "90vw" } }}
+                        styles={{ main: { width: "90vw", height: "90vw" }, scrollableContent: { height: "100%" } }}
                     >
                         <Stack styles={{ root: { padding: 20, justifyContent: "flex-start", height: "100%" } }}>
                             <Stack.Item>
                                 <Text variant="xLarge">{this.props.t("Boundlexx UI Updates")}</Text>
                             </Stack.Item>
-                            <Stack.Item tokens={{ margin: 20 }}>
-                                {updates.length > 0 && (
-                                    <GroupedList
-                                        items={updates}
-                                        onRenderCell={this.onRenderUpdate}
-                                        selectionMode={SelectionMode.none}
-                                        groups={updateGroups}
-                                        groupProps={{ onRenderHeader: this.onRenderHeader }}
-                                    />
-                                )}
-                                {updates.length === 0 && (
-                                    <Text variant="large">{this.props.t("No patch notes found")}</Text>
-                                )}
+                            <Stack.Item tokens={{ margin: 20 }} styles={{ root: { height: "75%" } }}>
+                                <Scrollbar
+                                    style={{ height: "100%" }}
+                                    thumbYProps={{ style: { backgroundColor: theme.palette.themeDark } }}
+                                    trackYProps={{ style: { backgroundColor: theme.palette.neutralLight } }}
+                                >
+                                    {updates.length > 0 && (
+                                        <GroupedList
+                                            items={updates}
+                                            onRenderCell={this.onRenderUpdate}
+                                            selectionMode={SelectionMode.none}
+                                            groups={updateGroups}
+                                            groupProps={{ onRenderHeader: this.onRenderHeader }}
+                                        />
+                                    )}
+                                    {updates.length === 0 && (
+                                        <Text variant="large">{this.props.t("No patch notes found")}</Text>
+                                    )}
+                                </Scrollbar>
                             </Stack.Item>
                             <Stack.Item
                                 styles={{

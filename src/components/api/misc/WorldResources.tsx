@@ -9,6 +9,9 @@ import {
     Spinner,
     SpinnerSize,
     Text,
+    IconButton,
+    Stack,
+    AnimationClassNames,
 } from "@fluentui/react";
 import "react-toastify/dist/ReactToastify.css";
 import { withTranslation, WithTranslation } from "react-i18next";
@@ -18,6 +21,8 @@ import { connect, ConnectedProps } from "react-redux";
 import { Client as BoundlexxClient, Components } from "api/client";
 import * as api from "api";
 import { getTheme } from "themes";
+import { Link } from "components";
+import "components/api/display/APIDisplay.css";
 
 interface BaseProps {
     worldID: number;
@@ -25,6 +30,7 @@ interface BaseProps {
 }
 
 interface State {
+    collapsed: boolean;
     loaded: boolean;
     initialResources: Components.Schemas.WorldPollResources | null;
     currentResources: Components.Schemas.WorldPollResources | null;
@@ -46,6 +52,7 @@ class Component extends React.Component<Props> {
     mounted = false;
 
     state: State = {
+        collapsed: true,
         loaded: false,
         initialResources: null,
         currentResources: null,
@@ -193,9 +200,12 @@ class Component extends React.Component<Props> {
                 ]}
                 item={{
                     item: (
-                        <Text block={true} style={{ fontWeight: "bold", width: 175 }}>
+                        <Link
+                            style={{ display: "block", fontWeight: "bold", width: 135 }}
+                            href={`/items/${actualItem.game_id}/`}
+                        >
                             {actualItem.localization[0].name}
-                        </Text>
+                        </Link>
                     ),
                     count: (
                         <Text block={true} style={{ width: 80 }}>
@@ -301,11 +311,15 @@ class Component extends React.Component<Props> {
                 ],
                 name: name,
                 count: resources.resources.length + 2,
-                isCollapsed: true,
+                isCollapsed: false,
                 level: 0,
                 startIndex: startIndex,
             });
         }
+    };
+
+    toggleCollapse = (): void => {
+        this.setState({ collapsed: !this.state.collapsed });
     };
 
     render = (): string | JSX.Element => {
@@ -328,18 +342,67 @@ class Component extends React.Component<Props> {
             this.createGroup(this.state.initialResources, resources, groups, "initial-resources", "Initial Resources");
             this.createGroup(this.state.currentResources, resources, groups, "current-resources", "Current Resources");
 
+            let resultsClass = "results";
+            if (this.state.collapsed) {
+                resultsClass += " collapsed " + (AnimationClassNames.slideUpIn20 || "");
+            } else {
+                resultsClass += " " + (AnimationClassNames.slideDownIn20 || "");
+            }
+
             return (
-                <div>
-                    <h3 style={{ color: theme.palette.themePrimary }}>{this.props.t("Resources")}</h3>
-                    <GroupedList
-                        compact={true}
-                        items={resources}
-                        onRenderCell={this.onRenderResources}
-                        selectionMode={SelectionMode.none}
-                        groups={groups}
-                        groupProps={{ onRenderHeader: this.onRenderHeader }}
-                    />
-                </div>
+                <Stack
+                    horizontalAlign={"center"}
+                    styles={{ root: { width: "98vw", textAlign: "left", marginBottom: 20 } }}
+                    className="api-display"
+                >
+                    <Stack.Item
+                        styles={{
+                            root: {
+                                display: "flex",
+                                flexWrap: "wrap",
+                                justifyContent: "space-between",
+                                alignContent: "center",
+                                verticalAlign: "middle",
+                                width: "100%",
+                                paddingBottom: 10,
+                                borderBottom: `${theme.palette.themePrimary} 1px solid`,
+                            },
+                        }}
+                    >
+                        <h2 style={{ display: "inline-flex", margin: "0 20px" }}>
+                            <IconButton
+                                className={this.state.collapsed ? "" : "expand"}
+                                id="collapse-results-button"
+                                iconProps={{ iconName: "ChevronRightMed" }}
+                                style={{ marginRight: 10 }}
+                                onClick={this.toggleCollapse}
+                                ariaLabel="expand collapse group"
+                                aria-expanded={this.state.collapsed ? "false" : "true"}
+                            ></IconButton>
+                            {this.props.t("Resources (Blocks)")}
+                        </h2>
+                    </Stack.Item>
+                    <Stack.Item
+                        className={resultsClass}
+                        styles={{
+                            root: {
+                                position: "relative",
+                                height: "100%",
+                                width: "100%",
+                            },
+                        }}
+                    >
+                        <GroupedList
+                            className="world-resources"
+                            compact={true}
+                            items={resources}
+                            onRenderCell={this.onRenderResources}
+                            selectionMode={SelectionMode.none}
+                            groups={groups}
+                            groupProps={{ onRenderHeader: this.onRenderHeader }}
+                        />
+                    </Stack.Item>
+                </Stack>
             );
         }
 

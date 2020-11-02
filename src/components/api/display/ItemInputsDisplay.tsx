@@ -22,7 +22,6 @@ const mapState = (state: RootState) => ({
     loadAll: true,
     allowSearch: false,
     groupBy: "list_type.strings.0.plain_text",
-    hideIfEmpty: true,
 });
 
 const mapDispatchToProps = { changeShowGroups };

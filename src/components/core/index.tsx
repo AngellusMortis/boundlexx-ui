@@ -6,3 +6,4 @@ export { Link } from "./Link";
 export { NotFound } from "./NotFound";
 export { Time } from "./Time";
 export { UpdateModal } from "./UpdateModal";
+export { ErrorBoundary } from "./ErrorBoundary";

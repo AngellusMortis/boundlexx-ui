@@ -5,12 +5,11 @@ import i18n from "./i18n";
 import * as serviceWorker from "./serviceWorker";
 import { Fabric, initializeIcons, loadTheme, Text } from "@fluentui/react";
 import { darkTheme } from "./themes";
-import { store, persistor } from "./store";
+import { store, persistor, purgeData } from "./store";
 import { Provider } from "react-redux";
 import { PersistGate } from "redux-persist/integration/react";
-import { changeVersion, onUpdate, changeShowUpdates } from "./prefs/actions";
+import { onUpdate, changeShowUpdates } from "./prefs/actions";
 import toast from "./toast";
-import * as api from "./api";
 import { Version } from "./types";
 
 const App = React.lazy(() => import("./App"));
@@ -45,17 +44,7 @@ ReactDOM.render(
 serviceWorker.register({
     onSuccess: (registration: ServiceWorkerRegistration, version: string) => {
         console.log(`Setting version to ${version}`);
-        store.dispatch(onUpdate([]));
-        store.dispatch(changeVersion(version));
-
-        const lang = store.getState().prefs.language;
-        // wipe all API data
-        store.dispatch(api.updateColors([], null, null, lang));
-        store.dispatch(api.updateRecipeGroups([], null, null, lang));
-        store.dispatch(api.updateSkills([], null, null, lang));
-        store.dispatch(api.updateItems([], null, null, lang));
-        store.dispatch(api.updateEmojis([], null, null));
-        store.dispatch(api.updateWorlds([], null, null));
+        purgeData(version);
     },
     // TODO:
     // eslint-disable-next-line

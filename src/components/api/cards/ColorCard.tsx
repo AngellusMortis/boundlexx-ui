@@ -4,6 +4,8 @@ import { Components } from "api/client";
 import { Card } from "@uifabric/react-cards";
 import { getTheme } from "themes";
 import { Shimmer, Text } from "@fluentui/react";
+import toast from "toast";
+import { Mutex } from "async-mutex";
 
 interface BaseProps {
     color: Components.Schemas.Color | undefined;
@@ -11,11 +13,46 @@ interface BaseProps {
 
 type Props = BaseProps & WithTranslation;
 
+const copyLock = new Mutex();
 const Component: React.FunctionComponent<Props> = (props) => {
     const theme = getTheme();
 
-    const onCardClick = () => {
-        return;
+    const onCardClick = (event: React.MouseEvent<HTMLElement, MouseEvent> | undefined) => {
+        if (event === undefined) {
+            return;
+        }
+
+        const card = (event.target as HTMLElement).closest(".ms-List-cell");
+
+        if (card === null) {
+            return;
+        }
+
+        const pre = card.querySelector(".names");
+
+        if (pre === null) {
+            return;
+        }
+
+        if (!copyLock.isLocked()) {
+            copyLock.runExclusive(async () => {
+                const names = pre.innerHTML.split(" ");
+                const name = names[0];
+                await navigator.clipboard.writeText(name);
+
+                const message = (
+                    <Text>
+                        Color (<pre style={{ display: "inline" }}>{name}</pre>) copied to clipboard!
+                    </Text>
+                );
+
+                toast(message);
+            });
+        }
+    };
+
+    const getNames = (color: Components.Schemas.Color) => {
+        return `:#${color.game_id.toString(16)}: :${color.base_color}:`;
     };
 
     return (
@@ -57,6 +94,7 @@ const Component: React.FunctionComponent<Props> = (props) => {
                             width: 57,
                             height: 57,
                             display: "inline-flex",
+                            marginTop: 4,
                         },
                         dataWrapper: {
                             height: "100%",
@@ -72,6 +110,15 @@ const Component: React.FunctionComponent<Props> = (props) => {
             <Card.Section>
                 <Shimmer isDataLoaded={props.color !== undefined} width={110}>
                     {props.color !== undefined && <Text>{props.color.localization[0].name}</Text>}
+                </Shimmer>
+                <Shimmer isDataLoaded={props.color !== undefined} width={110}>
+                    {props.color !== undefined && (
+                        <Text variant="tiny" onClick={onCardClick}>
+                            <pre className="names" style={{ margin: 0 }}>
+                                {getNames(props.color)}
+                            </pre>
+                        </Text>
+                    )}
                 </Shimmer>
                 <Shimmer isDataLoaded={props.color !== undefined} width={60}>
                     {props.color !== undefined && (

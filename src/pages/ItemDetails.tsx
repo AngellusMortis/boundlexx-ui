@@ -3,7 +3,16 @@ import { withTranslation, WithTranslation } from "react-i18next";
 import * as api from "../api";
 import { Client as BoundlexxClient, Components } from "api/client";
 import { Image, Stack, Text, Spinner, SpinnerSize, IStackTokens } from "@fluentui/react";
-import { NotFound, Recipe, ItemInputsDisplay, SovereignColors } from "components";
+import {
+    NotFound,
+    Recipe,
+    ItemInputsDisplay,
+    SovereignColors,
+    Link,
+    ItemShopStandDisplay,
+    ItemRequestBasketDisplay,
+    ResourceDetails,
+} from "components";
 import { getTheme } from "themes";
 import { RootState } from "store";
 import { connect, ConnectedProps } from "react-redux";
@@ -48,6 +57,26 @@ class Page extends React.Component<Props> {
         await api.requireRecipeGroups();
         await api.requireSkills();
 
+        await this.getItem();
+    };
+
+    componentWillUnmount = () => {
+        this.mounted = false;
+    };
+
+    componentDidUpdate = (prevProp: Props) => {
+        if (this.props.id !== prevProp.id) {
+            this.setState({ item: null, loaded: false }, () => {
+                this.getItem();
+            });
+        }
+    };
+
+    getItem = async () => {
+        if (this.client === null) {
+            return;
+        }
+
         try {
             const response = await this.client.retrieveItem([
                 {
@@ -75,10 +104,6 @@ class Page extends React.Component<Props> {
                 this.setState({ loaded: true });
             }
         }
-    };
-
-    componentWillUnmount = () => {
-        this.mounted = false;
     };
 
     setTitle = () => {
@@ -114,6 +139,8 @@ class Page extends React.Component<Props> {
         return <Text variant="medium">0c</Text>;
     };
 
+    // TODO
+    // eslint-disable-next-line
     renderItem = () => {
         const theme = getTheme();
 
@@ -122,6 +149,20 @@ class Page extends React.Component<Props> {
         }
         this.setTitle();
         const sectionStackTokens: IStackTokens = { childrenGap: 10 };
+        let type = "Item";
+        if (this.state.item.is_block) {
+            if (this.state.item.is_resource) {
+                type = "Resource Block";
+            } else {
+                type = "Block";
+            }
+        } else if (this.state.item.is_liquid) {
+            if (this.state.item.is_resource) {
+                type = "Resource Liquid";
+            } else {
+                type = "Liquid";
+            }
+        }
 
         return (
             <div>
@@ -174,6 +215,24 @@ class Page extends React.Component<Props> {
                                 </Text>
                                 <Text variant="medium"> {this.state.item.description.strings[0].plain_text} </Text>
                             </h2>
+                            <div style={{ textAlign: "center" }}>
+                                {this.state.item.is_resource && (
+                                    <Link
+                                        href={`/items/resource-lookup/?item__game_id=${this.state.item.game_id}`}
+                                        style={{ margin: "0 20px" }}
+                                    >
+                                        {this.props.t("Find Worlds with Resource")}
+                                    </Link>
+                                )}
+                                {this.state.item.has_colors && (
+                                    <Link
+                                        href={`/items/color-lookup/?item__game_id=${this.state.item.game_id}`}
+                                        style={{ margin: "0 20px" }}
+                                    >
+                                        {this.props.t("Find Worlds by Color")}
+                                    </Link>
+                                )}
+                            </div>
                         </div>
                         <Stack
                             className="item-details"
@@ -202,7 +261,7 @@ class Page extends React.Component<Props> {
                                     variant="large"
                                     style={{ color: theme.palette.themePrimary, fontWeight: "bold" }}
                                 >
-                                    ID:
+                                    {this.props.t("ID")}:
                                 </Text>
                                 <Text variant="medium">{this.state.item.game_id} </Text>
                             </Stack>
@@ -220,16 +279,99 @@ class Page extends React.Component<Props> {
                                     variant="large"
                                     style={{ color: theme.palette.themePrimary, fontWeight: "bold" }}
                                 >
-                                    Mint Value:
+                                    {this.props.t("Mint Value")}:
                                 </Text>
                                 {this.renderMintValues(this.state.item)}
                             </Stack>
-                            <Recipe id={this.state.item.game_id} />
+                            <Stack
+                                style={{
+                                    backgroundColor: theme.palette.neutralLighter,
+                                    borderBottom: "2px solid",
+                                    borderBottomColor: theme.palette.themePrimary,
+                                    padding: "10px",
+                                    height: "100%",
+                                }}
+                            >
+                                <Text
+                                    block={true}
+                                    variant="large"
+                                    style={{ color: theme.palette.themePrimary, fontWeight: "bold" }}
+                                >
+                                    {this.props.t("Main Type")}:
+                                </Text>
+                                {this.props.t(type)}
+                            </Stack>
+                            <Stack
+                                style={{
+                                    backgroundColor: theme.palette.neutralLighter,
+                                    borderBottom: "2px solid",
+                                    borderBottomColor: theme.palette.themePrimary,
+                                    padding: "10px",
+                                    height: "100%",
+                                }}
+                            >
+                                <Text
+                                    block={true}
+                                    variant="large"
+                                    style={{ color: theme.palette.themePrimary, fontWeight: "bold" }}
+                                >
+                                    {this.props.t("Type")}:
+                                </Text>
+                                {this.state.item.list_type.strings[0].text}
+                            </Stack>
+                            {(this.state.item.is_liquid || this.state.item.is_block) && (
+                                <Stack
+                                    style={{
+                                        backgroundColor: theme.palette.neutralLighter,
+                                        borderBottom: "2px solid",
+                                        borderBottomColor: theme.palette.themePrimary,
+                                        padding: "10px",
+                                        height: "100%",
+                                    }}
+                                >
+                                    <Text
+                                        block={true}
+                                        variant="large"
+                                        style={{ color: theme.palette.themePrimary, fontWeight: "bold" }}
+                                    >
+                                        {this.props.t("Base Prestige")}:
+                                    </Text>
+                                    <Text variant="medium">{this.state.item.prestige} </Text>
+                                </Stack>
+                            )}
+                            {(this.state.item.is_liquid || this.state.item.is_block) && (
+                                <Stack
+                                    style={{
+                                        backgroundColor: theme.palette.neutralLighter,
+                                        borderBottom: "2px solid",
+                                        borderBottomColor: theme.palette.themePrimary,
+                                        padding: "10px",
+                                        height: "100%",
+                                    }}
+                                >
+                                    <Text
+                                        block={true}
+                                        variant="large"
+                                        style={{ color: theme.palette.themePrimary, fontWeight: "bold" }}
+                                    >
+                                        {this.props.t("XP")}:
+                                    </Text>
+                                    <Text variant="medium" block>
+                                        <strong>{this.props.t("Place")}</strong>: {this.state.item.build_xp}
+                                    </Text>
+                                    <Text variant="medium" block>
+                                        <strong>{this.props.t("Mine")}</strong>: {this.state.item.mine_xp}
+                                    </Text>
+                                </Stack>
+                            )}
+                            {!this.state.item.is_resource && <Recipe id={this.state.item.game_id} />}
+                            {this.state.item.resource_data !== null && <ResourceDetails item={this.state.item} />}
                         </Stack>
                     </div>
                 </Stack>
                 {this.state.item !== undefined && this.state.item.has_colors && (
                     <SovereignColors
+                        collapsible={true}
                         extraDefaultFilters={[
                             {
                                 name: "game_id",
@@ -240,15 +382,38 @@ class Page extends React.Component<Props> {
                     />
                 )}
                 {this.state.item !== undefined && (
-                    <ItemInputsDisplay
-                        extraDefaultFilters={[
-                            {
-                                name: "input_id",
-                                value: this.state.item.game_id,
-                                in: "query",
-                            },
-                        ]}
-                    />
+                    <div>
+                        <ItemInputsDisplay
+                            collapsible={true}
+                            extraDefaultFilters={[
+                                {
+                                    name: "input_id",
+                                    value: this.state.item.game_id,
+                                    in: "query",
+                                },
+                            ]}
+                        />
+                        <ItemShopStandDisplay
+                            collapsible={true}
+                            extraDefaultFilters={[
+                                {
+                                    name: "game_id",
+                                    value: this.state.item.game_id,
+                                    in: "path",
+                                },
+                            ]}
+                        />
+                        <ItemRequestBasketDisplay
+                            collapsible={true}
+                            extraDefaultFilters={[
+                                {
+                                    name: "game_id",
+                                    value: this.state.item.game_id,
+                                    in: "path",
+                                },
+                            ]}
+                        />
+                    </div>
                 )}
             </div>
         );

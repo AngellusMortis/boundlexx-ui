@@ -5,6 +5,7 @@ import { Card } from "@uifabric/react-cards";
 import { getTheme } from "themes";
 import { Shimmer, Text, TooltipHost } from "@fluentui/react";
 import { useId } from "@uifabric/react-hooks";
+import { Link } from "components";
 
 interface BaseProps {
     item: Components.Schemas.SimpleItem | undefined;
@@ -48,87 +49,94 @@ const Component: React.FunctionComponent<Props> = (props) => {
     };
 
     return (
-        <Card
-            className="api-card"
-            data-is-focusable
-            horizontal
-            tokens={{ childrenMargin: 5 }}
-            style={{ borderColor: theme.palette.themePrimary }}
-            styles={{
-                root: {
-                    backgroundColor: theme.palette.neutralLighter,
-                    margin: 2,
-                    position: "relative",
-                    padding: 2,
-                    width: width,
-                    height: 68,
-                },
-            }}
-            onClick={onCardClick}
+        <Link
+            className="card-link"
+            href={`/items/${props.item === undefined ? "" : props.item.game_id}/`}
+            style={{ color: theme.palette.black }}
         >
-            <Card.Item
-                fill
+            <Card
+                className="api-card"
+                data-is-focusable
+                horizontal
+                tokens={{ childrenMargin: 5 }}
+                style={{ borderColor: theme.palette.themePrimary }}
                 styles={{
                     root: {
-                        width: 60,
-                        height: 60,
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
+                        backgroundColor: theme.palette.neutralLighter,
+                        margin: 2,
+                        position: "relative",
+                        padding: 2,
+                        width: width,
+                        height: 68,
                     },
                 }}
+                onClick={onCardClick}
             >
-                <Shimmer
-                    className="card-preview"
-                    isDataLoaded={props.item !== undefined}
+                <Card.Item
+                    fill
                     styles={{
                         root: {
-                            width: 57,
-                            height: 57,
-                            display: "inline-flex",
-                        },
-                        dataWrapper: {
-                            height: "100%",
-                            width: "100%",
-                        },
-                    }}
-                ></Shimmer>
-            </Card.Item>
-            <Card.Section styles={{ root: { width: 212 } }}>
-                <Shimmer isDataLoaded={props.item !== undefined} width={100}>
-                    {props.item !== undefined && renderTextName(props.item)}
-                </Shimmer>
-                <Shimmer isDataLoaded={props.item !== undefined} width={100}>
-                    {props.item !== undefined && (
-                        <Text variant="small">{props.item.item_subtitle.localization[0].name}</Text>
-                    )}
-                </Shimmer>
-                <Shimmer isDataLoaded={props.item !== undefined} width={60}>
-                    {props.item !== undefined && (
-                        <Text variant="xSmall">
-                            {props.t("ID")}: {props.item.game_id}
-                        </Text>
-                    )}
-                </Shimmer>
-            </Card.Section>
-            {props.extra !== undefined && (
-                <Card.Section
-                    styles={{
-                        root: {
-                            backgroundColor: theme.palette.themePrimary,
-                            width: 50,
-                            height: "100%",
-                            margin: 0,
-                            textAlign: "center",
+                            width: 60,
+                            height: 60,
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
                         },
                     }}
                 >
-                    <Text style={{ margin: "auto 0", color: theme.palette.white, fontWeight: "bold" }}>
-                        {props.extra}
-                    </Text>
+                    <Shimmer
+                        className="card-preview"
+                        isDataLoaded={props.item !== undefined}
+                        styles={{
+                            root: {
+                                width: 57,
+                                height: 57,
+                                display: "inline-flex",
+                                marginTop: 4,
+                            },
+                            dataWrapper: {
+                                height: "100%",
+                                width: "100%",
+                            },
+                        }}
+                    ></Shimmer>
+                </Card.Item>
+                <Card.Section styles={{ root: { width: 212 } }}>
+                    <Shimmer isDataLoaded={props.item !== undefined} width={100}>
+                        {props.item !== undefined && renderTextName(props.item)}
+                    </Shimmer>
+                    <Shimmer isDataLoaded={props.item !== undefined} width={100}>
+                        {props.item !== undefined && (
+                            <Text variant="small">{props.item.item_subtitle.localization[0].name}</Text>
+                        )}
+                    </Shimmer>
+                    <Shimmer isDataLoaded={props.item !== undefined} width={60}>
+                        {props.item !== undefined && (
+                            <Text variant="xSmall">
+                                {props.t("ID")}: {props.item.game_id}
+                            </Text>
+                        )}
+                    </Shimmer>
                 </Card.Section>
-            )}
-        </Card>
+                {props.extra !== undefined && (
+                    <Card.Section
+                        styles={{
+                            root: {
+                                backgroundColor: theme.palette.themePrimary,
+                                width: 50,
+                                height: "100%",
+                                margin: 0,
+                                textAlign: "center",
+                            },
+                        }}
+                    >
+                        <Text style={{ margin: "auto 0", color: theme.palette.white, fontWeight: "bold" }}>
+                            {props.extra}
+                        </Text>
+                    </Card.Section>
+                )}
+            </Card>
+        </Link>
     );
 };
 

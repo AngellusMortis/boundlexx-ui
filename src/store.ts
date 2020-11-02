@@ -1,5 +1,6 @@
-import { prefsReducer } from "./prefs/reducers";
-import * as api from "./api";
+import { prefsReducer } from "prefs/reducers";
+import { onUpdate, changeVersion, changeLanuage, changeTheme } from "prefs/actions";
+import * as api from "api";
 import { combineReducers, createStore } from "redux";
 import { persistStore, persistReducer } from "redux-persist";
 import storage from "redux-persist/lib/storage";
@@ -130,3 +131,34 @@ const persistedReducer = persistReducer<RootState>(persistConfig, rootReducer);
 
 export const store = createStore(persistedReducer);
 export const persistor = persistStore(store);
+
+export const purgeData = (version?: string | null, skipReload?: boolean): void => {
+    const state = store.getState();
+    const lang = state.prefs.language;
+    const theme = state.prefs.theme;
+
+    if (version === undefined) {
+        version = state.prefs.version;
+    }
+
+    store.dispatch(onUpdate([]));
+    store.dispatch(changeVersion(version));
+
+    // wipe all API data
+    store.dispatch(api.updateColors([], null, null, lang));
+    store.dispatch(api.updateRecipeGroups([], null, null, lang));
+    store.dispatch(api.updateSkills([], null, null, lang));
+    store.dispatch(api.updateItems([], null, null, lang));
+    store.dispatch(api.updateEmojis([], null, null));
+    store.dispatch(api.updateWorlds([], null, null));
+
+    localStorage.clear();
+
+    store.dispatch(changeVersion(version));
+    store.dispatch(changeTheme(theme));
+    store.dispatch(changeLanuage(lang));
+
+    if (!skipReload) {
+        window.location.reload();
+    }
+};

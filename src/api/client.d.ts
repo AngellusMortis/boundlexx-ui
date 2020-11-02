@@ -102,9 +102,6 @@ declare namespace Components {
             is_boundless_only: boolean;
             image_url: string | null; // binary
         }
-        export interface IDWorld {
-            id: number;
-        }
         export interface Item {
             game_id: number;
             name: string;
@@ -124,6 +121,9 @@ declare namespace Components {
             };
             mint_value: number;
             max_stack: number;
+            prestige: number;
+            mine_xp: number;
+            build_xp: number;
             list_type: {
                 string_id: string;
                 strings: {
@@ -142,6 +142,79 @@ declare namespace Components {
             };
             has_colors: boolean;
             is_resource: boolean;
+            is_block: boolean;
+            is_liquid: boolean;
+            resource_data: {
+                is_embedded: boolean;
+                exo_only: boolean;
+                /**
+                 * Max tier of world to be found on. Starts at 0.
+                 */
+                max_tier: number;
+                /**
+                 * Min tier of world to be found on. Starts at 0.
+                 */
+                min_tier: number;
+                best_world_types: (
+                    | "LUSH"
+                    | "METAL"
+                    | "COAL"
+                    | "CORROSIVE"
+                    | "SHOCK"
+                    | "BLAST"
+                    | "TOXIC"
+                    | "CHILL"
+                    | "BURN"
+                    | "DARKMATTER"
+                    | "RIFT"
+                    | "BLINK"
+                )[];
+                /**
+                 * Max tier of world to be found on. Starts at 0.
+                 */
+                best_max_tier: number;
+                /**
+                 * Min tier of world to be found on. Starts at 0.
+                 */
+                best_min_tier: number;
+                shape: number;
+                size_max: number;
+                size_min: number;
+                altitude_max: number;
+                altitude_min: number;
+                distance_max: null | number;
+                distance_min: null | number;
+                cave_weighting: number;
+                size_skew_to_min: number;
+                blocks_above_max: number;
+                blocks_above_min: number;
+                liquid_above_max: number;
+                liquid_above_min: number;
+                noise_frequency: number | null;
+                noise_threshold: number | null;
+                liquid_favorite: {
+                    game_id: number;
+                } | null;
+                three_d_weighting: number;
+                surface_favorite: {
+                    game_id: number;
+                } | null;
+                surface_weighting: number;
+                altitude_best_lower: number;
+                altitude_best_upper: number;
+                distance_best_lower: null | number;
+                distance_best_upper: null | number;
+                blocks_above_best_lower: number;
+                blocks_above_best_upper: number;
+                liquid_above_best_upper: number;
+                liquid_above_best_lower: number;
+                liquid_second_favorite: {
+                    game_id: number;
+                } | null;
+                surface_second_favorite: {
+                    game_id: number;
+                } | null;
+            } | null;
         }
         export interface ItemColor {
             color: {
@@ -214,7 +287,11 @@ declare namespace Components {
         }
         export interface ItemRequestBasketPrice {
             time: string; // date-time
-            location: string;
+            location: {
+                x: number;
+                y: number;
+                z: number;
+            };
             world: {
                 id: number;
             };
@@ -235,29 +312,13 @@ declare namespace Components {
             count: number;
             average_per_chunk: string; // decimal
         }
-        export interface ItemResourceCountTimeSeries {
-            time: string; // date-time
-            world: {
-                id: number;
-            };
-            readonly is_embedded?: string;
-            percentage: string; // decimal
-            count: number;
-            average_per_chunk: string; // decimal
-        }
-        export interface ItemResourceCountTimeSeriesTB {
-            time_bucket?: string; // date-time
-            count_average: number;
-            count_mode: number;
-            count_median: number;
-            count_min: number;
-            count_max: number;
-            count_stddev: number;
-            count_variance: number;
-        }
         export interface ItemShopStandPrice {
             time: string; // date-time
-            location: string;
+            location: {
+                x: number;
+                y: number;
+                z: number;
+            };
             world: {
                 id: number;
             };
@@ -414,6 +475,7 @@ declare namespace Components {
             is_public: boolean;
             is_public_edit: boolean;
             is_public_claim: boolean;
+            atlas_image_url: string | null; // binary
         }
         export interface Skill {
             id: number;
@@ -537,6 +599,7 @@ declare namespace Components {
             } | null;
             next_request_basket_update: string | null; // date-time
             next_shop_stand_update: string | null; // date-time
+            atlas_image_url: string | null; // binary
         }
         export interface WorldBlockColor {
             item: {
@@ -763,7 +826,11 @@ declare namespace Components {
         }
         export interface WorldRequestBasketPrice {
             time: string; // date-time
-            location: string;
+            location: {
+                x: number;
+                y: number;
+                z: number;
+            };
             item: {
                 game_id: number;
             };
@@ -777,7 +844,11 @@ declare namespace Components {
         }
         export interface WorldShopStandPrice {
             time: string; // date-time
-            location: string;
+            location: {
+                x: number;
+                y: number;
+                z: number;
+            };
             item: {
                 game_id: number;
             };
@@ -1134,80 +1205,6 @@ declare namespace Paths {
             }
         }
     }
-    namespace ListItemResourceTimeseries {
-        namespace Parameters {
-            export type Bucket = string;
-            export type Item_GameId = string;
-            export type Limit = number;
-            export type Offset = number;
-            export type Time = string;
-            export type WorldPoll_WorldId = string;
-        }
-        export interface PathParameters {
-            item__game_id: Parameters.Item_GameId;
-            world_poll__world_id: Parameters.WorldPoll_WorldId;
-        }
-        export interface QueryParameters {
-            limit?: Parameters.Limit;
-            offset?: Parameters.Offset;
-            time?: Parameters.Time;
-            bucket?: Parameters.Bucket;
-        }
-        namespace Responses {
-            export interface $200 {
-                /**
-                 * example:
-                 * 123
-                 */
-                count?: number;
-                /**
-                 * example:
-                 * http://api.example.org/accounts/?offset=400&limit=100
-                 */
-                next?: string | null; // uri
-                /**
-                 * example:
-                 * http://api.example.org/accounts/?offset=200&limit=100
-                 */
-                previous?: string | null; // uri
-                results?: Components.Schemas.ItemResourceCountTimeSeries[];
-            }
-        }
-    }
-    namespace ListItemResourceWorlds {
-        namespace Parameters {
-            export type Item_GameId = string;
-            export type Limit = number;
-            export type Offset = number;
-        }
-        export interface PathParameters {
-            item__game_id: Parameters.Item_GameId;
-        }
-        export interface QueryParameters {
-            limit?: Parameters.Limit;
-            offset?: Parameters.Offset;
-        }
-        namespace Responses {
-            export interface $200 {
-                /**
-                 * example:
-                 * 123
-                 */
-                count?: number;
-                /**
-                 * example:
-                 * http://api.example.org/accounts/?offset=400&limit=100
-                 */
-                next?: string | null; // uri
-                /**
-                 * example:
-                 * http://api.example.org/accounts/?offset=200&limit=100
-                 */
-                previous?: string | null; // uri
-                results?: Components.Schemas.IDWorld[];
-            }
-        }
-    }
     namespace ListItemShopStands {
         namespace Parameters {
             export type GameId = string;
@@ -1249,9 +1246,9 @@ declare namespace Paths {
             string_id?: Parameters.StringId;
             item_subtitle_id?: Parameters.ItemSubtitleId;
             list_type__string_id?: Parameters.ListType_StringId;
+            is_resource?: Parameters.IsResource;
             lang?: Parameters.Lang;
             has_colors?: Parameters.HasColors;
-            is_resource?: Parameters.IsResource;
             search?: Parameters.Search;
             ordering?: Parameters.Ordering;
         }
@@ -1767,9 +1764,9 @@ declare namespace Paths {
             string_id?: Parameters.StringId;
             item_subtitle_id?: Parameters.ItemSubtitleId;
             list_type__string_id?: Parameters.ListType_StringId;
+            is_resource?: Parameters.IsResource;
             lang?: Parameters.Lang;
             has_colors?: Parameters.HasColors;
-            is_resource?: Parameters.IsResource;
             search?: Parameters.Search;
             ordering?: Parameters.Ordering;
         }
@@ -1876,27 +1873,6 @@ declare namespace Paths {
         }
         namespace Responses {
             export type $200 = Components.Schemas.ItemResourceCount;
-        }
-    }
-    namespace RetrieveItemResourceTimeseries {
-        namespace Parameters {
-            export type Bucket = string;
-            export type Id = string;
-            export type Item_GameId = string;
-            export type Time = string;
-            export type WorldPoll_WorldId = string;
-        }
-        export interface PathParameters {
-            item__game_id: Parameters.Item_GameId;
-            world_poll__world_id: Parameters.WorldPoll_WorldId;
-            id: Parameters.Id;
-        }
-        export interface QueryParameters {
-            time?: Parameters.Time;
-            bucket?: Parameters.Bucket;
-        }
-        namespace Responses {
-            export type $200 = Components.Schemas.ItemResourceCountTimeSeries;
         }
     }
     namespace RetrieveRecipe {
@@ -2078,19 +2054,6 @@ declare namespace Paths {
         }
         namespace Responses {
             export type $200 = Components.Schemas.WorldPoll;
-        }
-    }
-    namespace StatsItemResourceTimeseries {
-        namespace Parameters {
-            export type Item_GameId = string;
-            export type WorldPoll_WorldId = string;
-        }
-        export interface PathParameters {
-            item__game_id: Parameters.Item_GameId;
-            world_poll__world_id: Parameters.WorldPoll_WorldId;
-        }
-        namespace Responses {
-            export type $200 = Components.Schemas.ItemResourceCountTimeSeriesTB;
         }
     }
     namespace StatsWorldPoll {
@@ -2297,51 +2260,6 @@ export interface OperationMethods {
         data?: any,
         config?: AxiosRequestConfig,
     ): OperationResponse<Paths.RetrieveItemColors.Responses.$200>;
-    /**
-     * listItemResourceWorlds - List Item Resource Worlds
-     *
-     * Retrieves the list of worlds that has this resource on item
-     * timeseries lookup
-     */
-    "listItemResourceWorlds"(
-        parameters?: Parameters<
-            Paths.ListItemResourceWorlds.PathParameters & Paths.ListItemResourceWorlds.QueryParameters
-        >,
-        data?: any,
-        config?: AxiosRequestConfig,
-    ): OperationResponse<Paths.ListItemResourceWorlds.Responses.$200>;
-    /**
-     * listItemResourceTimeseries - List Item Resource Timeseries
-     *
-     * Retrieves the list resource counts for a give item/world combination
-     */
-    "listItemResourceTimeseries"(
-        parameters?: Parameters<
-            Paths.ListItemResourceTimeseries.PathParameters & Paths.ListItemResourceTimeseries.QueryParameters
-        >,
-        data?: any,
-        config?: AxiosRequestConfig,
-    ): OperationResponse<Paths.ListItemResourceTimeseries.Responses.$200>;
-    /**
-     * statsItemResourceTimeseries - Stats Item Resource Timeseries
-     */
-    "statsItemResourceTimeseries"(
-        parameters?: Parameters<Paths.StatsItemResourceTimeseries.PathParameters>,
-        data?: any,
-        config?: AxiosRequestConfig,
-    ): OperationResponse<Paths.StatsItemResourceTimeseries.Responses.$200>;
-    /**
-     * retrieveItemResourceTimeseries - Retrieve Item Resource Timeseries
-     *
-     * Retrieves a specific resource counts for a give item/world combination
-     */
-    "retrieveItemResourceTimeseries"(
-        parameters?: Parameters<
-            Paths.RetrieveItemResourceTimeseries.PathParameters & Paths.RetrieveItemResourceTimeseries.QueryParameters
-        >,
-        data?: any,
-        config?: AxiosRequestConfig,
-    ): OperationResponse<Paths.RetrieveItemResourceTimeseries.Responses.$200>;
     /**
      * listRecipeGroups - List Recipe Groups
      *
@@ -2776,60 +2694,6 @@ export interface PathsDictionary {
             data?: any,
             config?: AxiosRequestConfig,
         ): OperationResponse<Paths.RetrieveItemColors.Responses.$200>;
-    };
-    ["/items/{item__game_id}/resource-timeseries/"]: {
-        /**
-         * listItemResourceWorlds - List Item Resource Worlds
-         *
-         * Retrieves the list of worlds that has this resource on item
-         * timeseries lookup
-         */
-        "get"(
-            parameters?: Parameters<
-                Paths.ListItemResourceWorlds.PathParameters & Paths.ListItemResourceWorlds.QueryParameters
-            >,
-            data?: any,
-            config?: AxiosRequestConfig,
-        ): OperationResponse<Paths.ListItemResourceWorlds.Responses.$200>;
-    };
-    ["/items/{item__game_id}/resource-timeseries/{world_poll__world_id}/"]: {
-        /**
-         * listItemResourceTimeseries - List Item Resource Timeseries
-         *
-         * Retrieves the list resource counts for a give item/world combination
-         */
-        "get"(
-            parameters?: Parameters<
-                Paths.ListItemResourceTimeseries.PathParameters & Paths.ListItemResourceTimeseries.QueryParameters
-            >,
-            data?: any,
-            config?: AxiosRequestConfig,
-        ): OperationResponse<Paths.ListItemResourceTimeseries.Responses.$200>;
-    };
-    ["/items/{item__game_id}/resource-timeseries/{world_poll__world_id}/stats/"]: {
-        /**
-         * statsItemResourceTimeseries - Stats Item Resource Timeseries
-         */
-        "get"(
-            parameters?: Parameters<Paths.StatsItemResourceTimeseries.PathParameters>,
-            data?: any,
-            config?: AxiosRequestConfig,
-        ): OperationResponse<Paths.StatsItemResourceTimeseries.Responses.$200>;
-    };
-    ["/items/{item__game_id}/resource-timeseries/{world_poll__world_id}/{id}/"]: {
-        /**
-         * retrieveItemResourceTimeseries - Retrieve Item Resource Timeseries
-         *
-         * Retrieves a specific resource counts for a give item/world combination
-         */
-        "get"(
-            parameters?: Parameters<
-                Paths.RetrieveItemResourceTimeseries.PathParameters &
-                    Paths.RetrieveItemResourceTimeseries.QueryParameters
-            >,
-            data?: any,
-            config?: AxiosRequestConfig,
-        ): OperationResponse<Paths.RetrieveItemResourceTimeseries.Responses.$200>;
     };
     ["/recipe-groups/"]: {
         /**
