@@ -1,6 +1,19 @@
 [
     {
-        "date": "",
+        "date": "2020-11-03T04:35:00.000Z",
+        "changelogs": [
+            "Adds HTML name to Beacons on Atlas Map"
+        ]
+    },
+    {
+        "date": "2020-11-03T03:40:00.000Z",
+        "changelogs": [
+            "Adds beacons to Atlas Map",
+            "Adds loading progress bars for Atlas Map"
+        ]
+    },
+    {
+        "date": "2020-11-02T13:00:00.000Z",
         "changelogs": [
             "Adds prestige, place/mine XP, type data and resource data to Item Details",
             "Adds help link"

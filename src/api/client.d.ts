@@ -9,6 +9,27 @@ import {
 
 declare namespace Components {
     namespace Schemas {
+        export interface Beacon {
+            is_campfire: boolean;
+            location: {
+                x: number;
+                y: number;
+                z: number;
+            };
+            mayor_name: string;
+            prestige: null | number;
+            compactness: null | number;
+            num_plots: null | number;
+            num_columns: null | number;
+            name: string | null;
+            text_name: string | null;
+            html_name: string | null;
+            plots_columns: {
+                plot_x: number;
+                plot_z: number;
+                count: number;
+            }[];
+        }
         export interface Block {
             game_id: number;
             name: string;
@@ -1429,6 +1450,17 @@ declare namespace Paths {
             }
         }
     }
+    namespace ListWorldBeacons {
+        namespace Parameters {
+            export type Id = string;
+        }
+        export interface PathParameters {
+            id: Parameters.Id;
+        }
+        namespace Responses {
+            export type $200 = Components.Schemas.Beacon;
+        }
+    }
     namespace ListWorldBlockColors {
         namespace Parameters {
             export type Id = string;
@@ -2366,6 +2398,16 @@ export interface OperationMethods {
         config?: AxiosRequestConfig,
     ): OperationResponse<Paths.RetrieveWorld.Responses.$200>;
     /**
+     * listWorldBeacons - List World Beacons
+     *
+     * Gets current Beacons for given world
+     */
+    "listWorldBeacons"(
+        parameters?: Parameters<Paths.ListWorldBeacons.PathParameters>,
+        data?: any,
+        config?: AxiosRequestConfig,
+    ): OperationResponse<Paths.ListWorldBeacons.Responses.$200>;
+    /**
      * listWorldBlockColors - List World Block Colors
      *
      * Retrieves the block colors for a given world
@@ -2821,6 +2863,18 @@ export interface PathsDictionary {
             data?: any,
             config?: AxiosRequestConfig,
         ): OperationResponse<Paths.RetrieveWorld.Responses.$200>;
+    };
+    ["/worlds/{id}/beacons/"]: {
+        /**
+         * listWorldBeacons - List World Beacons
+         *
+         * Gets current Beacons for given world
+         */
+        "get"(
+            parameters?: Parameters<Paths.ListWorldBeacons.PathParameters>,
+            data?: any,
+            config?: AxiosRequestConfig,
+        ): OperationResponse<Paths.ListWorldBeacons.Responses.$200>;
     };
     ["/worlds/{id}/block-colors/"]: {
         /**

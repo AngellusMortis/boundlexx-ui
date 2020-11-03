@@ -2,13 +2,23 @@ import React from "react";
 import { withTranslation, WithTranslation } from "react-i18next";
 import * as api from "api";
 import { Client as BoundlexxClient, Components } from "api/client";
-import { Spinner, SpinnerSize, Text } from "@fluentui/react";
+import { Spinner, SpinnerSize, Text, ProgressIndicator } from "@fluentui/react";
 import { NotFound, Time } from "components";
 import { RootState } from "store";
 import { connect, ConnectedProps } from "react-redux";
 import "./AtlasPage.css";
 import { withRouter, RouteComponentProps } from "react-router-dom";
-import { Map, ImageOverlay, ZoomControl, Viewport, Marker, LayersControl, Popup } from "react-leaflet";
+import {
+    Map,
+    ImageOverlay,
+    ZoomControl,
+    Viewport,
+    Marker,
+    LayersControl,
+    Popup,
+    Rectangle,
+    LayerGroup,
+} from "react-leaflet";
 import { CRS, LatLngBounds } from "leaflet";
 import Control from "react-leaflet-control";
 import { Link } from "components";
@@ -35,6 +45,57 @@ L.Icon.Default.mergeOptions({
     shadowUrl: require("leaflet/dist/images/marker-shadow.png"),
 });
 
+const allowedColorIDs: number[] = [
+    24,
+    31,
+    34,
+    36,
+    55,
+    56,
+    57,
+    58,
+    66,
+    67,
+    68,
+    71,
+    98,
+    126,
+    127,
+    129,
+    138,
+    139,
+    140,
+    141,
+    142,
+    143,
+    144,
+    145,
+    146,
+    148,
+    153,
+    154,
+    155,
+    157,
+    158,
+    163,
+    164,
+    165,
+    171,
+    172,
+    173,
+    204,
+    205,
+    214,
+    217,
+    218,
+    219,
+    220,
+    234,
+    235,
+    244,
+    253,
+];
+
 interface BaseProps {
     id: number;
 }
@@ -47,10 +108,15 @@ interface RequestBasketsResult extends BaseItemsAsArray {
     items: Components.Schemas.WorldRequestBasketPrice[];
 }
 
+interface BeaconsResult extends BaseItemsAsArray {
+    items: Components.Schemas.Beacon[];
+}
+
 interface State {
     world: null | Components.Schemas.World;
     shopStands: null | ShopStandsResult;
     requestBaskets: null | RequestBasketsResult;
+    beacons: null | BeaconsResult;
     loaded: boolean;
 }
 
@@ -78,9 +144,13 @@ class Page extends React.Component<Props> {
         loaded: false,
         shopStands: null,
         requestBaskets: null,
+        beacons: null,
     };
     mounted = false;
     client: BoundlexxClient | null = null;
+
+    _start: null | L.LatLng = null;
+    _colorIndex: null | number = null;
 
     constructor(props: Props) {
         super(props);
@@ -114,8 +184,9 @@ class Page extends React.Component<Props> {
 
         await api.requireWorlds();
         await api.requireItems();
+        await api.requireColors();
 
-        await Promise.all([this.getWorld(), this.getRequestBaskets(), this.getShopStands()]);
+        await Promise.all([this.getWorld(), this.getRequestBaskets(), this.getShopStands(), this.getBeacons()]);
         this.setState({ loaded: true });
     };
 
@@ -227,6 +298,49 @@ class Page extends React.Component<Props> {
         }
     };
 
+    getBeacons = async () => {
+        if (this.client === null) {
+            return;
+        }
+
+        try {
+            let response: AxiosResponse | null = null;
+            if (this.state.beacons !== null) {
+                if (this.state.beacons.nextUrl === null) {
+                    return;
+                }
+                response = await this.client.get(this.state.beacons.nextUrl, { paramsSerializer: () => "" });
+            } else {
+                response = await this.client.listWorldBeacons([
+                    { name: "id", value: this.props.id, in: "path" },
+                    { name: "limit", value: Math.floor(api.config.pageSize / 2), in: "query" },
+                ]);
+            }
+
+            if (!this.mounted || response === null) {
+                return;
+            }
+
+            const results: BeaconsResult = {
+                items: response.data.results,
+                nextUrl: response.data.next,
+                count: response.data.count,
+            };
+
+            if (this.state.beacons !== null) {
+                results.items = this.state.beacons.items.concat(results.items);
+            }
+
+            this.setState({ beacons: results });
+
+            if (results.nextUrl !== null) {
+                await this.getBeacons();
+            }
+        } catch (err) {
+            console.error(err);
+        }
+    };
+
     componentWillUnmount = () => {
         this.mounted = false;
     };
@@ -237,6 +351,34 @@ class Page extends React.Component<Props> {
                 this.getWorld();
             });
         }
+    };
+
+    getStart = (): L.LatLng => {
+        if (this._start === null) {
+            const bounds = this.getBounds();
+            this._start = bounds.getNorthWest();
+        }
+
+        return this._start;
+    };
+
+    getAPIColor = (id: number): Components.Schemas.Color => {
+        const color = api.getColor(id);
+
+        if (color === undefined) {
+            throw new Error("color not found");
+        }
+
+        return color;
+    };
+
+    getColor = (): Components.Schemas.Color => {
+        if (this._colorIndex === null) {
+            this._colorIndex = Math.floor(Math.random() * Math.floor(allowedColorIDs.length));
+        }
+
+        this._colorIndex = (this._colorIndex + 1) % allowedColorIDs.length;
+        return this.getAPIColor(allowedColorIDs[this._colorIndex]);
     };
 
     getBounds = (buffer?: boolean) => {
@@ -295,7 +437,11 @@ class Page extends React.Component<Props> {
         coordsContainer.innerHTML = getGameCoords(event.latlng.lng, event.latlng.lat);
     };
 
-    renderBeaconName = (beaconName: string, guildTag: string) => {
+    renderBeaconName = (beaconName: string, guildTag?: string) => {
+        if (guildTag === undefined) {
+            guildTag = "";
+        }
+
         return (
             <span>
                 <span style={{ color: "#60baff" }}>{guildTag}</span>{" "}
@@ -309,7 +455,7 @@ class Page extends React.Component<Props> {
     };
 
     renderShopStand = (shop: Components.Schemas.WorldShopStandPrice): string | JSX.Element => {
-        return this.renderMarker(
+        return this.renderShopMarker(
             shop,
             "Shop Stand",
             new L.Icon({
@@ -325,22 +471,108 @@ class Page extends React.Component<Props> {
     };
 
     renderRequestBasket = (shop: Components.Schemas.WorldRequestBasketPrice): string | JSX.Element => {
-        return this.renderMarker(
+        return this.renderShopMarker(
             shop,
             "Request Basket",
             new L.Icon({
                 iconUrl: "https://cdn.boundlexx.app/images/request_basket.png",
                 shadowUrl: "https://cdn.boundlexx.app/images/request_basketshadow.png",
-                shadowAnchor: [0, 0],
+                shadowAnchor: [20, 20],
                 shadowSize: [45, 45],
                 iconSize: [40, 40],
-                iconAnchor: [0, 0],
-                popupAnchor: [20, 0],
+                iconAnchor: [20, 20],
+                popupAnchor: [0, -20],
             }),
         );
     };
 
-    renderMarker = (
+    renderBeacon = (beacon: Components.Schemas.Beacon): string | JSX.Element => {
+        if (beacon.is_campfire) {
+            return (
+                <Marker
+                    key={`marker-${++this.markerID}`}
+                    position={[beacon.location.z, beacon.location.x]}
+                    icon={
+                        new L.Icon({
+                            iconUrl: "https://cdn.boundlexx.app/images/beacon.png",
+                            shadowUrl: "https://cdn.boundlexx.app/images/beaconshadow.png",
+                            shadowAnchor: [20, 20],
+                            shadowSize: [45, 45],
+                            iconSize: [40, 40],
+                            iconAnchor: [20, 20],
+                            popupAnchor: [0, -20],
+                        })
+                    }
+                >
+                    <Popup>
+                        <Text block>
+                            <strong>{this.props.t("Campfire")}</strong>
+                        </Text>
+                        <Text block>
+                            <strong>{this.props.t("Mayor")}</strong>: {beacon.mayor_name}
+                        </Text>
+                        <Text block>
+                            <strong>{this.props.t("Location")}</strong>:{" "}
+                            {getGameCoords(beacon.location.x, beacon.location.z, beacon.location.y)}
+                        </Text>
+                    </Popup>
+                </Marker>
+            );
+        }
+
+        // all beacons (not campfires) have these values
+        if (
+            beacon.name === null ||
+            beacon.prestige === null ||
+            beacon.compactness === null ||
+            beacon.num_columns === null ||
+            beacon.num_plots === null
+        ) {
+            return "";
+        }
+
+        return (
+            <Marker
+                key={`marker-${++this.markerID}`}
+                position={[beacon.location.z, beacon.location.x]}
+                icon={
+                    new L.Icon({
+                        iconUrl: "https://cdn.boundlexx.app/images/beacon.png",
+                        shadowUrl: "https://cdn.boundlexx.app/images/beaconshadow.png",
+                        shadowAnchor: [20, 31],
+                        shadowSize: [45, 70],
+                        iconSize: [40, 62],
+                        iconAnchor: [20, 31],
+                        popupAnchor: [0, -20],
+                    })
+                }
+            >
+                <Popup>
+                    <Text block>
+                        <strong>{this.renderBeaconName(beacon.html_name || beacon.name)}</strong>
+                    </Text>
+                    <Text block>
+                        <strong>{this.props.t("Mayor")}</strong>: {beacon.mayor_name}
+                    </Text>
+                    <Text block>
+                        <strong>{this.props.t("Location")}</strong>:{" "}
+                        {getGameCoords(beacon.location.x, beacon.location.z, beacon.location.y)}
+                    </Text>
+                    <Text block>
+                        <strong>{this.props.t("Prestige")}</strong>: {beacon.prestige.toLocaleString()}
+                    </Text>
+                    <Text block>
+                        <strong>{this.props.t("Compactness")}</strong>: {beacon.compactness.toLocaleString()}
+                    </Text>
+                    <Text block>
+                        <strong>{this.props.t("Number of Plots")}</strong>: {beacon.num_plots.toLocaleString()}
+                    </Text>
+                </Popup>
+            </Marker>
+        );
+    };
+
+    renderShopMarker = (
         shop: Components.Schemas.WorldShopStandPrice | Components.Schemas.WorldRequestBasketPrice,
         type: string,
         icon: L.Icon,
@@ -400,6 +632,14 @@ class Page extends React.Component<Props> {
         );
     };
 
+    createBeaconCluster = (cluster: L.MarkerCluster) => {
+        return this.createClusterIcon(
+            cluster,
+            "https://cdn.boundlexx.app/images/beacon.png",
+            "https://cdn.boundlexx.app/images/beaconshadow.png",
+        );
+    };
+
     createClusterIcon = (cluster: L.MarkerCluster, iconURL: string, shadowURL: string) => {
         const childCount = cluster.getChildCount();
 
@@ -417,6 +657,27 @@ class Page extends React.Component<Props> {
             className: `shop-cluster ${c}`,
             iconSize: new L.Point(40, 40),
         });
+    };
+
+    renderBeaconBoundary = (beacon: Components.Schemas.Beacon) => {
+        const start = this.getStart();
+        const color = this.getColor();
+
+        return (
+            <LayerGroup key={`${beacon.location.x}-${beacon.location.z}`}>
+                {beacon.plots_columns.map((plot_column) => {
+                    const base = new L.LatLng(start.lat - 8 * plot_column.plot_z, start.lng + 8 * plot_column.plot_x);
+
+                    return (
+                        <Rectangle
+                            key={`${plot_column.plot_x}-${plot_column.plot_z}`}
+                            bounds={new L.LatLngBounds(base, new L.LatLng(base.lat - 8, base.lng + 8))}
+                            color={color.base_color}
+                        />
+                    );
+                })}
+            </LayerGroup>
+        );
     };
 
     renderMap = () => {
@@ -496,6 +757,19 @@ class Page extends React.Component<Props> {
                                     this.state.requestBaskets.items.map(this.renderRequestBasket)}
                             </MarkerClusterGroup>
                         </LayersControl.Overlay>
+                        <LayersControl.Overlay name={this.props.t("Beacon_plural")} checked>
+                            <MarkerClusterGroup
+                                disableClusteringAtZoom={5}
+                                iconCreateFunction={this.createBeaconCluster}
+                            >
+                                {this.state.beacons !== null && this.state.beacons.items.map(this.renderBeacon)}
+                            </MarkerClusterGroup>
+                        </LayersControl.Overlay>
+                        <LayersControl.Overlay name={this.props.t("Beacon Boundary_plural")} checked={false}>
+                            <LayerGroup>
+                                {this.state.beacons !== null && this.state.beacons.items.map(this.renderBeaconBoundary)}
+                            </LayerGroup>
+                        </LayersControl.Overlay>
                     </LayersControl>
                     <Control position="bottomleft">
                         <div className="atlas-control" style={{ backgroundColor: theme.palette.white }}>
@@ -522,12 +796,46 @@ class Page extends React.Component<Props> {
     render() {
         if (!this.state.loaded) {
             return (
-                <Spinner
-                    size={SpinnerSize.large}
-                    style={{ height: "50vh" }}
-                    label={this.props.t("Loading World...")}
-                    ariaLive="assertive"
-                />
+                <div style={{ minWidth: 300, width: "50vw", margin: "auto" }}>
+                    <Spinner
+                        size={SpinnerSize.large}
+                        style={{ height: "50vh" }}
+                        label={this.props.t("Loading World...")}
+                        ariaLive="assertive"
+                    />
+                    {this.state.beacons !== null &&
+                        this.state.beacons.count !== null &&
+                        this.state.beacons.count > 0 && (
+                            <ProgressIndicator
+                                label={`${this.props.t(
+                                    "Beacon_plural",
+                                )} (${this.state.beacons.items.length.toLocaleString()}/${this.state.beacons.count.toLocaleString()})`}
+                                percentComplete={this.state.beacons.items.length / this.state.beacons.count}
+                            />
+                        )}
+                    {this.state.shopStands !== null &&
+                        this.state.shopStands.count !== null &&
+                        this.state.shopStands.count > 0 && (
+                            <ProgressIndicator
+                                label={`${this.props.t(
+                                    "Shop Stand_plural",
+                                )} (${this.state.shopStands.items.length.toLocaleString()}/${this.state.shopStands.count.toLocaleString()})`}
+                                percentComplete={this.state.shopStands.items.length / this.state.shopStands.count}
+                            />
+                        )}
+                    {this.state.requestBaskets !== null &&
+                        this.state.requestBaskets.count !== null &&
+                        this.state.requestBaskets.count > 0 && (
+                            <ProgressIndicator
+                                label={`${this.props.t(
+                                    "Request Basket_plural",
+                                )} (${this.state.requestBaskets.items.length.toLocaleString()}/${this.state.requestBaskets.count.toLocaleString()})`}
+                                percentComplete={
+                                    this.state.requestBaskets.items.length / this.state.requestBaskets.count
+                                }
+                            />
+                        )}
+                </div>
             );
         }
 
