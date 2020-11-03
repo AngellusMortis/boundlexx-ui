@@ -639,12 +639,12 @@ class Page extends React.Component<Props> {
                     position={[beacon.location.z, beacon.location.x]}
                     icon={
                         new L.Icon({
-                            iconUrl: "https://cdn.boundlexx.app/images/beacon.png",
-                            shadowUrl: "https://cdn.boundlexx.app/images/beaconshadow.png",
+                            iconUrl: "https://cdn.boundlexx.app/images/campfire.png",
+                            shadowUrl: "https://cdn.boundlexx.app/images/campfireshadow.png",
                             shadowAnchor: [20, 20],
-                            shadowSize: [45, 45],
-                            iconSize: [40, 40],
-                            iconAnchor: [20, 20],
+                            shadowSize: [45, 38.25],
+                            iconSize: [40, 34],
+                            iconAnchor: [20, 17],
                             popupAnchor: [0, -20],
                         })
                     }
@@ -866,21 +866,32 @@ class Page extends React.Component<Props> {
         const start = this.getStart();
         const color = this.getColor();
 
-        const plotColumns = beacon.plots_columns.sort((a, b) => {
-            const sortA = a.plot_x * 1000 + a.plot_z;
-            const sortB = b.plot_x * 1000 + b.plot_z;
+        let plotColumns: PlotColumn[];
+        if (beacon.is_campfire) {
+            plotColumns = [
+                {
+                    plot_x: Math.floor((beacon.location.x - start.lng) / 8),
+                    plot_z: Math.floor((beacon.location.z - start.lat) / -8),
+                    count: 1,
+                },
+            ];
+        } else {
+            plotColumns = beacon.plots_columns.sort((a, b) => {
+                const sortA = a.plot_x * 1000 + a.plot_z;
+                const sortB = b.plot_x * 1000 + b.plot_z;
 
-            return sortA > sortB ? 1 : -1;
-        });
+                return sortA > sortB ? 1 : -1;
+            });
+        }
 
         return (
             <LayerGroup key={`${beacon.location.x}-${beacon.location.z}`}>
-                {plotColumns.map((plot_column) => {
-                    const base = new L.LatLng(start.lat - 8 * plot_column.plot_z, start.lng + 8 * plot_column.plot_x);
+                {plotColumns.map((plotColumn) => {
+                    const base = new L.LatLng(start.lat - 8 * plotColumn.plot_z, start.lng + 8 * plotColumn.plot_x);
 
                     return (
                         <Rectangle
-                            key={`${plot_column.plot_x}-${plot_column.plot_z}`}
+                            key={`${plotColumn.plot_x}-${plotColumn.plot_z}`}
                             bounds={new L.LatLngBounds(base, new L.LatLng(base.lat - 8, base.lng + 8))}
                             color={color.base_color}
                         />

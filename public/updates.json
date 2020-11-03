@@ -1,5 +1,9 @@
 [
     {
+        "date": "2020-11-03T17:58:00.000Z",
+        "changelogs": ["Fixes Atlas map pages with Campfires", "Adds campfire marker image"]
+    },
+    {
         "date": "2020-11-03T15:52:00.000Z",
         "changelogs": ["Fixes performance on Beacon Boundaries"]
     },
