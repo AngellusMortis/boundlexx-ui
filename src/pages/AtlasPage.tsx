@@ -18,8 +18,8 @@ import {
     Popup,
     Rectangle,
     LayerGroup,
+    Polygon,
 } from "react-leaflet";
-import { CRS, LatLngBounds } from "leaflet";
 import Control from "react-leaflet-control";
 import { Link } from "components";
 import { Trans } from "react-i18next";
@@ -33,6 +33,7 @@ import "react-leaflet-markercluster/dist/styles.min.css";
 import MarkerClusterGroup from "react-leaflet-markercluster";
 import { getTheme, setTheme, isDark } from "themes";
 import { getGameCoords } from "utils";
+import * as turf from "@turf/turf";
 
 /* get all of the Leaflet markers to load correctly */
 // eslint-disable-next-line
@@ -96,6 +97,14 @@ const allowedColorIDs: number[] = [
     253,
 ];
 
+const HIGHEST_ZOOM = 5;
+
+interface PlotColumn {
+    plot_x: number;
+    plot_z: number;
+    count: number;
+}
+
 interface BaseProps {
     id: number;
 }
@@ -117,6 +126,7 @@ interface State {
     shopStands: null | ShopStandsResult;
     requestBaskets: null | RequestBasketsResult;
     beacons: null | BeaconsResult;
+    beaconBoundaryLayerGroups: JSX.Element[] | null;
     loaded: boolean;
 }
 
@@ -145,9 +155,14 @@ class Page extends React.Component<Props> {
         shopStands: null,
         requestBaskets: null,
         beacons: null,
+        beaconBoundaryLayerGroups: null,
     };
     mounted = false;
     client: BoundlexxClient | null = null;
+
+    mapRef: React.Ref<Map>;
+    plotRectangles: L.Rectangle[] = [];
+    beaconBoundariesRef: React.Ref<LayerGroup>;
 
     _start: null | L.LatLng = null;
     _colorIndex: null | number = null;
@@ -170,6 +185,9 @@ class Page extends React.Component<Props> {
                 this.initialViewport.zoom = zoom;
             }
         }
+
+        this.mapRef = React.createRef<Map>();
+        this.beaconBoundariesRef = React.createRef<LayerGroup>();
     }
 
     componentDidMount = async () => {
@@ -186,8 +204,53 @@ class Page extends React.Component<Props> {
         await api.requireItems();
         await api.requireColors();
 
-        await Promise.all([this.getWorld(), this.getRequestBaskets(), this.getShopStands(), this.getBeacons()]);
+        await Promise.all([
+            this.getWorld(),
+            this.getRequestBaskets(),
+            this.getShopStands(),
+            this.getBeacons(),
+            this.createBeaconBoundaryLayerGroups(),
+        ]);
         this.setState({ loaded: true });
+    };
+
+    createBeaconBoundaryLayerGroups = async () => {
+        this.setState({ beaconBoundaryLayerGroups: [] });
+
+        while (this.state.beacons === null) {
+            await api.throttle();
+        }
+
+        if (this.state.beaconBoundaryLayerGroups === null) {
+            return;
+        }
+
+        if (this.state.beacons.count === null) {
+            return;
+        }
+
+        let beaconBoundaries = this.state.beaconBoundaryLayerGroups;
+
+        while (beaconBoundaries.length < this.state.beacons.count) {
+            const startIndex = this.state.beaconBoundaryLayerGroups.length;
+            const newBeaconBoundaries: JSX.Element[] = [];
+
+            for (let index = startIndex; index < this.state.beacons.items.length; index++) {
+                newBeaconBoundaries.push(this.renderBeaconBoundary(this.state.beacons.items[index]));
+            }
+
+            beaconBoundaries = this.state.beaconBoundaryLayerGroups.concat(newBeaconBoundaries);
+            this.setState({
+                beaconBoundaryLayerGroups: this.state.beaconBoundaryLayerGroups.concat(newBeaconBoundaries),
+            });
+
+            if (beaconBoundaries.length < this.state.beacons.count) {
+                await api.throttle();
+            }
+            if (this.state.beacons.count === null) {
+                return;
+            }
+        }
     };
 
     getWorld = async () => {
@@ -383,7 +446,7 @@ class Page extends React.Component<Props> {
 
     getBounds = (buffer?: boolean) => {
         if (this.state.world === null) {
-            return new LatLngBounds([-1000, -1000], [1000, 1000]);
+            return new L.LatLngBounds([-1000, -1000], [1000, 1000]);
         }
 
         let base = Math.ceil((this.state.world.size * 16) / 2);
@@ -391,7 +454,7 @@ class Page extends React.Component<Props> {
             base += 50;
         }
 
-        return new LatLngBounds([-base, -base], [base, base]);
+        return new L.LatLngBounds([-base, -base], [base, base]);
     };
 
     setTitle = () => {
@@ -425,6 +488,30 @@ class Page extends React.Component<Props> {
             document.title,
             `${window.location.origin}${window.location.pathname}?${urlEncoded}`,
         );
+
+        this.updateBeaconBoundaries();
+    };
+
+    updateBeaconBoundaries = () => {
+        const map = this.getMap();
+        map.eachLayer((layer) => {
+            if (layer instanceof L.Rectangle) {
+                map.removeLayer(layer);
+            }
+        });
+
+        if (map.getZoom() >= HIGHEST_ZOOM - 1) {
+            for (let index = 0; index < this.plotRectangles.length; index++) {
+                const plotRectangle = this.plotRectangles[index];
+
+                const corner1 = plotRectangle.getBounds().getNorthEast();
+                const corner2 = plotRectangle.getBounds().getSouthWest();
+
+                if (map.getBounds().contains(corner1) || map.getBounds().contains(corner2)) {
+                    map.addLayer(plotRectangle);
+                }
+            }
+        }
     };
 
     onMouseMove = (event: L.LeafletMouseEvent) => {
@@ -435,6 +522,64 @@ class Page extends React.Component<Props> {
         }
 
         coordsContainer.innerHTML = getGameCoords(event.latlng.lng, event.latlng.lat);
+    };
+
+    getMap = (): L.Map => {
+        /* eslint-disable */
+        // @ts-ignore
+        const map: L.Map = this.mapRef.current.leafletElement;
+        /* eslint-enable */
+
+        return map;
+    };
+
+    getBoundaryLayer = (): L.Layer => {
+        /* eslint-disable */
+        // @ts-ignore
+        const layer: L.Layer = this.beaconBoundariesRef.current.leafletElement;
+        /* eslint-enable */
+
+        return layer;
+    };
+
+    // TODO
+    // eslint-disable-next-line
+    onMapLoad = () => {
+        if (this && this.initialViewport && this.initialViewport.center) {
+            const latLng = new L.LatLng(this.initialViewport.center[0], this.initialViewport.center[1]);
+
+            const markersInCenter: L.Marker[] = [];
+            const map = this.getMap();
+
+            map.eachLayer((layer) => {
+                if (layer instanceof L.Marker) {
+                    const compareLatLng = layer.getLatLng();
+                    if (latLng.lat === compareLatLng.lat && latLng.lng === compareLatLng.lng) {
+                        markersInCenter.push(layer);
+                    }
+                } else if (layer instanceof L.Rectangle) {
+                    const corner1 = layer.getBounds().getNorthEast();
+                    const corner2 = layer.getBounds().getSouthWest();
+                    this.plotRectangles.push(layer);
+                    if (
+                        map.getZoom() <= HIGHEST_ZOOM - 2 ||
+                        !(map.getBounds().contains(corner1) || map.getBounds().contains(corner2))
+                    ) {
+                        map.removeLayer(layer);
+                    }
+                }
+            });
+
+            if (this.initialViewport.zoom === HIGHEST_ZOOM && markersInCenter.length > 0) {
+                markersInCenter[0].openPopup();
+            }
+        }
+    };
+
+    onOverlayAdd = (event: L.LayersControlEvent) => {
+        if (event.layer === this.getBoundaryLayer()) {
+            this.updateBeaconBoundaries();
+        }
     };
 
     renderBeaconName = (beaconName: string, guildTag?: string) => {
@@ -659,13 +804,78 @@ class Page extends React.Component<Props> {
         });
     };
 
+    createPolygonFromCoords = (coords: turf.Position[][], color: Components.Schemas.Color, key: string) => {
+        const positions: L.LatLng[][] = [];
+        for (let i = 0; i < coords.length; i++) {
+            const pos = coords[i];
+
+            const position: L.LatLng[] = [];
+            for (let j = 0; j < pos.length; j++) {
+                position.push(new L.LatLng(pos[j][0], pos[j][1]));
+            }
+            positions.push(position);
+        }
+
+        return <Polygon key={`polygon-${key}`} positions={positions} color={color.base_color} />;
+    };
+
+    createPlotPolygon = (plotColumns: PlotColumn[], color: Components.Schemas.Color, key: string) => {
+        const start = this.getStart();
+
+        const polygons = plotColumns.map((plotColumn) => {
+            const base = [start.lat - 8 * plotColumn.plot_z, start.lng + 8 * plotColumn.plot_x];
+
+            return turf.polygon([
+                [base, [base[0], base[1] + 8], [base[0] - 8, base[1] + 8], [base[0] - 8, base[1]], base],
+            ]);
+        });
+
+        const polygon = turf.union(...polygons);
+        if (polygon.geometry === null) {
+            return "";
+        }
+
+        if (polygon.geometry.type === "Polygon") {
+            const poly = polygon as turf.Feature<turf.Polygon>;
+
+            if (poly.geometry === null) {
+                return "";
+            }
+
+            return this.createPolygonFromCoords(poly.geometry.coordinates, color, key);
+        }
+
+        const poly = polygon as turf.Feature<turf.MultiPolygon>;
+
+        if (poly.geometry === null) {
+            return "";
+        }
+
+        let keyIndex = 0;
+        return (
+            <LayerGroup>
+                {polygon.geometry.coordinates.map((coordinates) => {
+                    const subKey = `${key}-${keyIndex++}`;
+                    return this.createPolygonFromCoords(coordinates, color, subKey);
+                })}
+            </LayerGroup>
+        );
+    };
+
     renderBeaconBoundary = (beacon: Components.Schemas.Beacon) => {
         const start = this.getStart();
         const color = this.getColor();
 
+        const plotColumns = beacon.plots_columns.sort((a, b) => {
+            const sortA = a.plot_x * 1000 + a.plot_z;
+            const sortB = b.plot_x * 1000 + b.plot_z;
+
+            return sortA > sortB ? 1 : -1;
+        });
+
         return (
             <LayerGroup key={`${beacon.location.x}-${beacon.location.z}`}>
-                {beacon.plots_columns.map((plot_column) => {
+                {plotColumns.map((plot_column) => {
                     const base = new L.LatLng(start.lat - 8 * plot_column.plot_z, start.lng + 8 * plot_column.plot_x);
 
                     return (
@@ -676,6 +886,7 @@ class Page extends React.Component<Props> {
                         />
                     );
                 })}
+                {this.createPlotPolygon(plotColumns, color, `${beacon.location.x}-${beacon.location.z}`)};
             </LayerGroup>
         );
     };
@@ -686,8 +897,8 @@ class Page extends React.Component<Props> {
         }
         this.setTitle();
 
-        const bounds: LatLngBounds = this.getBounds();
-        const maxBounds: LatLngBounds = this.getBounds(true);
+        const bounds: L.LatLngBounds = this.getBounds();
+        const maxBounds: L.LatLngBounds = this.getBounds(true);
         const theme = getTheme();
 
         return (
@@ -703,15 +914,18 @@ class Page extends React.Component<Props> {
                 }}
             >
                 <Map
-                    crs={CRS.Simple}
+                    ref={this.mapRef}
+                    crs={L.CRS.Simple}
                     center={this.initialViewport.center || [0, 0]}
                     maxBounds={maxBounds}
-                    maxZoom={5}
+                    maxZoom={HIGHEST_ZOOM}
                     zoomControl={false}
                     zoom={this.initialViewport.zoom || 0}
                     style={{ height: "100%", width: "100%" }}
                     onViewportChanged={this.onViewportChanged}
                     onmousemove={this.onMouseMove}
+                    whenReady={this.onMapLoad}
+                    onoverlayadd={this.onOverlayAdd}
                 >
                     <ImageOverlay
                         url={this.state.world.atlas_image_url}
@@ -741,7 +955,7 @@ class Page extends React.Component<Props> {
                     <LayersControl position="topleft">
                         <LayersControl.Overlay name={this.props.t("Shop Stand_plural")} checked>
                             <MarkerClusterGroup
-                                disableClusteringAtZoom={5}
+                                disableClusteringAtZoom={HIGHEST_ZOOM}
                                 iconCreateFunction={this.createShopStandCluster}
                             >
                                 {this.state.shopStands !== null &&
@@ -750,7 +964,7 @@ class Page extends React.Component<Props> {
                         </LayersControl.Overlay>
                         <LayersControl.Overlay name={this.props.t("Request Basket_plural")} checked>
                             <MarkerClusterGroup
-                                disableClusteringAtZoom={5}
+                                disableClusteringAtZoom={HIGHEST_ZOOM}
                                 iconCreateFunction={this.createRequestBasketCluster}
                             >
                                 {this.state.requestBaskets !== null &&
@@ -759,15 +973,18 @@ class Page extends React.Component<Props> {
                         </LayersControl.Overlay>
                         <LayersControl.Overlay name={this.props.t("Beacon_plural")} checked>
                             <MarkerClusterGroup
-                                disableClusteringAtZoom={5}
+                                disableClusteringAtZoom={HIGHEST_ZOOM}
                                 iconCreateFunction={this.createBeaconCluster}
                             >
                                 {this.state.beacons !== null && this.state.beacons.items.map(this.renderBeacon)}
                             </MarkerClusterGroup>
                         </LayersControl.Overlay>
-                        <LayersControl.Overlay name={this.props.t("Beacon Boundary_plural")} checked={false}>
-                            <LayerGroup>
-                                {this.state.beacons !== null && this.state.beacons.items.map(this.renderBeaconBoundary)}
+                        <LayersControl.Overlay name={this.props.t("Beacon Boundary_plural")} checked>
+                            <LayerGroup ref={this.beaconBoundariesRef}>
+                                {this.state.beaconBoundaryLayerGroups !== null &&
+                                    this.state.beaconBoundaryLayerGroups.map((beaconBounadary) => {
+                                        return beaconBounadary;
+                                    })}
                             </LayerGroup>
                         </LayersControl.Overlay>
                     </LayersControl>
@@ -811,6 +1028,16 @@ class Page extends React.Component<Props> {
                                     "Beacon_plural",
                                 )} (${this.state.beacons.items.length.toLocaleString()}/${this.state.beacons.count.toLocaleString()})`}
                                 percentComplete={this.state.beacons.items.length / this.state.beacons.count}
+                            />
+                        )}
+                    {this.state.beaconBoundaryLayerGroups !== null &&
+                        this.state.beacons !== null &&
+                        this.state.beacons.count !== null && (
+                            <ProgressIndicator
+                                label={`${this.props.t(
+                                    "Beacon Boundary_plural",
+                                )} (${this.state.beaconBoundaryLayerGroups.length.toLocaleString()}/${this.state.beacons.count.toLocaleString()})`}
+                                percentComplete={this.state.beaconBoundaryLayerGroups.length / this.state.beacons.count}
                             />
                         )}
                     {this.state.shopStands !== null &&
