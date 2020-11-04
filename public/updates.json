@@ -7,7 +7,8 @@
             "Changes all tools pages into a single header",
             "Adds World Distance Calculator",
             "Improves World Selector performance/styling/limits on number of Worlds",
-            "Adds world image to Forum Template Generator"
+            "Adds world image to Forum Template Generator",
+            "Changes Forum Template Generator to persist state in URL like other pages"
         ]
     },
     {

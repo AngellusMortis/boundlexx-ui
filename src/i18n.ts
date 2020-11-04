@@ -361,6 +361,9 @@ const resources = {
             Tools: "Tools",
             TRAVEL: "Travel & Places",
             UNCATEGORIZED: "Uncategorized",
+            "Update Link?": "Update Link?",
+            "Provide an update link back to this form automatically filled out for quick update?":
+                "Provide an update link back to this form automatically filled out for quick update?",
         },
     },
     fr: {

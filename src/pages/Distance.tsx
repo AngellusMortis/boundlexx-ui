@@ -1,6 +1,6 @@
 import React from "react";
 import { withTranslation, WithTranslation } from "react-i18next";
-import { Stack, Spinner, SpinnerSize, Text, Image } from "@fluentui/react";
+import { Stack, Spinner, SpinnerSize, Text } from "@fluentui/react";
 import "./Forum.css";
 import { WorldSelector, WorldSummary } from "components";
 import { Components, Client as BoundlexxClient } from "api/client";

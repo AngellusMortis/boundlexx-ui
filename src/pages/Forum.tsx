@@ -41,6 +41,12 @@ interface State {
     initalWorldID: number | null;
     will_renew: boolean | null;
     compactness: boolean | null;
+    username: string | null;
+    portal_directions: string | null;
+    can_visit: boolean;
+    can_edit: boolean;
+    can_claim: boolean;
+    update_link: boolean;
     submitted: boolean;
     template: Template | null;
     errors: StringDict<string>;
@@ -64,6 +70,12 @@ class Forum extends React.Component<Props> {
         compactness: null,
         submitted: false,
         template: null,
+        username: null,
+        portal_directions: null,
+        can_visit: false,
+        can_edit: false,
+        can_claim: false,
+        update_link: true,
         errors: {},
     };
 
@@ -74,9 +86,41 @@ class Forum extends React.Component<Props> {
         if (urlParams.has("world_id")) {
             const worldID = parseInt(urlParams.get("world_id") || "");
 
-            if (typeof worldID == "number") {
+            if (!isNaN(worldID)) {
                 this.state.initalWorldID = worldID;
             }
+        }
+
+        if (urlParams.has("update_link")) {
+            this.state.update_link = urlParams.get("update_link") === "true";
+        }
+
+        if (urlParams.has("username")) {
+            this.state.username = urlParams.get("username");
+        }
+
+        if (urlParams.has("portal_directions")) {
+            this.state.portal_directions = urlParams.get("portal_directions");
+        }
+
+        if (urlParams.has("will_renew")) {
+            this.state.will_renew = urlParams.get("will_renew") === "true";
+        }
+
+        if (urlParams.has("compactness")) {
+            this.state.compactness = urlParams.get("compactness") === "true";
+        }
+
+        if (urlParams.has("can_visit")) {
+            this.state.can_visit = urlParams.get("can_visit") === "true";
+        }
+
+        if (urlParams.has("can_edit")) {
+            this.state.can_edit = urlParams.get("can_edit") === "true";
+        }
+
+        if (urlParams.has("can_claim")) {
+            this.state.can_claim = urlParams.get("can_claim") === "true";
         }
     }
 
@@ -110,18 +154,40 @@ class Forum extends React.Component<Props> {
         }
     };
 
+    updateQueryString = () => {
+        const query = new URLSearchParams();
+        if (this.state.world !== null) {
+            query.append("world_id", this.state.world.id.toString());
+        }
+        query.append("update_link", this.state.update_link.toString());
+        if (this.state.world !== null && this.state.world.is_sovereign) {
+            if (this.state.username !== null) {
+                query.append("username", this.state.username);
+            }
+            if (this.state.portal_directions !== null) {
+                query.append("portal_directions", this.state.portal_directions);
+            }
+            if (this.state.will_renew !== null) {
+                query.append("will_renew", this.state.will_renew.toString());
+            }
+            if (this.state.compactness !== null) {
+                query.append("compactness", this.state.compactness.toString());
+            }
+            query.append("can_visit", this.state.can_visit.toString());
+            query.append("can_edit", this.state.can_edit.toString());
+            query.append("can_claim", this.state.can_claim.toString());
+        }
+
+        window.history.replaceState(
+            "",
+            document.title,
+            `${window.location.origin}${window.location.pathname}?${query.toString()}`,
+        );
+    };
+
     onWorldChange = (world: Components.Schemas.SimpleWorld | null) => {
         this.setState({ world: world }, () => {
-            const query = new URLSearchParams();
-            if (this.state.world !== null) {
-                query.append("world_id", this.state.world.id.toString());
-            }
-
-            window.history.replaceState(
-                "",
-                document.title,
-                `${window.location.origin}${window.location.pathname}?${query.toString()}`,
-            );
+            this.updateQueryString();
         });
     };
 
@@ -144,13 +210,35 @@ class Forum extends React.Component<Props> {
                         newState[key] = null;
                         break;
                 }
-                this.setState(newState);
+                this.setState(newState, () => {
+                    this.updateQueryString();
+                });
             }
         }
     };
 
-    isChecked = (element: HTMLElement) => {
-        return element.getAttribute("aria-checked") === "true";
+    onCheckboxChanged = (event?: React.FormEvent<HTMLElement | HTMLInputElement>, checked?: boolean | undefined) => {
+        if (event !== undefined && checked !== undefined) {
+            const input = event.target as HTMLInputElement;
+
+            const newState: StringDict<boolean | null> = {};
+            newState[input.name] = checked;
+
+            this.setState(newState, () => {
+                this.updateQueryString();
+            });
+        }
+    };
+
+    onInputChanged = (event?: React.FormEvent<HTMLElement | HTMLInputElement>, newValue?: string | undefined) => {
+        if (event !== undefined && newValue !== undefined) {
+            const input = event.target as HTMLInputElement;
+
+            const newState: StringDict<string | null> = {};
+            newState[input.name] = newValue;
+
+            this.setState(newState);
+        }
     };
 
     onFormSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
@@ -165,19 +253,19 @@ class Forum extends React.Component<Props> {
             return;
         }
 
-        const form = event.target as HTMLFormElement;
         const data: StringDict<string | boolean | number | null> = {
             world_id: this.state.world.id,
+            update_link: this.state.update_link,
         };
 
         this.setState({ submitted: true, errors: {} });
 
         if (this.state.world.is_sovereign) {
-            data["username"] = form.username.value;
-            data["portal_directions"] = form.portal_directions.value;
-            data["can_visit"] = this.isChecked(form.can_visit);
-            data["can_edit"] = this.isChecked(form.can_edit);
-            data["can_claim"] = this.isChecked(form.can_claim);
+            data["username"] = this.state.username;
+            data["portal_directions"] = this.state.portal_directions;
+            data["can_visit"] = this.state.can_visit;
+            data["can_edit"] = this.state.can_edit;
+            data["can_claim"] = this.state.can_claim;
             data["will_renew"] = this.state.will_renew;
             data["compactness"] = this.state.compactness;
         }
@@ -259,7 +347,14 @@ class Forum extends React.Component<Props> {
         return (
             <fieldset className="sovereign-details">
                 <legend>{this.props.t("Sovereign Details")}</legend>
-                <TextField required={true} key="username" name="username" label={this.props.t("Username")}></TextField>
+                <TextField
+                    required={true}
+                    key="username"
+                    name="username"
+                    label={this.props.t("Username")}
+                    onChange={this.onInputChanged}
+                    value={this.state.username || ""}
+                ></TextField>
                 <Text variant="xSmall" className="help-text">
                     {this.props.t("Your Boundless Forums Username")}
                 </Text>
@@ -268,6 +363,8 @@ class Forum extends React.Component<Props> {
                     key="portal_directions"
                     name="portal_directions"
                     label={this.props.t("Portal Directions")}
+                    onChange={this.onInputChanged}
+                    value={this.state.portal_directions || ""}
                 ></TextField>
                 <Text variant="xSmall" className="help-text">
                     {this.props.t("Directions to help players find the portal to your world")}
@@ -308,15 +405,33 @@ class Forum extends React.Component<Props> {
                 </Text>
                 <fieldset>
                     <legend>{this.props.t("Permissions")}</legend>
-                    <Checkbox key="can_visit" name="can_visit" label={this.props.t("Can Visit?")} />
+                    <Checkbox
+                        key="can_visit"
+                        name="can_visit"
+                        label={this.props.t("Can Visit?")}
+                        onChange={this.onCheckboxChanged}
+                        checked={this.state.can_visit}
+                    />
                     <Text variant="xSmall" className="help-text">
                         {this.props.t("Can Everyone warp/use portals to your world?")}
                     </Text>
-                    <Checkbox key="can_edit" name="can_edit" label={this.props.t("Can Edit?")} />
+                    <Checkbox
+                        key="can_edit"
+                        name="can_edit"
+                        label={this.props.t("Can Edit?")}
+                        onChange={this.onCheckboxChanged}
+                        checked={this.state.can_edit}
+                    />
                     <Text variant="xSmall" className="help-text">
                         {this.props.t("Can Everyone edit blocks on your world (outside of plots)?")}
                     </Text>
-                    <Checkbox key="can_claim" name="can_claim" label={this.props.t("Can Claim?")} />
+                    <Checkbox
+                        key="can_claim"
+                        name="can_claim"
+                        label={this.props.t("Can Claim?")}
+                        onChange={this.onCheckboxChanged}
+                        checked={this.state.can_claim}
+                    />
                     <Text variant="xSmall" className="help-text">
                         {this.props.t("Can Everyone create beacons and plot on your world?")}
                     </Text>
@@ -347,6 +462,19 @@ class Forum extends React.Component<Props> {
                 />
                 {this.state.world !== null && <WorldSummary world={this.state.world} />}
                 {isSovereign && this.renderSovereignFields()}
+                <div>
+                    <Checkbox
+                        label={this.props.t("Update Link?")}
+                        name="update_link"
+                        checked={this.state.update_link}
+                        onChange={this.onCheckboxChanged}
+                    />
+                    <Text variant="xSmall" className="help-text">
+                        {this.props.t(
+                            "Provide an update link back to this form automatically filled out for quick update?",
+                        )}
+                    </Text>
+                </div>
                 <PrimaryButton type="submit" disabled={this.state.submitted}>
                     {this.props.t("Generate Template")}
                 </PrimaryButton>
