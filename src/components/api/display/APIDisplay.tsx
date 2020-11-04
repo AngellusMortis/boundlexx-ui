@@ -38,6 +38,7 @@ export interface FilterValidator {
     operationID?: string; // filter = path to create new operation
     choices?: string[];
     validate?: (value: string) => boolean;
+    filter?: (value: string, items: unknown[]) => unknown[];
 }
 
 export interface Filters {
@@ -72,6 +73,7 @@ interface BaseProps {
     extraDefaultFilters?: APIParams[];
     extraFilterKeys?: FilterValidator[];
     groupBy?: string;
+    translateGroup?: boolean;
     groupOrder?: string[];
     showGroups: boolean;
     allowSearch?: boolean;
@@ -261,6 +263,8 @@ export abstract class APIDisplay extends React.Component<APIDisplayProps> {
         return;
     };
 
+    // TODO
+    // eslint-disable-next-line
     componentDidMount = async (): Promise<void> => {
         this.mounted = true;
 
@@ -275,13 +279,30 @@ export abstract class APIDisplay extends React.Component<APIDisplayProps> {
         }
 
         const filters = this.updateQueryParam(this.getParamsDict(window.location.search), true);
+        let allLocal = true;
         if (filters !== null) {
             newState.filtersVisible = true;
             newState.filters = filters;
-        } else if (this.props.results !== undefined && !this.state.hasRequiredFilters) {
+
+            if (filters.extraFilters !== undefined) {
+                const filterDict = this.getFiltersFromProps();
+                for (const key in filters.extraFilters) {
+                    const filter = filterDict[key];
+
+                    if (filter.filter === undefined) {
+                        allLocal = false;
+                    }
+                }
+            }
+        }
+
+        if (allLocal && this.props.results !== undefined && !this.state.hasRequiredFilters) {
             if (this.props.locale === null || this.props.locale === this.props.results.lang) {
-                newState.results = this.props.results;
-                newState.results.items = this.groupResults(this.props.results.items);
+                newState.results = Object.assign({}, this.props.results);
+                if (filters !== null) {
+                    newState.results = this.localFilter(newState.results, filters.extraFilters);
+                }
+                newState.results.items = this.groupResults(newState.results.items);
 
                 // count == null means partial results from a search or something
                 if (this.props.results.count !== null) {
@@ -378,6 +399,9 @@ export abstract class APIDisplay extends React.Component<APIDisplayProps> {
             value = value[props[index]];
         }
 
+        if (this.props.translateGroup) {
+            return this.props.t(value.toString());
+        }
         return value.toString();
     };
 
@@ -782,6 +806,38 @@ export abstract class APIDisplay extends React.Component<APIDisplayProps> {
         return results;
     };
 
+    getFiltersFromProps = (): StringDict<FilterValidator> => {
+        const filters: StringDict<FilterValidator> = {};
+        if (this.props.extraFilterKeys !== undefined) {
+            for (let index = 0; index < this.props.extraFilterKeys.length; index++) {
+                const filter = this.props.extraFilterKeys[index];
+                filters[filter.name] = filter;
+            }
+        }
+
+        return filters;
+    };
+
+    localFilter = (results: BaseItemsAsArray, extraFilters?: StringDict<string>): BaseItemsAsArray => {
+        if (extraFilters === undefined) {
+            extraFilters = this.state.filters.extraFilters;
+        }
+        const filters = this.getFiltersFromProps();
+
+        for (const key in extraFilters) {
+            const filter = filters[key];
+
+            if (filter.filter !== undefined) {
+                results.items = filter.filter(extraFilters[key], results.items);
+            }
+        }
+
+        if (results.nextUrl === null) {
+            results.count = results.items.length;
+        }
+        return results;
+    };
+
     // TODO:
     // eslint-disable-next-line
     private _getData = async (): Promise<void> => {
@@ -811,37 +867,39 @@ export abstract class APIDisplay extends React.Component<APIDisplayProps> {
                 }
 
                 let operationID = undefined;
+                let addedFilter = false;
                 if (this.props.extraFilterKeys !== undefined && this.state.filters.extraFilters !== undefined) {
-                    const filters: StringDict<FilterValidator> = {};
-                    for (let index = 0; index < this.props.extraFilterKeys.length; index++) {
-                        const filter = this.props.extraFilterKeys[index];
-                        filters[filter.name] = filter;
-                    }
-
+                    const filters = this.getFiltersFromProps();
                     for (const key in this.state.filters.extraFilters) {
                         const filter = filters[key];
-                        let type = "query";
 
-                        if (key in filters && (filter.required || filter.operationID)) {
-                            type = "path";
+                        if (filter.filter === undefined) {
+                            addedFilter = true;
+                            let type = "query";
 
-                            if (filter.operationID) {
-                                operationID = filter.operationID;
+                            if (key in filters && (filter.required || filter.operationID)) {
+                                type = "path";
+
+                                if (filter.operationID) {
+                                    operationID = filter.operationID;
+                                }
                             }
-                        }
 
-                        params.push({
-                            name: key,
-                            value: this.state.filters.extraFilters[key],
-                            in: type,
-                        });
+                            params.push({
+                                name: key,
+                                value: this.state.filters.extraFilters[key],
+                                in: type,
+                            });
+                        }
                     }
                 }
 
-                if (this.props.extraDefaultFilters !== undefined) {
-                    params = params.concat(this.props.extraDefaultFilters);
+                if (addedFilter || !this.state.loadedFromStore) {
+                    if (this.props.extraDefaultFilters !== undefined) {
+                        params = params.concat(this.props.extraDefaultFilters);
+                    }
+                    response = await this.callOperation(params, operationID);
                 }
-                response = await this.callOperation(params, operationID);
             } else {
                 response = await this.client.get(this.state.results.nextUrl, { paramsSerializer: () => "" });
             }
@@ -854,41 +912,51 @@ export abstract class APIDisplay extends React.Component<APIDisplayProps> {
             return;
         }
 
-        if (response === null) {
+        let newResults: unknown[];
+        let newCount: number | null;
+        let newNext: string | null;
+        if (response !== null) {
+            if (this.props.updateItems !== undefined) {
+                // do not change count/locale/nextURL on search/filter
+                if (this.state.filters.queryParams !== "") {
+                    this.props.updateItems(response.data.results);
+                    // do not change locale if view does not support it
+                } else if (this.props.locale === null) {
+                    this.props.updateItems(response.data.results, response.data.count, response.data.next);
+                } else {
+                    this.props.updateItems(
+                        response.data.results,
+                        response.data.count,
+                        response.data.next,
+                        this.props.locale,
+                    );
+                }
+            }
+
+            newResults = this.state.results.items
+                .filter((v: unknown) => {
+                    return v !== undefined;
+                })
+                .concat(response.data.results);
+            newCount = response.data.count;
+            newNext = response.data.next;
+        } else if (this.state.loadedFromStore && this.props.results !== undefined) {
+            newResults = this.props.results.items;
+            newCount = this.props.results.count;
+            newNext = this.props.results.nextUrl;
+        } else {
             return;
         }
 
-        if (this.props.updateItems !== undefined) {
-            // do not change count/locale/nextURL on search/filter
-            if (this.state.filters.queryParams !== "") {
-                this.props.updateItems(response.data.results);
-                // do not change locale if view does not support it
-            } else if (this.props.locale === null) {
-                this.props.updateItems(response.data.results, response.data.count, response.data.next);
-            } else {
-                this.props.updateItems(
-                    response.data.results,
-                    response.data.count,
-                    response.data.next,
-                    this.props.locale,
-                );
-            }
-        }
-
-        const newResults = this.state.results.items
-            .filter((v: unknown) => {
-                return v !== undefined;
-            })
-            .concat(response.data.results);
-
         let newItems: BaseItemsAsArray = {
             items: newResults,
-            count: response.data.count,
-            nextUrl: response.data.next,
+            count: newCount,
+            nextUrl: newNext,
         };
+        newItems = this.localFilter(newItems);
         newItems = this.transformResults(newItems);
 
-        const newCount = newItems.count || response.data.count;
+        newCount = newItems.count || newCount || 0;
         newItems.items = this.groupResults(newItems.items);
         newItems.items = newItems.items.concat(generatePlaceholders(newCount - newItems.items.length));
 
@@ -926,6 +994,10 @@ export abstract class APIDisplay extends React.Component<APIDisplayProps> {
     // eslint-disable-next-line
     getData = async (): Promise<void> => {
         const canLoad = await lock.runExclusive(async () => {
+            if (this.client === null) {
+                return false;
+            }
+
             // do not double load or load data before user requests it
             if (this.state.loading || this.state.collapsed) {
                 return false;

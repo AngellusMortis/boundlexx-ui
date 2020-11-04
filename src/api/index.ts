@@ -29,6 +29,7 @@ export {
     requireWorlds,
     requireSkills,
     requireRecipeGroups,
+    requireEmojis,
 } from "api/core";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any

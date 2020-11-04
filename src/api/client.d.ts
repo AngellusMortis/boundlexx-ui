@@ -120,7 +120,19 @@ declare namespace Components {
         }
         export interface Emoji {
             names: string[];
-            is_boundless_only: boolean;
+            category:
+                | "SMILEY"
+                | "PEOPLE"
+                | "COMPONENT"
+                | "ANIMAL"
+                | "FOOD"
+                | "TRAVEL"
+                | "ACTIVITIES"
+                | "OBJECTS"
+                | "SYMBOLS"
+                | "FLAGS"
+                | "BOUNDLESS"
+                | "UNCATEGORIZED";
             image_url: string | null; // binary
         }
         export interface Item {
@@ -1041,7 +1053,19 @@ declare namespace Paths {
     }
     namespace ListEmojis {
         namespace Parameters {
-            export type IsBoundlessOnly = string;
+            export type Category =
+                | "SMILEY"
+                | "PEOPLE"
+                | "COMPONENT"
+                | "ANIMAL"
+                | "FOOD"
+                | "TRAVEL"
+                | "ACTIVITIES"
+                | "OBJECTS"
+                | "SYMBOLS"
+                | "FLAGS"
+                | "BOUNDLESS"
+                | "UNCATEGORIZED";
             export type Limit = number;
             export type Offset = number;
             export type Ordering = string;
@@ -1050,7 +1074,7 @@ declare namespace Paths {
         export interface QueryParameters {
             limit?: Parameters.Limit;
             offset?: Parameters.Offset;
-            is_boundless_only?: Parameters.IsBoundlessOnly;
+            category?: Parameters.Category;
             search?: Parameters.Search;
             ordering?: Parameters.Ordering;
         }
@@ -1760,7 +1784,19 @@ declare namespace Paths {
     }
     namespace RetrieveEmoji {
         namespace Parameters {
-            export type IsBoundlessOnly = string;
+            export type Category =
+                | "SMILEY"
+                | "PEOPLE"
+                | "COMPONENT"
+                | "ANIMAL"
+                | "FOOD"
+                | "TRAVEL"
+                | "ACTIVITIES"
+                | "OBJECTS"
+                | "SYMBOLS"
+                | "FLAGS"
+                | "BOUNDLESS"
+                | "UNCATEGORIZED";
             export type Name = string;
             export type Ordering = string;
             export type Search = string;
@@ -1769,7 +1805,7 @@ declare namespace Paths {
             name: Parameters.Name;
         }
         export interface QueryParameters {
-            is_boundless_only?: Parameters.IsBoundlessOnly;
+            category?: Parameters.Category;
             search?: Parameters.Search;
             ordering?: Parameters.Ordering;
         }

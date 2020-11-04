@@ -172,3 +172,15 @@ export const requireRecipeGroups = async (): Promise<void> => {
         }
     }
 };
+
+export const requireEmojis = async (): Promise<void> => {
+    let loaded = false;
+    while (!loaded) {
+        const state = store.getState();
+        loaded = state.emojis.count !== null && Reflect.ownKeys(state.emojis.items).length === state.emojis.count;
+
+        if (!loaded) {
+            await throttle();
+        }
+    }
+};

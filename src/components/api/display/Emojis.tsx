@@ -1,5 +1,5 @@
 import React from "react";
-import { Text, Stack, Dropdown, IDropdownOption } from "@fluentui/react";
+import { Text, Stack, ComboBox, IComboBoxOption, IComboBox } from "@fluentui/react";
 import { RootState } from "store";
 import { connect } from "react-redux";
 import { withTranslation } from "react-i18next";
@@ -21,10 +21,31 @@ const mapState = (state: RootState) => ({
     name: "Emoji",
     results: mapStringStoreToItems(state.emojis),
     showGroups: state.prefs.showGroups,
+    groupBy: "category",
+    translateGroup: true,
+    loadAll: true,
     extraFilterKeys: [
         {
-            name: "is_boundless_only",
-            type: "boolean",
+            name: "category",
+            type: "string",
+            choices: [
+                "SMILEY",
+                "PEOPLE",
+                "COMPONENT",
+                "ANIMAL",
+                "FOOD",
+                "TRAVEL",
+                "ACTIVITES",
+                "OBJECTS",
+                "SYMBOLS",
+                "FLAGS",
+                "BOUNDLESS",
+                "UNCATEGORIZED",
+            ],
+            filter: (value: string, items: unknown[]) => {
+                const emojis = items as Components.Schemas.Emoji[];
+                return emojis.filter((item: Components.Schemas.Emoji) => item.category === value);
+            },
         },
     ],
 });
@@ -35,6 +56,10 @@ const connector = connect(mapState, mapDispatchToProps);
 
 class Emojis extends APIDisplay {
     copyLock = new Mutex();
+
+    waitForRequiredData = async (): Promise<void> => {
+        await api.requireEmojis();
+    };
 
     onCardClick = (event: React.MouseEvent<HTMLElement, MouseEvent> | undefined) => {
         if (event === undefined) {
@@ -70,18 +95,13 @@ class Emojis extends APIDisplay {
         }
     };
 
-    onUpdateFilter = (event: React.FormEvent<HTMLDivElement>, option?: IDropdownOption | undefined) => {
+    onUpdateFilter = (event: React.FormEvent<IComboBox>, option?: IComboBoxOption | undefined) => {
         if (option !== undefined) {
-            const dropdown = event.target as HTMLDivElement;
-            const key = dropdown.getAttribute("data-filter-name");
+            const params: StringDict<string | null> = {};
+            params["category"] = option.key.toString();
+            params["category"] = params["category"] === "" ? null : params["category"];
 
-            if (key !== null && ["is_boundless_only"].indexOf(key) > -1) {
-                const params: StringDict<string | null> = {};
-                params[key] = option.key.toString();
-                params[key] = params[key] === "" ? null : params[key];
-
-                this.resetState(this.updateQueryParam(params));
-            }
+            this.resetState(this.updateQueryParam(params));
         }
     };
 
@@ -91,20 +111,29 @@ class Emojis extends APIDisplay {
         return (
             <Stack horizontal wrap horizontalAlign="center" verticalAlign="center">
                 <Stack.Item styles={{ root: { margin: "5px 20px" } }}>
-                    <Dropdown
-                        styles={{ dropdown: { width: 100 } }}
-                        label={this.props.t("Boundless Specific")}
-                        data-filter-name="is_boundless_only"
+                    <ComboBox
+                        styles={{ input: { width: 150 } }}
+                        label={this.props.t("Category")}
+                        data-filter-name="category"
                         options={[
                             { key: "", text: this.props.t("No Value") },
-                            { key: "true", text: this.props.t("Yes") },
-                            { key: "false", text: this.props.t("No") },
+                            { key: "BOUNDLESS", text: this.props.t("BOUNDLESS") },
+                            { key: "UNCATEGORIZED", text: this.props.t("UNCATEGORIZED") },
+                            { key: "SMILEY", text: this.props.t("SMILEY") },
+                            { key: "PEOPLE", text: this.props.t("PEOPLE") },
+                            // { key: "COMPONENT", text: this.props.t("COMPONENT") },
+                            { key: "ANIMAL", text: this.props.t("ANIMAL") },
+                            { key: "FOOD", text: this.props.t("FOOD") },
+                            { key: "TRAVEL", text: this.props.t("TRAVEL") },
+                            { key: "ACTIVITIES", text: this.props.t("ACTIVITIES") },
+                            { key: "OBJECTS", text: this.props.t("OBJECTS") },
+                            { key: "SYMBOLS", text: this.props.t("SYMBOLS") },
+                            { key: "FLAGS", text: this.props.t("FLAGS") },
                         ]}
-                        defaultSelectedKey={
-                            filters["is_boundless_only"] === undefined ? "" : filters["is_boundless_only"]
-                        }
+                        placeholder={this.props.t("Select Category")}
+                        text={filters["category"] === undefined ? "" : this.props.t(filters["category"])}
                         onChange={this.onUpdateFilter}
-                    ></Dropdown>
+                    ></ComboBox>
                 </Stack.Item>
             </Stack>
         );

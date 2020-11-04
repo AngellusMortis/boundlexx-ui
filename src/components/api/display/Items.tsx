@@ -25,18 +25,40 @@ const mapState = (state: RootState) => ({
         {
             name: "has_colors",
             type: "boolean",
+            filter: (value: string, items: unknown[]) => {
+                const worlds = items as Components.Schemas.SimpleItem[];
+                return worlds.filter((item: Components.Schemas.SimpleItem) =>
+                    value === "true" ? item.has_colors : !item.has_colors,
+                );
+            },
         },
         {
             name: "is_resource",
             type: "boolean",
+            filter: (value: string, items: unknown[]) => {
+                const worlds = items as Components.Schemas.SimpleItem[];
+                return worlds.filter((item: Components.Schemas.SimpleItem) =>
+                    value === "true" ? item.is_resource : !item.is_resource,
+                );
+            },
         },
         {
             name: "item_subtitle_id",
             type: "number",
+            filter: (value: string, items: unknown[]) => {
+                const worlds = items as Components.Schemas.SimpleItem[];
+                return worlds.filter(
+                    (item: Components.Schemas.SimpleItem) => item.item_subtitle.id === parseInt(value),
+                );
+            },
         },
         {
             name: "list_type__string_id",
             type: "string",
+            filter: (value: string, items: unknown[]) => {
+                const worlds = items as Components.Schemas.SimpleItem[];
+                return worlds.filter((item: Components.Schemas.SimpleItem) => item.list_type.string_id === value);
+            },
         },
     ],
 });

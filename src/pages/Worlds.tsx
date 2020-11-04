@@ -1,19 +1,14 @@
-import {
-    Stack,
-    CommandBar,
-    ICommandBarItemProps,
-    IContextualMenuItem,
-    mergeStyles,
-    AnimationStyles,
-} from "@fluentui/react";
+import { Stack, CommandBar, ICommandBarItemProps, IContextualMenuItem } from "@fluentui/react";
 import React from "react";
 import { withTranslation, WithTranslation } from "react-i18next";
 import { Switch, Route, RouteComponentProps, withRouter } from "react-router-dom";
 import { MenuLink } from "types";
 import { WorldDisplay } from "components";
+import { WorldDetailsPage } from "pages";
+import { makeMenuLinks } from "utils";
 
 const links: MenuLink[] = [
-    { key: "browse", text: "Browse", icon: "World", href: "/worlds/browse/" },
+    { key: "browse", text: "Browse", icon: "World", href: "/worlds/browse/?active=true" },
     { key: "resource-lookup", text: "By Resource", icon: "SearchAndApps", href: "/items/resource-lookup/" },
     { key: "color-lookup", text: "Find By Color", icon: "Color", href: "/colors/item-lookup/" },
 ];
@@ -38,20 +33,7 @@ class Page extends React.Component<Props> {
             }
         };
 
-        const items: ICommandBarItemProps[] = [];
-        links.forEach((link) => {
-            items.push({
-                key: link.key,
-                className: mergeStyles(AnimationStyles.fadeIn500),
-                text: this.props.t(link.text),
-                iconProps: { iconName: link.icon },
-                disabled: false,
-                checked: window.location.pathname === link.href,
-                href: link.href,
-                onClick: onClick,
-            });
-        });
-
+        const items: ICommandBarItemProps[] = makeMenuLinks(links, onClick, true);
         return (
             <Stack>
                 <CommandBar
@@ -63,6 +45,12 @@ class Page extends React.Component<Props> {
                     <Route path="/worlds/browse/" exact strict>
                         <WorldDisplay />
                     </Route>
+                    <Route
+                        path="/worlds/:id(\d+)/"
+                        exact
+                        strict
+                        render={(props) => <WorldDetailsPage id={props.match.params.id} />}
+                    />
                 </Switch>
             </Stack>
         );

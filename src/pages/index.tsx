@@ -8,4 +8,4 @@ export { WorldDetailsPage } from "./WorldDetails";
 export { WorldsPage } from "./Worlds";
 export { ItemDetailsPage } from "./ItemDetails";
 export { AtlasPage } from "./AtlasPage";
-export { DistancePage } from "./Distance";
+export { ToolsPage } from "./ToolsPage";

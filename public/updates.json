@@ -1,5 +1,13 @@
 [
     {
+        "date": "",
+        "changelogs": [
+            "Adds categories to Emojis",
+            "Adds local filtering for simple filters",
+            "Changes all tools pages into a single header"
+        ]
+    },
+    {
         "date": "2020-11-03T17:58:00.000Z",
         "changelogs": ["Fixes Atlas map pages with Campfires", "Adds campfire marker image"]
     },
