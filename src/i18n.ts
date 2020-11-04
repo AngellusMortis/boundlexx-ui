@@ -319,6 +319,7 @@ const resources = {
             Help: "Help",
             Mine: "Mine",
             Place: "Place",
+            Distance: "Distance",
         },
     },
     fr: {

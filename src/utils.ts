@@ -9,6 +9,21 @@ export const timeUnits: StringDict<number> = {
     second: 1000,
 };
 
+export const makeDurationString = (durationSeconds: number): string => {
+    let duration = durationSeconds * 1000;
+
+    let timeString = "";
+    for (const u in timeUnits) {
+        if (duration > timeUnits[u]) {
+            const units = Math.floor(duration / timeUnits[u]);
+            duration = duration - units * timeUnits[u];
+
+            timeString += `${units}${u[0]} `;
+        }
+    }
+    return timeString.trim();
+};
+
 export const getGameCoords = (x: number | undefined, z: number | undefined, y?: number): string => {
     if (x === undefined || z === undefined) {
         return "";

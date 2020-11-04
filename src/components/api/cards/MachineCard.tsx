@@ -7,7 +7,7 @@ import { Text, TooltipHost } from "@fluentui/react";
 import { useId } from "@uifabric/react-hooks";
 import { getItem } from "api";
 import { RecipeLevel } from "types";
-import { timeUnits } from "utils";
+import { makeDurationString } from "utils";
 import { Link } from "components";
 
 interface BaseProps {
@@ -37,21 +37,6 @@ const Component: React.FunctionComponent<Props> = (props) => {
 
     const onCardClick = () => {
         return;
-    };
-
-    const makeDurationString = (duration: number): string => {
-        duration = duration * 1000;
-
-        let timeString = "";
-        for (const u in timeUnits) {
-            if (duration > timeUnits[u]) {
-                const units = Math.floor(duration / timeUnits[u]);
-                duration = duration - units * timeUnits[u];
-
-                timeString += `${units}${u[0]} `;
-            }
-        }
-        return timeString.trim();
     };
 
     const renderTextName = (name: string): JSX.Element => {

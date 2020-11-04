@@ -13,6 +13,7 @@ import {
     WorldDetailsPage,
     ItemDetailsPage,
     AtlasPage,
+    DistancePage,
 } from "pages";
 import { Stack } from "@fluentui/react";
 import { ToastContainer } from "react-toastify";
@@ -214,6 +215,9 @@ class App extends React.Component<Props> {
                                             </Route>
                                             <Route path="/forum/" exact strict>
                                                 <ForumPage />
+                                            </Route>
+                                            <Route path="/distance/" exact strict>
+                                                <DistancePage />
                                             </Route>
                                             <Route
                                                 path="/items/:id(\d+)/"
