@@ -929,6 +929,7 @@ class Page extends React.Component<Props> {
                     crs={L.CRS.Simple}
                     center={this.initialViewport.center || [0, 0]}
                     maxBounds={maxBounds}
+                    minZoom={-2}
                     maxZoom={HIGHEST_ZOOM}
                     zoomControl={false}
                     zoom={this.initialViewport.zoom || 0}
