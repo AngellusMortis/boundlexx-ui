@@ -33,7 +33,7 @@
             "name": "Open Worlds",
             "short_name": "Worlds",
             "description": "Open Worlds Page",
-            "url": "/worlds/browse/"
+            "url": "/worlds/browse/?active=true"
         },
         {
             "name": "Open Items",

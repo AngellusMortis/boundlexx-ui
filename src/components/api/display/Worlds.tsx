@@ -32,11 +32,19 @@ const mapState = (state: RootState) => {
                     const num = parseInt(value);
                     return num >= 0 && num <= 7;
                 },
+                filter: (value: string, items: unknown[]) => {
+                    const worlds = items as Components.Schemas.SimpleWorld[];
+                    return worlds.filter((item: Components.Schemas.SimpleWorld) => item.tier === parseInt(value));
+                },
             },
             {
                 name: "region",
                 type: "string",
                 choices: ["use", "usw", "euc", "aus", "sandbox"],
+                filter: (value: string, items: unknown[]) => {
+                    const worlds = items as Components.Schemas.SimpleWorld[];
+                    return worlds.filter((item: Components.Schemas.SimpleWorld) => item.region === value);
+                },
             },
             {
                 name: "world_type",
@@ -55,6 +63,10 @@ const mapState = (state: RootState) => {
                     "RIFT",
                     "BLINK",
                 ],
+                filter: (value: string, items: unknown[]) => {
+                    const worlds = items as Components.Schemas.SimpleWorld[];
+                    return worlds.filter((item: Components.Schemas.SimpleWorld) => item.world_type === value);
+                },
             },
             {
                 name: "assignment",
@@ -75,6 +87,12 @@ const mapState = (state: RootState) => {
             {
                 name: "is_locked",
                 type: "boolean",
+                filter: (value: string, items: unknown[]) => {
+                    const worlds = items as Components.Schemas.SimpleWorld[];
+                    return worlds.filter((item: Components.Schemas.SimpleWorld) =>
+                        value === "true" ? item.is_locked : !item.is_locked,
+                    );
+                },
             },
             {
                 name: "is_public",
@@ -84,6 +102,12 @@ const mapState = (state: RootState) => {
                 name: "special_type",
                 type: "number",
                 choices: ["1"],
+                filter: (value: string, items: unknown[]) => {
+                    const worlds = items as Components.Schemas.SimpleWorld[];
+                    return worlds.filter(
+                        (item: Components.Schemas.SimpleWorld) => item.special_type === parseInt(value),
+                    );
+                },
             },
             {
                 name: "start_after",
@@ -104,6 +128,12 @@ const mapState = (state: RootState) => {
             {
                 name: "active",
                 type: "boolean",
+                filter: (value: string, items: unknown[]) => {
+                    const worlds = items as Components.Schemas.SimpleWorld[];
+                    return worlds.filter((item: Components.Schemas.SimpleWorld) =>
+                        value === "true" ? item.active : !item.active,
+                    );
+                },
             },
         ],
     };
@@ -340,20 +370,6 @@ class Worlds extends APIDisplay {
                             { key: "false", text: this.props.t("No") },
                         ]}
                         defaultSelectedKey={filters["is_locked"] === undefined ? "" : filters["is_locked"]}
-                        onChange={this.onUpdateFilterDropdown}
-                    ></Dropdown>
-                </Stack.Item>
-                <Stack.Item styles={{ root: { margin: "5px 20px" } }}>
-                    <Dropdown
-                        styles={{ dropdown: { width: 100 } }}
-                        label={this.props.t("Public Visit?")}
-                        data-filter-name="is_public"
-                        options={[
-                            { key: "", text: this.props.t("No Value") },
-                            { key: "true", text: this.props.t("Yes") },
-                            { key: "false", text: this.props.t("No") },
-                        ]}
-                        defaultSelectedKey={filters["is_public"] === undefined ? "" : filters["is_public"]}
                         onChange={this.onUpdateFilterDropdown}
                     ></Dropdown>
                 </Stack.Item>

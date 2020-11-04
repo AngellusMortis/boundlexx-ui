@@ -1,16 +1,11 @@
 import React from "react";
 import { withTranslation, WithTranslation } from "react-i18next";
-import {
-    Stack,
-    CommandBar,
-    ICommandBarItemProps,
-    IContextualMenuItem,
-    mergeStyles,
-    AnimationStyles,
-} from "@fluentui/react";
+import { Stack, CommandBar, ICommandBarItemProps, IContextualMenuItem } from "@fluentui/react";
 import { Switch, Route, RouteComponentProps, withRouter } from "react-router-dom";
 import { MenuLink } from "types";
 import { ItemColorLookup, ItemDisplay, ResourceLookup } from "components";
+import { ItemDetailsPage } from "pages";
+import { makeMenuLinks } from "utils";
 
 const links: MenuLink[] = [
     { key: "browse", text: "Browse", icon: "Stack", href: "/items/browse/" },
@@ -38,20 +33,7 @@ class Page extends React.Component<Props> {
             }
         };
 
-        const items: ICommandBarItemProps[] = [];
-        links.forEach((link) => {
-            items.push({
-                key: link.key,
-                className: mergeStyles(AnimationStyles.fadeIn500),
-                text: this.props.t(link.text),
-                iconProps: { iconName: link.icon },
-                disabled: false,
-                checked: window.location.pathname === link.href,
-                href: link.href,
-                onClick: onClick,
-            });
-        });
-
+        const items: ICommandBarItemProps[] = makeMenuLinks(links, onClick, true);
         return (
             <Stack>
                 <CommandBar
@@ -69,6 +51,12 @@ class Page extends React.Component<Props> {
                     <Route path="/items/color-lookup/" exact strict>
                         <ItemColorLookup />
                     </Route>
+                    <Route
+                        path="/items/:id(\d+)/"
+                        exact
+                        strict
+                        render={(props) => <ItemDetailsPage id={props.match.params.id} />}
+                    />
                 </Switch>
             </Stack>
         );

@@ -2,18 +2,7 @@ import React from "react";
 import "./App.css";
 import { Header, UpdateModal, ErrorBoundary } from "components";
 import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
-import {
-    HomePage,
-    WorldsPage,
-    ItemsPage,
-    ColorsPage,
-    EmojisPage,
-    NotFoundPage,
-    ForumPage,
-    WorldDetailsPage,
-    ItemDetailsPage,
-    AtlasPage,
-} from "pages";
+import { HomePage, WorldsPage, ItemsPage, ColorsPage, EmojisPage, NotFoundPage, AtlasPage, ToolsPage } from "pages";
 import { Stack } from "@fluentui/react";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -44,6 +33,7 @@ const mapDispatchToProps = {
     updateWorlds: api.updateWorlds,
     updateRecipeGroups: api.updateRecipeGroups,
     updateSkills: api.updateSkills,
+    updateEmojis: api.updateEmojis,
 };
 
 const connector = connect(mapState, mapDispatchToProps);
@@ -73,19 +63,16 @@ class App extends React.Component<Props> {
         this.loading = true;
 
         // load "essential data"
-        await this.loadAll(this.props.worlds, "listWorlds", this.props.updateWorlds, undefined, [
-            { name: "show_inactive", value: true, in: "query" },
+        await Promise.all([
+            this.loadAll(this.props.worlds, "listWorlds", this.props.updateWorlds, undefined, [
+                { name: "show_inactive", value: true, in: "query" },
+            ]),
+            this.loadAll(this.props.colors, "listColors", this.props.updateColors, this.props.locale),
+            this.loadAll(this.props.items, "listItems", this.props.updateItems, this.props.locale),
+            this.loadAll(this.props.recipeGroups, "listRecipeGroups", this.props.updateRecipeGroups, this.props.locale),
+            this.loadAll(this.props.skills, "listSkills", this.props.updateSkills, this.props.locale),
+            this.loadAll(this.props.skills, "listEmojis", this.props.updateEmojis),
         ]);
-        await this.loadAll(this.props.colors, "listColors", this.props.updateColors, this.props.locale);
-        await this.loadAll(this.props.items, "listItems", this.props.updateItems, this.props.locale);
-
-        await this.loadAll(
-            this.props.recipeGroups,
-            "listRecipeGroups",
-            this.props.updateRecipeGroups,
-            this.props.locale,
-        );
-        await this.loadAll(this.props.skills, "listSkills", this.props.updateSkills, this.props.locale);
 
         this.loading = false;
     };
@@ -212,30 +199,18 @@ class App extends React.Component<Props> {
                                             <Route path="/emojis/" exact strict>
                                                 <EmojisPage />
                                             </Route>
-                                            <Route path="/forum/" exact strict>
-                                                <ForumPage />
+                                            <Route path="/tools/:route(forum)/" exact strict>
+                                                <ToolsPage />
                                             </Route>
                                             <Route
-                                                path="/items/:id(\d+)/"
-                                                exact
-                                                strict
-                                                render={(props) => <ItemDetailsPage id={props.match.params.id} />}
-                                            />
-                                            <Route
-                                                path="/items/:route(browse|resource-lookup|color-lookup)/"
+                                                path="/items/:route(browse|resource-lookup|color-lookup|\d+)/"
                                                 exact
                                                 strict
                                             >
                                                 <ItemsPage />
                                             </Route>
                                             <Route
-                                                path="/worlds/:id(\d+)/"
-                                                exact
-                                                strict
-                                                render={(props) => <WorldDetailsPage id={props.match.params.id} />}
-                                            />
-                                            <Route
-                                                path="/worlds/:route(browse|resource-lookup|color-lookup)/"
+                                                path="/worlds/:route(browse|resource-lookup|color-lookup|\d+)/"
                                                 exact
                                                 strict
                                             >

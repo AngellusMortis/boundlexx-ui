@@ -23,6 +23,7 @@ import "./Header.css";
 import { getTheme } from "themes";
 import { RouteComponentProps, withRouter } from "react-router-dom";
 import { changeShowUpdates } from "prefs/actions";
+import { makeMenuLinks } from "utils";
 
 const mapState = (state: RootState) => ({
     locale: state.prefs.language,
@@ -41,11 +42,29 @@ type PropsFromRedux = ConnectedProps<typeof connector>;
 type Props = RouteComponentProps & WithTranslation & PropsFromRedux;
 
 const links: MenuLink[] = [
-    { key: "worlds", text: "World_plural", icon: "World", href: "/worlds/browse/", base: "/worlds/" },
-    { key: "items", text: "Item_plural", icon: "Stack", href: "/items/browse/", base: "/items/" },
-    { key: "colors", text: "Color_plural", icon: "Color", href: "/colors/browse/", base: "/colors/" },
+    { key: "worlds", text: "World_plural", icon: "World", href: "/worlds/browse/?active=true", base: "/worlds/" },
+    {
+        key: "items",
+        text: "Item_plural",
+        icon: "Stack",
+        href: "/items/browse/",
+        base: "/items/",
+    },
+    {
+        key: "colors",
+        text: "Color_plural",
+        icon: "Color",
+        href: "/colors/browse/",
+        base: "/colors/",
+    },
     { key: "emojis", text: "Emoji_plural", icon: "Emoji2", href: "/emojis/" },
-    { key: "forum", text: "Forum Generator", icon: "PageHeaderEdit", href: "/forum/" },
+    {
+        key: "tool",
+        text: "Tools",
+        icon: "Toolbox",
+        base: "/tools/",
+        children: [{ key: "forum", text: "Forum Generator", icon: "PageHeaderEdit", href: "/tools/forum/" }],
+    },
 ];
 
 const myStyle1 = mergeStyles(AnimationStyles.fadeIn500);
@@ -72,27 +91,7 @@ class Component extends React.Component<Props> {
 
     render = () => {
         const updateButtonText = this.props.t("See Updates");
-        const items: ICommandBarItemProps[] = [];
-        links.forEach((link) => {
-            items.push({
-                key: link.key,
-                className: myStyle1,
-                text: this.props.t(link.text),
-                iconProps: { iconName: link.icon },
-                disabled: false,
-                checked:
-                    link.base === undefined
-                        ? window.location.pathname === link.href
-                        : window.location.pathname.startsWith(link.base),
-                href: link.href,
-                onClick: this.onClick,
-                buttonStyles: {
-                    root: {
-                        backgroundColor: this.props.theme.palette.neutralTertiaryAlt,
-                    },
-                },
-            });
-        });
+        const items: ICommandBarItemProps[] = makeMenuLinks(links, this.onClick);
 
         return (
             <header>

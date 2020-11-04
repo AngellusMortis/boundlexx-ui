@@ -55,7 +55,8 @@ export interface MenuLink {
     key: string;
     text: string;
     icon: string;
-    href: string;
+    children?: MenuLink[];
+    href?: string;
     base?: string;
 }
 
