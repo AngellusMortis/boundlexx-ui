@@ -199,11 +199,8 @@ class App extends React.Component<Props> {
                                             <Route path="/emojis/" exact strict>
                                                 <EmojisPage />
                                             </Route>
-                                            <Route path="/tools/:route(forum)/" exact strict>
+                                            <Route path="/tools/:route(forum|distance)/" exact strict>
                                                 <ToolsPage />
-                                            </Route>
-                                            <Route path="/distance/" exact strict>
-                                                <DistancePage />
                                             </Route>
                                             <Route
                                                 path="/items/:route(browse|resource-lookup|color-lookup|\d+)/"

@@ -2,19 +2,23 @@ import React from "react";
 import { withTranslation, WithTranslation } from "react-i18next";
 import { Stack, Spinner, SpinnerSize, Text, Image } from "@fluentui/react";
 import "./Forum.css";
-import { WorldSelector, Link } from "components";
+import { WorldSelector, WorldSummary } from "components";
 import { Components, Client as BoundlexxClient } from "api/client";
 import * as api from "api";
 import { getTheme } from "themes";
 import { makeDurationString } from "utils";
 import "./Distance.css";
+import { Mutex } from "async-mutex";
 
 interface State {
     world1: Components.Schemas.SimpleWorld | null;
     world2: Components.Schemas.SimpleWorld | null;
     worldDistance: Components.Schemas.WorldDistance | null;
     loaded: boolean;
+    loadingDistance: boolean;
 }
+
+const lock = new Mutex();
 
 class Distance extends React.Component<WithTranslation> {
     client: BoundlexxClient | null = null;
@@ -23,6 +27,7 @@ class Distance extends React.Component<WithTranslation> {
         world2: null,
         worldDistance: null,
         loaded: false,
+        loadingDistance: false,
     };
 
     initialWorld1ID: number | null = null;
@@ -87,26 +92,51 @@ class Distance extends React.Component<WithTranslation> {
     };
 
     fetchDistance = async () => {
-        if (this.client === null || this.state.world1 === null || this.state.world2 === null) {
-            return;
+        const canLoad = await lock.runExclusive(async () => {
+            if (
+                this.client === null ||
+                this.state.world1 === null ||
+                this.state.world2 === null ||
+                this.state.loadingDistance
+            ) {
+                return false;
+            }
+
+            this.setState({ loadingDistance: true });
+
+            return true;
+        });
+
+        if (!canLoad || this.client === null || this.state.world1 === null || this.state.world2 === null) {
+            return false;
         }
 
-        const response = await this.client.retrieveWorldDistance([
-            {
-                name: "world_source__id",
-                value: this.state.world1.id,
-                in: "path",
-            },
-            {
-                name: "world_id",
-                value: this.state.world2.id,
-                in: "path",
-            },
-        ]);
+        try {
+            const response = await this.client.retrieveWorldDistance([
+                {
+                    name: "world_source__id",
+                    value: this.state.world1.id,
+                    in: "path",
+                },
+                {
+                    name: "world_id",
+                    value: this.state.world2.id,
+                    in: "path",
+                },
+            ]);
 
-        this.setState({
-            worldDistance: response.data,
-        });
+            this.setState({
+                worldDistance: response.data,
+                loadingDistance: false,
+            });
+        } catch (err) {
+            if (err.response !== undefined && err.response.status === 404) {
+                this.setState({ loadingDistance: false });
+            } else {
+                await api.throttle(3000);
+                this.fetchDistance();
+            }
+        }
     };
 
     renderPortalRequirements = (worldDistance: Components.Schemas.WorldDistance) => {
@@ -151,79 +181,89 @@ class Distance extends React.Component<WithTranslation> {
         );
     };
 
-    renderWorld = (world: Components.Schemas.SimpleWorld) => {
-        const specialType = api.getSpecialType(world);
-
-        return (
-            <div style={{ minWidth: 200, width: "100%", display: "inline-block", marginBottom: 40 }}>
-                <Image
-                    src={world.image_url || "https://cdn.boundlexx.app/worlds/unknown.png"}
-                    styles={{ image: { width: "100%" }, root: { margin: "50px 100px 10px 100px" } }}
-                    alt={world.text_name || world.display_name}
-                />
-                <Text variant="large" block>
-                    <Link href={`/worlds/${world.id}/`}>
-                        <span
-                            dangerouslySetInnerHTML={{
-                                __html: world.html_name || world.display_name,
-                            }}
-                        ></span>
-                    </Link>
-                </Text>
-                <Text variant="medium" style={{ display: "block" }}>
-                    {`${this.props.t(api.TierNameMap[world.tier])} ${this.props.t(api.TypeNameMap[world.world_type])} ${
-                        specialType == null ? "" : specialType + " "
-                    } ${this.props.t(world.world_class)}`}
-                </Text>
-            </div>
-        );
-    };
-
-    renderDistance = (worldDistance: Components.Schemas.WorldDistance) => {
-        if (this.state.world1 === null || this.state.world2 === null) {
-            return;
-        }
-
+    renderWorlds = () => {
         const theme = getTheme();
 
         return (
             <Stack horizontal style={{ padding: "10px", justifyContent: "center" }}>
-                <Stack.Item styles={{ root: { minHeight: 500 } }}>{this.renderWorld(this.state.world1)}</Stack.Item>
+                {this.state.world1 && (
+                    <Stack.Item styles={{ root: { minHeight: 500 } }}>
+                        <WorldSummary world={this.state.world1} />
+                    </Stack.Item>
+                )}
 
                 <Stack.Item className="distance-container" styles={{ root: { minHeight: 500 } }}>
-                    <Stack
-                        style={{
-                            backgroundColor: theme.palette.neutralLighter,
-                            borderBottom: "2px solid",
-                            borderBottomColor: theme.palette.themePrimary,
-                            padding: "30px",
-                            display: "inline-block",
-                        }}
-                    >
-                        <Stack.Item>
-                            <Text
-                                block
-                                variant="large"
-                                style={{ color: theme.palette.themePrimary, fontWeight: "bold" }}
+                    {this.state.loadingDistance && (
+                        <Spinner
+                            size={SpinnerSize.large}
+                            style={{ height: "50vh" }}
+                            label={this.props.t("Loading Distance...")}
+                            ariaLive="assertive"
+                        />
+                    )}
+                    {this.state.worldDistance !== null && (
+                        <Stack
+                            style={{
+                                backgroundColor: theme.palette.neutralLighter,
+                                borderBottom: "2px solid",
+                                borderBottomColor: theme.palette.themePrimary,
+                                padding: "30px",
+                                display: "inline-block",
+                            }}
+                        >
+                            <Stack.Item>
+                                <Text
+                                    block
+                                    variant="large"
+                                    style={{ color: theme.palette.themePrimary, fontWeight: "bold" }}
+                                >
+                                    {this.props.t("Distance")}:
+                                </Text>
+                                <Text>{this.state.worldDistance.distance} blinksec</Text>
+                            </Stack.Item>
+                            <Stack.Item>
+                                <Text
+                                    block
+                                    variant="large"
+                                    style={{ color: theme.palette.themePrimary, fontWeight: "bold" }}
+                                >
+                                    {this.props.t("Warp Cost")}:
+                                </Text>
+                                <Text>{this.state.worldDistance.cost.toLocaleString()}c</Text>
+                            </Stack.Item>
+                            {this.renderPortalRequirements(this.state.worldDistance)}
+                        </Stack>
+                    )}
+                    {this.state.world1 !== null &&
+                        this.state.world2 !== null &&
+                        !this.state.loadingDistance &&
+                        this.state.worldDistance === null && (
+                            <Stack
+                                style={{
+                                    backgroundColor: theme.palette.neutralLighter,
+                                    borderBottom: "2px solid",
+                                    borderBottomColor: theme.palette.themePrimary,
+                                    padding: "30px",
+                                    display: "inline-block",
+                                }}
                             >
-                                {this.props.t("Distance")}:
-                            </Text>
-                            <Text>{worldDistance.distance} blinksec</Text>
-                        </Stack.Item>
-                        <Stack.Item>
-                            <Text
-                                block
-                                variant="large"
-                                style={{ color: theme.palette.themePrimary, fontWeight: "bold" }}
-                            >
-                                {this.props.t("Warp Cost")}:
-                            </Text>
-                            <Text>{worldDistance.cost.toLocaleString()}c</Text>
-                        </Stack.Item>
-                        {this.renderPortalRequirements(worldDistance)}
-                    </Stack>
+                                <Stack.Item>
+                                    <Text
+                                        block
+                                        variant="large"
+                                        style={{ color: theme.palette.themePrimary, fontWeight: "bold" }}
+                                    >
+                                        {this.props.t("No distance information found")}:
+                                    </Text>
+                                </Stack.Item>
+                            </Stack>
+                        )}
                 </Stack.Item>
-                <Stack.Item styles={{ root: { minHeight: 500 } }}>{this.renderWorld(this.state.world2)}</Stack.Item>
+                {this.state.world2 && (
+                    <Stack.Item styles={{ root: { minHeight: 500 } }}>
+                        <WorldSummary world={this.state.world2} />
+                    </Stack.Item>
+                )}
             </Stack>
         );
     };
@@ -247,6 +287,7 @@ class Distance extends React.Component<WithTranslation> {
                         className="world-select1"
                         onWorldChange={this.onWorldChange1}
                         worldID={worldID1}
+                        activeOnly={true}
                         style={{
                             maxWidth: 300,
                             display: "inline-block",
@@ -259,6 +300,7 @@ class Distance extends React.Component<WithTranslation> {
                         className="world-select2"
                         onWorldChange={this.onWorldChange2}
                         worldID={worldID2}
+                        activeOnly={true}
                         style={{
                             maxWidth: 300,
                             display: "inline-block",
@@ -266,9 +308,7 @@ class Distance extends React.Component<WithTranslation> {
                         }}
                     />
                 </Stack.Item>
-                <Stack.Item>
-                    {this.state.worldDistance !== null && this.renderDistance(this.state.worldDistance)}
-                </Stack.Item>
+                <Stack.Item>{this.renderWorlds()}</Stack.Item>
             </Stack>
         );
     };

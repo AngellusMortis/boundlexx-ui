@@ -386,6 +386,8 @@ class Worlds extends APIDisplay {
                         label="Orbited World"
                         worldID={assignmentID}
                         onWorldChange={this.onUpdateAssignment}
+                        activeOnly={true}
+                        permOnly={true}
                     />
                 </Stack.Item>
             </Stack>

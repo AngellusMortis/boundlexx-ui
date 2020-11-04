@@ -38,7 +38,7 @@ class Page extends React.Component<Props> {
                 <CommandBar
                     className="secondary-nav-header"
                     items={items}
-                    style={{ width: "90vw", justifyContent: "center", display: "flex" }}
+                    style={{ width: "90vw", justifyContent: "center", display: "flex", margin: "0 auto" }}
                 />
                 <Switch>
                     <Route path="/colors/browse/" exact strict>

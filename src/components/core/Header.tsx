@@ -63,7 +63,10 @@ const links: MenuLink[] = [
         text: "Tools",
         icon: "Toolbox",
         base: "/tools/",
-        children: [{ key: "forum", text: "Forum Generator", icon: "PageHeaderEdit", href: "/tools/forum/" }],
+        children: [
+            { key: "forum", text: "Forum Generator", icon: "PageHeaderEdit", href: "/tools/forum/" },
+            { key: "distance", text: "Distance Calculator", icon: "World", href: "/tools/distance/" },
+        ],
     },
 ];
 

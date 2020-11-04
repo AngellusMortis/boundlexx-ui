@@ -11,6 +11,8 @@ const mapState = (state: RootState) => ({
 
 interface BaseProps extends ISelectableDroppableTextProps<IComboBox, IComboBox> {
     worldID?: number | null;
+    activeOnly?: boolean;
+    permOnly?: boolean;
     onWorldChange?: (world: Components.Schemas.SimpleWorld | null) => void;
 }
 
@@ -64,7 +66,12 @@ class Component extends React.Component<Props> {
 
             const world = this.props.worlds[key];
 
-            if (world.text_name !== undefined && world.id !== undefined) {
+            if (
+                world.text_name !== undefined &&
+                world.id !== undefined &&
+                (!this.props.activeOnly || world.active) &&
+                (!this.props.permOnly || world.is_perm)
+            ) {
                 options.push({
                     key: key,
                     text: `${world.text_name} (ID: ${world.id})`,

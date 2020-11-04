@@ -16,7 +16,7 @@ import {
     SpinnerSize,
 } from "@fluentui/react";
 import "./Forum.css";
-import { WorldSelector } from "components";
+import { WorldSelector, WorldSummary } from "components";
 import { Components, Client as BoundlexxClient } from "api/client";
 import { StringDict } from "types";
 import * as api from "api";
@@ -111,7 +111,18 @@ class Forum extends React.Component<Props> {
     };
 
     onWorldChange = (world: Components.Schemas.SimpleWorld | null) => {
-        this.setState({ world: world });
+        this.setState({ world: world }, () => {
+            const query = new URLSearchParams();
+            if (this.state.world !== null) {
+                query.append("world_id", this.state.world.id.toString());
+            }
+
+            window.history.replaceState(
+                "",
+                document.title,
+                `${window.location.origin}${window.location.pathname}?${query.toString()}`,
+            );
+        });
     };
 
     onUpdateDropDown = (event: React.FormEvent<HTMLDivElement>, option?: IDropdownOption | undefined) => {
@@ -332,7 +343,9 @@ class Forum extends React.Component<Props> {
                     className="world-select"
                     onWorldChange={this.onWorldChange}
                     worldID={worldID}
+                    activeOnly={true}
                 />
+                {this.state.world !== null && <WorldSummary world={this.state.world} />}
                 {isSovereign && this.renderSovereignFields()}
                 <PrimaryButton type="submit" disabled={this.state.submitted}>
                     {this.props.t("Generate Template")}
