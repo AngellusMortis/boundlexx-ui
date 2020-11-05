@@ -1,6 +1,6 @@
 import React from "react";
 import { withTranslation, WithTranslation } from "react-i18next";
-import { Stack, Spinner, SpinnerSize, Text } from "@fluentui/react";
+import { Stack, Spinner, SpinnerSize, Text, Image } from "@fluentui/react";
 import "./Forum.css";
 import { WorldSelector, WorldSummary } from "components";
 import { Components, Client as BoundlexxClient } from "api/client";
@@ -9,6 +9,9 @@ import { getTheme } from "themes";
 import { makeDurationString } from "utils";
 import "./Distance.css";
 import { Mutex } from "async-mutex";
+import roadrunner from "../roadrunner.png";
+import path from "../path.png";
+import straightpath from "../straightpath.png";
 
 interface State {
     world1: Components.Schemas.SimpleWorld | null;
@@ -185,18 +188,51 @@ class Distance extends React.Component<WithTranslation> {
         const theme = getTheme();
 
         return (
-            <Stack horizontal style={{ padding: "10px", justifyContent: "center" }}>
+            <Stack horizontal style={{ position: "relative", padding: "10px", justifyContent: "center" }}>
                 {this.state.world1 && (
                     <Stack.Item styles={{ root: { minHeight: 500 } }}>
                         <WorldSummary world={this.state.world1} />
                     </Stack.Item>
                 )}
-
-                <Stack.Item className="distance-container" styles={{ root: { minHeight: 500 } }}>
+                <div
+                    style={{
+                        position: "absolute",
+                        margin: "auto",
+                        minWidth: 200,
+                        flex: "column",
+                        justifyContent: "center",
+                    }}
+                >
+                    <Stack.Item className="roadrunner">
+                        <div style={{ minWidth: 200, width: "25%", marginBottom: 10 }}>
+                            <Image
+                                src={roadrunner}
+                                styles={{
+                                    image: { width: "100%" },
+                                    root: { margin: "50px 0px 10px 0px", animation: "bounce 5s infinite" },
+                                }}
+                                alt={"roadrunner"}
+                            />
+                        </div>
+                    </Stack.Item>
+                    <Stack.Item className="path">
+                        <div style={{ minWidth: 500, marginBottom: 0 }}>
+                            <Image
+                                src={straightpath}
+                                styles={{ image: { width: "100%" }, root: { margin: "50px 20px 10px 20px" } }}
+                                alt={"path"}
+                            />
+                        </div>
+                    </Stack.Item>
+                </div>
+                <Stack.Item
+                    className="distance-container"
+                    styles={{ root: { minHeight: 500, alignself: "center", marginTop: "0px" } }}
+                >
                     {this.state.loadingDistance && (
                         <Spinner
                             size={SpinnerSize.large}
-                            style={{ height: "50vh" }}
+                            style={{ width: 500 }}
                             label={this.props.t("Loading Distance...")}
                             ariaLive="assertive"
                         />
