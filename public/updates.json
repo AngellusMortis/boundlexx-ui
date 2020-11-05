@@ -9,7 +9,9 @@
             "Improves World Selector performance/styling/limits on number of Worlds",
             "Adds world image to Forum Template Generator",
             "Changes Forum Template Generator to persist state in URL like other pages",
-            "Add negative zoom levels to Atlas Map"
+            "Add negative zoom levels to Atlas Map",
+            "Fixes displaing game coords",
+            "Adds settlements to Atlas Map"
         ]
     },
     {

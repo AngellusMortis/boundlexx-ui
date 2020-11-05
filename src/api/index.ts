@@ -16,6 +16,7 @@ export {
     MachineToItemMap,
     EventNameMap,
     BackerTierMap,
+    SettlementRankMap,
 } from "api/data";
 export {
     config,

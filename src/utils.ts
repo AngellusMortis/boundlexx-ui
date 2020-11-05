@@ -32,24 +32,11 @@ export const getGameCoords = (x: number | undefined, z: number | undefined, y?: 
         return "";
     }
 
-    let directionX = "N";
-    let directionZ = "W";
-
-    if (x < 0) {
-        directionX = "S";
-    }
-
-    if (z < 0) {
-        directionZ = "E";
-    }
-
     if (y === undefined) {
-        return `${Math.floor(x).toLocaleString()}${directionX} ${Math.floor(z).toLocaleString()}${directionZ}`;
+        return `${Math.floor(z).toLocaleString()}N ${Math.floor(x).toLocaleString()}E`;
     }
 
-    return `${Math.floor(x).toLocaleString()}${directionX} ${Math.floor(
-        z,
-    ).toLocaleString()}${directionZ} (Altitude: ${y})`;
+    return `${Math.floor(z).toLocaleString()}N ${Math.floor(x).toLocaleString()}E (Altitude: ${y})`;
 };
 
 export const makeMenuLinks = (
