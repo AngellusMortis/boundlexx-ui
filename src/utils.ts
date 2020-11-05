@@ -1,6 +1,12 @@
 import { StringDict, MenuLink } from "types";
 import { getTheme } from "themes";
-import { ICommandBarItemProps, mergeStyles, AnimationStyles, IContextualMenuItem } from "@fluentui/react";
+import {
+    ICommandBarItemProps,
+    mergeStyles,
+    AnimationStyles,
+    IContextualMenuItem,
+    ContextualMenuItemType,
+} from "@fluentui/react";
 import i18n from "./i18n";
 
 export const timeUnits: StringDict<number> = {
@@ -50,12 +56,12 @@ export const makeMenuLinks = (
     const theme = getTheme();
     const items: ICommandBarItemProps[] = [];
 
+    // TODO
+    // eslint-disable-next-line
     links.forEach((link) => {
         const item: ICommandBarItemProps = {
             key: link.key,
             className: mergeStyles(AnimationStyles.fadeIn500),
-            text: i18n.t(link.text),
-            iconProps: { iconName: link.icon },
             disabled: false,
             checked:
                 link.base === undefined
@@ -63,25 +69,58 @@ export const makeMenuLinks = (
                     : window.location.pathname.startsWith(link.base),
         };
 
-        if (!subheader) {
-            item.buttonStyles = {
-                root: {
-                    backgroundColor: theme.palette.neutralTertiaryAlt,
-                },
-            };
-        }
-
-        if (link.children !== undefined) {
-            item.subMenuProps = {
-                items: makeMenuLinks(link.children, onClick),
-            };
+        if (link.divider) {
+            item.text = "-";
+            item.itemType = ContextualMenuItemType.Divider;
+        } else if (link.header) {
+            if (link.text !== undefined) {
+                if (link.skipTranslate) {
+                    item.text = link.text;
+                } else {
+                    item.text = i18n.t(link.text);
+                }
+            }
+            item.itemType = ContextualMenuItemType.Header;
         } else {
-            if (onClick !== undefined) {
-                item.onClick = onClick;
+            if (link.text !== undefined) {
+                if (link.skipTranslate) {
+                    item.text = link.text;
+                } else {
+                    item.text = i18n.t(link.text);
+                }
+            }
+            if (link.secondaryText !== undefined) {
+                item.secondaryText = i18n.t(link.secondaryText);
+            }
+            if (link.icon !== undefined) {
+                item.iconProps = { iconName: link.icon };
             }
 
-            if (link.href !== undefined) {
-                item.href = link.href;
+            if (!subheader) {
+                item.buttonStyles = {
+                    root: {
+                        backgroundColor: theme.palette.neutralTertiaryAlt,
+                    },
+                };
+            }
+
+            if (link.children !== undefined) {
+                item.subMenuProps = {
+                    items: makeMenuLinks(link.children, onClick),
+                };
+            } else {
+                if (onClick !== undefined && !link.external) {
+                    item.onClick = onClick;
+                }
+
+                if (link.href !== undefined) {
+                    item.href = link.href;
+                }
+
+                if (link.external) {
+                    item.target = "_blank";
+                    item.iconProps = { iconName: "NavigateExternalInline" };
+                }
             }
         }
 

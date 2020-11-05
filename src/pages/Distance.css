@@ -1,8 +1,19 @@
+@media (max-width: 1599px) {
+    .world-container {
+        display: none;
+    }
+
+    .roadrunner-container {
+        display: none;
+    }
+}
+
 @media (min-width: 1599px) {
     .distance-container {
         margin-top: 400px;
     }
 }
+
 @keyframes bounce {
     0% {
         transform: scale(1, 1) translateY(0) translateX(0px);

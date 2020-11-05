@@ -365,6 +365,7 @@ class Forum extends React.Component<Props> {
                     label={this.props.t("Portal Directions")}
                     onChange={this.onInputChanged}
                     value={this.state.portal_directions || ""}
+                    maxLength={2000}
                 ></TextField>
                 <Text variant="xSmall" className="help-text">
                     {this.props.t("Directions to help players find the portal to your world")}

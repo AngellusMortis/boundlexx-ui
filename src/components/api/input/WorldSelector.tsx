@@ -1,4 +1,11 @@
-import { ComboBox, IComboBoxOption, ISelectableDroppableTextProps, IComboBox } from "@fluentui/react";
+import {
+    ComboBox,
+    IComboBoxOption,
+    ISelectableDroppableTextProps,
+    IComboBox,
+    Image,
+    ISelectableOption,
+} from "@fluentui/react";
 import React from "react";
 import { RootState } from "store";
 import { connect, ConnectedProps } from "react-redux";
@@ -75,6 +82,7 @@ class Component extends React.Component<Props> {
                 options.push({
                     key: key,
                     text: `${world.text_name} (ID: ${world.id})`,
+                    data: world,
                 });
             }
         });
@@ -106,6 +114,27 @@ class Component extends React.Component<Props> {
         }
     };
 
+    renderWorld = (props: ISelectableOption | undefined) => {
+        if (props === undefined) {
+            return null;
+        }
+
+        return (
+            <div key={`world-${props.data.id}`} style={{ width: 350 }} className="world-option">
+                <Image
+                    src={props.data.image_url || "https://cdn.boundlexx.app/worlds/unknown.png"}
+                    styles={{ image: { width: 20 }, root: { display: "inline-block", marginRight: 10 } }}
+                />
+                <span
+                    dangerouslySetInnerHTML={{
+                        __html: props.data.html_name || props.data.display_name,
+                    }}
+                ></span>{" "}
+                (ID: {props.data.id})
+            </div>
+        );
+    };
+
     getValueFromID = (worldID?: number | null | undefined) => {
         if (worldID === null || worldID === undefined) {
             return "";
@@ -133,6 +162,7 @@ class Component extends React.Component<Props> {
                 allowFreeform
                 options={this.state.options}
                 onChange={this.onChange}
+                onRenderOption={this.renderWorld}
                 text={this.getValueFromID(this.props.worldID)}
                 {...this.props}
             ></ComboBox>

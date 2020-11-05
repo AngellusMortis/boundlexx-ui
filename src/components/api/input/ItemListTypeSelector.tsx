@@ -113,6 +113,8 @@ class ListTypeSelector extends React.Component<Props> {
         const label = this.props.label || "Type";
         return (
             <ComboBox
+                styles={{ optionsContainer: { maxHeight: 400 } }}
+                persistMenu
                 placeholder={this.props.t(`Select ${label}`)}
                 label={this.props.t(label)}
                 autoComplete="on"

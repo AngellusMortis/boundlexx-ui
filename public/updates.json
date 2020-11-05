@@ -1,6 +1,14 @@
 [
     {
-        "date": "",
+        "date": "2020-11-05T15:30:00.000Z",
+        "changelogs": ["Adds links to various other community tools"]
+    },
+    {
+        "date": "2020-11-05T13:35:00.000Z",
+        "changelogs": ["Adds max length on portal directions"]
+    },
+    {
+        "date": "2020-11-05T13:05:00.000Z",
         "changelogs": [
             "Adds categories to Emojis",
             "Adds local filtering for simple filters",
@@ -10,8 +18,9 @@
             "Adds world image to Forum Template Generator",
             "Changes Forum Template Generator to persist state in URL like other pages",
             "Add negative zoom levels to Atlas Map",
-            "Fixes displaing game coords",
-            "Adds settlements to Atlas Map"
+            "Fixes displaying game coords",
+            "Adds settlements to Atlas Map",
+            "Adds world images and html names to World Selector"
         ]
     },
     {

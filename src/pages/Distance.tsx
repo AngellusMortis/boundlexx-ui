@@ -9,9 +9,6 @@ import { getTheme } from "themes";
 import { makeDurationString } from "utils";
 import "./Distance.css";
 import { Mutex } from "async-mutex";
-import roadrunner from "../roadrunner.png";
-import path from "../path.png";
-import straightpath from "../straightpath.png";
 
 interface State {
     world1: Components.Schemas.SimpleWorld | null;
@@ -190,41 +187,47 @@ class Distance extends React.Component<WithTranslation> {
         return (
             <Stack horizontal style={{ position: "relative", padding: "10px", justifyContent: "center" }}>
                 {this.state.world1 && (
-                    <Stack.Item styles={{ root: { minHeight: 500 } }}>
+                    <Stack.Item className="world-container" styles={{ root: { minHeight: 500 } }}>
                         <WorldSummary world={this.state.world1} />
                     </Stack.Item>
                 )}
-                <div
-                    style={{
-                        position: "absolute",
-                        margin: "auto",
-                        minWidth: 200,
-                        flex: "column",
-                        justifyContent: "center",
-                    }}
-                >
-                    <Stack.Item className="roadrunner">
-                        <div style={{ minWidth: 200, width: "25%", marginBottom: 10 }}>
-                            <Image
-                                src={roadrunner}
-                                styles={{
-                                    image: { width: "100%" },
-                                    root: { margin: "50px 0px 10px 0px", animation: "bounce 5s infinite" },
-                                }}
-                                alt={"roadrunner"}
-                            />
-                        </div>
-                    </Stack.Item>
-                    <Stack.Item className="path">
-                        <div style={{ minWidth: 500, marginBottom: 0 }}>
-                            <Image
-                                src={straightpath}
-                                styles={{ image: { width: "100%" }, root: { margin: "50px 20px 10px 20px" } }}
-                                alt={"path"}
-                            />
-                        </div>
-                    </Stack.Item>
-                </div>
+                {this.state.worldDistance !== null && (
+                    <div
+                        className="roadrunner-container"
+                        style={{
+                            position: "absolute",
+                            margin: "auto",
+                            minWidth: 200,
+                            flex: "column",
+                            justifyContent: "center",
+                        }}
+                    >
+                        <Stack.Item className="roadrunner">
+                            <div style={{ minWidth: 200, width: "25%", marginBottom: 10 }}>
+                                <Image
+                                    src="https://cdn.boundlexx.app/images/roadrunner.png"
+                                    styles={{
+                                        image: { width: "100%" },
+                                        root: { margin: "50px 0px 10px 0px", animation: "bounce 20s infinite" },
+                                    }}
+                                    alt={"roadrunner"}
+                                />
+                            </div>
+                        </Stack.Item>
+                        <Stack.Item className="path">
+                            <div style={{ minWidth: 500, marginBottom: 0 }}>
+                                <Image
+                                    src="https://cdn.boundlexx.app/images/straightpath.png"
+                                    styles={{
+                                        image: { width: "100%" },
+                                        root: { margin: "0 20px 10px 20px", position: "relative", top: -110 },
+                                    }}
+                                    alt={"path"}
+                                />
+                            </div>
+                        </Stack.Item>
+                    </div>
+                )}
                 <Stack.Item
                     className="distance-container"
                     styles={{ root: { minHeight: 500, alignself: "center", marginTop: "0px" } }}
@@ -296,7 +299,7 @@ class Distance extends React.Component<WithTranslation> {
                         )}
                 </Stack.Item>
                 {this.state.world2 && (
-                    <Stack.Item styles={{ root: { minHeight: 500 } }}>
+                    <Stack.Item className="world-container" styles={{ root: { minHeight: 500 } }}>
                         <WorldSummary world={this.state.world2} />
                     </Stack.Item>
                 )}

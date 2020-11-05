@@ -53,11 +53,16 @@ export interface LocalizedStringAPIItems extends LocalizedBaseItems {
 
 export interface MenuLink {
     key: string;
-    text: string;
-    icon: string;
+    text?: string;
+    skipTranslate?: boolean;
+    secondaryText?: string;
+    icon?: string;
     children?: MenuLink[];
     href?: string;
     base?: string;
+    divider?: boolean;
+    header?: boolean;
+    external?: boolean;
 }
 
 export interface RecipeLevel {
