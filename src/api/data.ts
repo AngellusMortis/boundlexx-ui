@@ -85,3 +85,12 @@ export const MachineToItemMap: StringDict<number | string> = {
     REFINERY: 9811,
     WORKBENCH: 9789,
 };
+
+export const SettlementRankMap: NumberDict<string> = {
+    0: "Outpost",
+    1: "Hamlet",
+    2: "Village",
+    3: "Town",
+    4: "City",
+    5: "Great City",
+};

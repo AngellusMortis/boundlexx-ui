@@ -364,6 +364,8 @@ const resources = {
             "Update Link?": "Update Link?",
             "Provide an update link back to this form automatically filled out for quick update?":
                 "Provide an update link back to this form automatically filled out for quick update?",
+            Settlement_plural: "Settlements",
+            Settlement: "Settlement",
         },
     },
     fr: {

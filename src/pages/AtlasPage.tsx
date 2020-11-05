@@ -121,12 +121,17 @@ interface BeaconsResult extends BaseItemsAsArray {
     items: Components.Schemas.Beacon[];
 }
 
+interface SettlementResult extends BaseItemsAsArray {
+    items: Components.Schemas.Settlement[];
+}
+
 interface State {
     world: null | Components.Schemas.World;
     shopStands: null | ShopStandsResult;
     requestBaskets: null | RequestBasketsResult;
     beacons: null | BeaconsResult;
     beaconBoundaryLayerGroups: JSX.Element[] | null;
+    settlements: null | SettlementResult;
     loaded: boolean;
 }
 
@@ -156,6 +161,7 @@ class Page extends React.Component<Props> {
         requestBaskets: null,
         beacons: null,
         beaconBoundaryLayerGroups: null,
+        settlements: null,
     };
     mounted = false;
     client: BoundlexxClient | null = null;
@@ -209,6 +215,7 @@ class Page extends React.Component<Props> {
             this.getRequestBaskets(),
             this.getShopStands(),
             this.getBeacons(),
+            this.getSettlements(),
             this.createBeaconBoundaryLayerGroups(),
         ]);
         this.setState({ loaded: true });
@@ -398,6 +405,49 @@ class Page extends React.Component<Props> {
 
             if (results.nextUrl !== null) {
                 await this.getBeacons();
+            }
+        } catch (err) {
+            console.error(err);
+        }
+    };
+
+    getSettlements = async () => {
+        if (this.client === null) {
+            return;
+        }
+
+        try {
+            let response: AxiosResponse | null = null;
+            if (this.state.settlements !== null) {
+                if (this.state.settlements.nextUrl === null) {
+                    return;
+                }
+                response = await this.client.get(this.state.settlements.nextUrl, { paramsSerializer: () => "" });
+            } else {
+                response = await this.client.listWorldSettlements([
+                    { name: "id", value: this.props.id, in: "path" },
+                    { name: "limit", value: Math.floor(api.config.pageSize), in: "query" },
+                ]);
+            }
+
+            if (!this.mounted || response === null) {
+                return;
+            }
+
+            const results: SettlementResult = {
+                items: response.data.results,
+                nextUrl: response.data.next,
+                count: response.data.count,
+            };
+
+            if (this.state.settlements !== null) {
+                results.items = this.state.settlements.items.concat(results.items);
+            }
+
+            this.setState({ settlements: results });
+
+            if (results.nextUrl !== null) {
+                await this.getSettlements();
             }
         } catch (err) {
             console.error(err);
@@ -628,6 +678,50 @@ class Page extends React.Component<Props> {
                 iconAnchor: [20, 20],
                 popupAnchor: [0, -20],
             }),
+        );
+    };
+
+    renderSettlement = (settlement: Components.Schemas.Settlement, index: number): string | JSX.Element => {
+        let iconURL: string;
+        if (index === 0) {
+            iconURL = "https://cdn.boundlexx.app/images/icon_capital.png";
+        } else {
+            iconURL = `https://cdn.boundlexx.app/images/icon_${settlement.rank}.png`;
+        }
+
+        return (
+            <Marker
+                key={`marker-${++this.markerID}`}
+                position={[
+                    // offset the markers so duplicate guild settlements appear
+                    this.markerID % 2 === 1 ? settlement.location.z - 1 : settlement.location.z + 1,
+                    this.markerID % 2 === 1 ? settlement.location.x - 1 : settlement.location.x + 1,
+                ]}
+                icon={
+                    new L.Icon({
+                        iconUrl: iconURL,
+                        iconSize: [40, 40],
+                        iconAnchor: [20, 20],
+                        popupAnchor: [0, -20],
+                    })
+                }
+            >
+                <Popup>
+                    <Text block>
+                        <strong>{this.renderBeaconName(settlement.html_name)}</strong>
+                    </Text>
+                    <Text block>
+                        <strong>{this.props.t("Rank")}</strong>: {this.props.t(api.SettlementRankMap[settlement.rank])}
+                    </Text>
+                    <Text block>
+                        <strong>{this.props.t("Location")}</strong>:{" "}
+                        {getGameCoords(settlement.location.x, settlement.location.z)}
+                    </Text>
+                    <Text block>
+                        <strong>{this.props.t("Prestige")}</strong>: {settlement.prestige.toLocaleString()}
+                    </Text>
+                </Popup>
+            </Marker>
         );
     };
 
@@ -999,6 +1093,12 @@ class Page extends React.Component<Props> {
                                     })}
                             </LayerGroup>
                         </LayersControl.Overlay>
+                        <LayersControl.Overlay name={this.props.t("Settlement_plural")} checked>
+                            <LayerGroup>
+                                {this.state.settlements !== null &&
+                                    this.state.settlements.items.map(this.renderSettlement)}
+                            </LayerGroup>
+                        </LayersControl.Overlay>
                     </LayersControl>
                     <Control position="bottomleft">
                         <div className="atlas-control" style={{ backgroundColor: theme.palette.white }}>
@@ -1050,6 +1150,16 @@ class Page extends React.Component<Props> {
                                     "Beacon Boundary_plural",
                                 )} (${this.state.beaconBoundaryLayerGroups.length.toLocaleString()}/${this.state.beacons.count.toLocaleString()})`}
                                 percentComplete={this.state.beaconBoundaryLayerGroups.length / this.state.beacons.count}
+                            />
+                        )}
+                    {this.state.settlements !== null &&
+                        this.state.settlements.count !== null &&
+                        this.state.settlements.count > 0 && (
+                            <ProgressIndicator
+                                label={`${this.props.t(
+                                    "Settlement_plural",
+                                )} (${this.state.settlements.items.length.toLocaleString()}/${this.state.settlements.count.toLocaleString()})`}
+                                percentComplete={this.state.settlements.items.length / this.state.settlements.count}
                             />
                         )}
                     {this.state.shopStands !== null &&

@@ -437,6 +437,21 @@ declare namespace Components {
                 game_id: number;
             }[];
         }
+        export interface Settlement {
+            location: {
+                x: number;
+                y: number;
+                z: number;
+            };
+            prestige: number;
+            /**
+             * `0` = Output, `1` = Hamlet, `2` = Village, `3` = Town, `4` = City, `5` = Great City
+             */
+            rank: number;
+            name: string;
+            text_name: string;
+            html_name: string;
+        }
         export interface SimpleItem {
             game_id: number;
             name: string;
@@ -1605,6 +1620,17 @@ declare namespace Paths {
             export type $200 = Components.Schemas.WorldRequestBasketPrice;
         }
     }
+    namespace ListWorldSettlements {
+        namespace Parameters {
+            export type Id = string;
+        }
+        export interface PathParameters {
+            id: Parameters.Id;
+        }
+        namespace Responses {
+            export type $200 = Components.Schemas.Settlement;
+        }
+    }
     namespace ListWorldShopStands {
         namespace Parameters {
             export type Id = string;
@@ -2464,6 +2490,16 @@ export interface OperationMethods {
         config?: AxiosRequestConfig,
     ): OperationResponse<Paths.ListWorldRequestBaskets.Responses.$200>;
     /**
+     * listWorldSettlements - List World Settlements
+     *
+     * Gets current Settlements for given world
+     */
+    "listWorldSettlements"(
+        parameters?: Parameters<Paths.ListWorldSettlements.PathParameters>,
+        data?: any,
+        config?: AxiosRequestConfig,
+    ): OperationResponse<Paths.ListWorldSettlements.Responses.$200>;
+    /**
      * listWorldShopStands - List World Shop Stands
      *
      * Gets current Shop Stands for given world
@@ -2935,6 +2971,18 @@ export interface PathsDictionary {
             data?: any,
             config?: AxiosRequestConfig,
         ): OperationResponse<Paths.ListWorldRequestBaskets.Responses.$200>;
+    };
+    ["/worlds/{id}/settlements/"]: {
+        /**
+         * listWorldSettlements - List World Settlements
+         *
+         * Gets current Settlements for given world
+         */
+        "get"(
+            parameters?: Parameters<Paths.ListWorldSettlements.PathParameters>,
+            data?: any,
+            config?: AxiosRequestConfig,
+        ): OperationResponse<Paths.ListWorldSettlements.Responses.$200>;
     };
     ["/worlds/{id}/shop-stands/"]: {
         /**
