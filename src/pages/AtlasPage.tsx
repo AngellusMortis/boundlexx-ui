@@ -683,10 +683,12 @@ class Page extends React.Component<Props> {
 
     renderSettlement = (settlement: Components.Schemas.Settlement, index: number): string | JSX.Element => {
         let iconURL: string;
+        let captial = false;
         if (index === 0) {
+            captial = true;
             iconURL = "https://cdn.boundlexx.app/images/icon_capital.png";
         } else {
-            iconURL = `https://cdn.boundlexx.app/images/icon_${settlement.rank}.png`;
+            iconURL = `https://cdn.boundlexx.app/images/icon_${settlement.level}.png`;
         }
 
         return (
@@ -711,7 +713,12 @@ class Page extends React.Component<Props> {
                         <strong>{this.renderBeaconName(settlement.html_name)}</strong>
                     </Text>
                     <Text block>
-                        <strong>{this.props.t("Rank")}</strong>: {this.props.t(api.SettlementRankMap[settlement.rank])}
+                        <strong>{this.props.t("World Rank")}</strong>: {(index + 1).toLocaleString()}
+                    </Text>
+                    <Text block>
+                        <strong>{this.props.t("Level")}</strong>:{" "}
+                        {this.props.t(api.SettlementRankMap[settlement.level])}
+                        {captial ? ` - ${this.props.t("World Capital")}` : ""}
                     </Text>
                     <Text block>
                         <strong>{this.props.t("Location")}</strong>:{" "}
