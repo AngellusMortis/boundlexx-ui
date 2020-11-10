@@ -707,6 +707,7 @@ class Page extends React.Component<Props> {
                         popupAnchor: [0, -20],
                     })
                 }
+                zIndexOffset={500 - index}
             >
                 <Popup>
                     <Text block>
@@ -749,6 +750,7 @@ class Page extends React.Component<Props> {
                             popupAnchor: [0, -20],
                         })
                     }
+                    zIndexOffset={100}
                 >
                     <Popup>
                         <Text block>
@@ -792,6 +794,7 @@ class Page extends React.Component<Props> {
                         popupAnchor: [0, -20],
                     })
                 }
+                zIndexOffset={100}
             >
                 <Popup>
                     <Text block>
@@ -830,7 +833,12 @@ class Page extends React.Component<Props> {
         }
 
         return (
-            <Marker key={`marker-${++this.markerID}`} position={[shop.location.z, shop.location.x]} icon={icon}>
+            <Marker
+                key={`marker-${++this.markerID}`}
+                position={[shop.location.z, shop.location.x]}
+                icon={icon}
+                zIndexOffset={50}
+            >
                 <Popup>
                     <Text block>
                         <strong>{item.localization[0].name}</strong>
@@ -1066,6 +1074,20 @@ class Page extends React.Component<Props> {
                     </Control>
                     <ZoomControl position="topleft" />
                     <LayersControl position="topleft">
+                        <LayersControl.Overlay name={this.props.t("Settlement_plural")} checked>
+                            <LayerGroup>
+                                {this.state.settlements !== null &&
+                                    this.state.settlements.items.map(this.renderSettlement)}
+                            </LayerGroup>
+                        </LayersControl.Overlay>
+                        <LayersControl.Overlay name={this.props.t("Beacon Boundary_plural")} checked>
+                            <LayerGroup ref={this.beaconBoundariesRef}>
+                                {this.state.beaconBoundaryLayerGroups !== null &&
+                                    this.state.beaconBoundaryLayerGroups.map((beaconBounadary) => {
+                                        return beaconBounadary;
+                                    })}
+                            </LayerGroup>
+                        </LayersControl.Overlay>
                         <LayersControl.Overlay name={this.props.t("Shop Stand_plural")} checked>
                             <MarkerClusterGroup
                                 disableClusteringAtZoom={HIGHEST_ZOOM}
@@ -1091,20 +1113,6 @@ class Page extends React.Component<Props> {
                             >
                                 {this.state.beacons !== null && this.state.beacons.items.map(this.renderBeacon)}
                             </MarkerClusterGroup>
-                        </LayersControl.Overlay>
-                        <LayersControl.Overlay name={this.props.t("Beacon Boundary_plural")} checked>
-                            <LayerGroup ref={this.beaconBoundariesRef}>
-                                {this.state.beaconBoundaryLayerGroups !== null &&
-                                    this.state.beaconBoundaryLayerGroups.map((beaconBounadary) => {
-                                        return beaconBounadary;
-                                    })}
-                            </LayerGroup>
-                        </LayersControl.Overlay>
-                        <LayersControl.Overlay name={this.props.t("Settlement_plural")} checked>
-                            <LayerGroup>
-                                {this.state.settlements !== null &&
-                                    this.state.settlements.items.map(this.renderSettlement)}
-                            </LayerGroup>
                         </LayersControl.Overlay>
                     </LayersControl>
                     <Control position="bottomleft">
