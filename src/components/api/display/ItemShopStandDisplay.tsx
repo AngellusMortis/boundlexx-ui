@@ -22,6 +22,7 @@ const mapState = (state: RootState) => ({
     showGroups: state.prefs.showGroups,
     loadAll: true,
     allowSearch: false,
+    noPlaceholders: true,
 });
 
 const mapDispatchToProps = { changeShowGroups };

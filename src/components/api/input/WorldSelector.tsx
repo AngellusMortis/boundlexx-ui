@@ -3,7 +3,6 @@ import {
     IComboBoxOption,
     ISelectableDroppableTextProps,
     IComboBox,
-    Image,
     ISelectableOption,
 } from "@fluentui/react";
 import React from "react";
@@ -11,6 +10,7 @@ import { RootState } from "store";
 import { connect, ConnectedProps } from "react-redux";
 import { withTranslation, WithTranslation } from "react-i18next";
 import { Components } from "api/client";
+import { WorldInline } from "components";
 
 const mapState = (state: RootState) => ({
     worlds: state.worlds.items || {},
@@ -121,16 +121,7 @@ class Component extends React.Component<Props> {
 
         return (
             <div key={`world-${props.data.id}`} style={{ width: 350 }} className="world-option">
-                <Image
-                    src={props.data.image_url || "https://cdn.boundlexx.app/worlds/unknown.png"}
-                    styles={{ image: { width: 20 }, root: { display: "inline-block", marginRight: 10 } }}
-                />
-                <span
-                    dangerouslySetInnerHTML={{
-                        __html: props.data.html_name || props.data.display_name,
-                    }}
-                ></span>{" "}
-                (ID: {props.data.id})
+                <WorldInline world={props.data} noLink />
             </div>
         );
     };

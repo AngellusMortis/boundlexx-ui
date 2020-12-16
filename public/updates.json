@@ -1,5 +1,25 @@
 [
     {
+        "date": "2020-12-16T12:00:00.000Z",
+        "changelogs": ["Removes not secure for BoundlessCrafting since it has HTTPS now"]
+    },
+    {
+        "date": "2020-11-15T05:40:00.000Z",
+        "changelogs": ["Adds improvements to List Displays"]
+    },
+    {
+        "date": "2020-11-15T04:05:00.000Z",
+        "changelogs": ["Adds improvements to maintain focus on searchbox"]
+    },
+    {
+        "date": "2020-11-15T03:50:00.000Z",
+        "changelogs": ["Adds auto-complete to search box"]
+    },
+    {
+        "date": "2020-11-15T00:55:00.000Z",
+        "changelogs": ["Adds improvements to search and list page rendering"]
+    },
+    {
         "date": "2020-11-10T05:12:00.000Z",
         "changelogs": ["Adjusts z-index of markers so settlements/beacons are on top"]
     },

@@ -517,7 +517,7 @@ class Component extends React.Component<Props> {
                 <Stack
                     horizontalAlign={"center"}
                     styles={{ root: { width: "98vw", textAlign: "left", marginBottom: 20 } }}
-                    className="api-display"
+                    className="api-display max-width"
                 >
                     <Stack.Item
                         styles={{

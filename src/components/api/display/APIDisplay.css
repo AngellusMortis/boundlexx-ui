@@ -2,6 +2,10 @@
     display: flex;
 }
 
+.api-display .ms-List[role="treegrid"] .ms-List-cell {
+    width: 100%;
+}
+
 .api-display .ms-List[role="treegrid"] .ms-List-page,
 .api-display .ms-List[role="treegrid"] .ms-List-surface {
     width: 95vw;
@@ -11,8 +15,8 @@
     justify-content: center;
 }
 
-.api-display .ms-List[role="list"] .ms-List-page .ms-List-cell,
-.api-display .ms-List[role="treegrid"] .ms-List .ms-List-page .ms-List-cell {
+.api-display:not(.max-width) .ms-List[role="list"] .ms-List-page .ms-List-cell,
+.api-display:not(.max-width) .ms-List[role="treegrid"] .ms-List .ms-List-page .ms-List-cell {
     width: 304px;
     display: flex;
 }

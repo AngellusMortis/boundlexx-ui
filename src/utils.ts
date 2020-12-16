@@ -9,6 +9,9 @@ import {
 } from "@fluentui/react";
 import i18n from "./i18n";
 
+export const CARD_WIDTH = 304;
+export const CARD_HEIGHT = 72;
+
 export const timeUnits: StringDict<number> = {
     year: 24 * 60 * 60 * 1000 * 365,
     month: (24 * 60 * 60 * 1000 * 365) / 12,

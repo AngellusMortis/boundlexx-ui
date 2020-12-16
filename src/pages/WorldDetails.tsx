@@ -628,7 +628,7 @@ class Page extends React.Component<Props> {
             return (
                 <Spinner
                     size={SpinnerSize.large}
-                    style={{ height: "50vh" }}
+                    style={{ height: "50vh", margin: "0 auto" }}
                     label={this.props.t("Loading World...")}
                     ariaLive="assertive"
                 />

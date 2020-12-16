@@ -9,6 +9,8 @@ import { getTheme } from "themes";
 import { changeShowGroups } from "prefs/actions";
 import { ColorCard } from "components";
 import { withRouter } from "react-router-dom";
+import { ISuggestionItem } from "components/core/AutocompleteSearch";
+import { ColorInline } from "components";
 
 const mapState = (state: RootState) => ({
     theme: getTheme(state.prefs.theme),
@@ -33,6 +35,37 @@ class Colors extends APIDisplay {
 
     waitForRequiredData = async (): Promise<void> => {
         await api.requireColors();
+    };
+
+    getSearchSuggestions = (): ISuggestionItem[] => {
+        const suggestions: ISuggestionItem[] = [];
+        const colors = api.getColors();
+
+        Reflect.ownKeys(colors).forEach((key) => {
+            let numKey: number | null = null;
+
+            switch (typeof key) {
+                case "number":
+                    numKey = key;
+                    break;
+                case "string":
+                    numKey = parseInt(key);
+                    break;
+            }
+
+            if (numKey !== null) {
+                const color = colors[numKey];
+
+                suggestions.push({
+                    key: color.game_id,
+                    displayValue: <ColorInline color={color} />,
+                    searchValue: `${color.localization[0].name} ${color.game_id}`,
+                    data: color,
+                });
+            }
+        });
+
+        return suggestions;
     };
 
     onCardClick = () => {

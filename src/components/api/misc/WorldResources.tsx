@@ -154,14 +154,14 @@ class Component extends React.Component<Props> {
             return (
                 <DetailsRow
                     columns={[
-                        { fieldName: "item", key: "item", name: "item", minWidth: 175 },
+                        { fieldName: "item", key: "item", name: "item", minWidth: 135 },
                         { fieldName: "count", key: "count", name: "count", minWidth: 80 },
                         { fieldName: "percentage", key: "percentage", name: "percentage", minWidth: 50 },
                         { fieldName: "average", key: "average", name: "average", minWidth: 75 },
                     ]}
                     item={{
                         item: (
-                            <Text block={true} style={{ fontWeight: "bold", width: 175 }}>
+                            <Text block={true} style={{ fontWeight: "bold", width: 135 }}>
                                 {this.props.t("Item")}
                             </Text>
                         ),
@@ -193,7 +193,7 @@ class Component extends React.Component<Props> {
         return (
             <DetailsRow
                 columns={[
-                    { fieldName: "item", key: "item", name: "item", minWidth: 175 },
+                    { fieldName: "item", key: "item", name: "item", minWidth: 135 },
                     { fieldName: "count", key: "count", name: "count", minWidth: 80 },
                     { fieldName: "percentage", key: "percentage", name: "percentage", minWidth: 50 },
                     { fieldName: "average", key: "average", name: "average", minWidth: 150 },
@@ -353,7 +353,7 @@ class Component extends React.Component<Props> {
                 <Stack
                     horizontalAlign={"center"}
                     styles={{ root: { width: "98vw", textAlign: "left", marginBottom: 20 } }}
-                    className="api-display"
+                    className="api-display max-width"
                 >
                     <Stack.Item
                         styles={{

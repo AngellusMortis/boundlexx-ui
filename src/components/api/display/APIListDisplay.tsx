@@ -1,6 +1,15 @@
 import React from "react";
 import { APIDisplay } from "./APIDisplay";
-import { DetailsList, SelectionMode, DetailsListLayoutMode, IColumn, Spinner, SpinnerSize } from "@fluentui/react";
+import {
+    DetailsList,
+    SelectionMode,
+    DetailsListLayoutMode,
+    IColumn,
+    Spinner,
+    SpinnerSize,
+    ProgressIndicator,
+    IListProps,
+} from "@fluentui/react";
 
 export abstract class APIListDisplay extends APIDisplay {
     abstract getKey(item: unknown | undefined, index?: number | undefined): string;
@@ -14,12 +23,19 @@ export abstract class APIListDisplay extends APIDisplay {
 
         if (this.state.loading || this.hasMore()) {
             return (
-                <Spinner
-                    size={SpinnerSize.large}
-                    style={{ height: "50vh" }}
-                    label={this.props.t(`Loading ${this.getName(undefined, false)}..._plural`)}
-                    ariaLive="assertive"
-                />
+                <div style={{ margin: "100px auto", width: 300 }}>
+                    <Spinner
+                        size={SpinnerSize.large}
+                        label={this.props.t(`Loading ${this.getName(undefined, false)}..._plural`)}
+                        ariaLive="assertive"
+                    />
+                    {this.state.results.count !== null && (
+                        <ProgressIndicator
+                            label={`${this.state.results.items.length.toLocaleString()}/${this.state.results.count.toLocaleString()}`}
+                            percentComplete={this.state.results.items.length / this.state.results.count}
+                        />
+                    )}
+                </div>
             );
         }
 
@@ -35,6 +51,13 @@ export abstract class APIListDisplay extends APIDisplay {
                 layoutMode={DetailsListLayoutMode.justified}
                 isHeaderVisible={true}
                 enterModalSelectionOnTouch={true}
+                usePageCache={true}
+                onShouldVirtualize={(props: IListProps) => {
+                    if (props.items === undefined || props.items.length < 1000) {
+                        return false;
+                    }
+                    return true;
+                }}
             />
         );
     };

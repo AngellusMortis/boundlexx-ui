@@ -11,6 +11,8 @@ import { StringDict } from "types";
 import { changeShowGroups } from "prefs/actions";
 import { WorldCard, WorldSelector } from "components";
 import { withRouter } from "react-router-dom";
+import { ISuggestionItem } from "components/core/AutocompleteSearch";
+import { WorldInline } from "components";
 
 const mapState = (state: RootState) => {
     return {
@@ -152,6 +154,43 @@ class Worlds extends APIDisplay {
 
     waitForRequiredData = async (): Promise<void> => {
         await api.requireWorlds();
+    };
+
+    onSearchSuggestionSelect = (item: ISuggestionItem): void => {
+        const world = item.data as Components.Schemas.SimpleWorld;
+
+        this.props.history.push(`/worlds/${world.id}/`);
+    };
+
+    getSearchSuggestions = (): ISuggestionItem[] => {
+        const suggestions: ISuggestionItem[] = [];
+        const worlds = api.getWorlds();
+
+        Reflect.ownKeys(worlds).forEach((key) => {
+            let numKey: number | null = null;
+
+            switch (typeof key) {
+                case "number":
+                    numKey = key;
+                    break;
+                case "string":
+                    numKey = parseInt(key);
+                    break;
+            }
+
+            if (numKey !== null) {
+                const world = worlds[numKey];
+
+                suggestions.push({
+                    key: world.id,
+                    displayValue: <WorldInline world={world} noLink={true} />,
+                    searchValue: `${world.text_name} ${world.id}`,
+                    data: world,
+                });
+            }
+        });
+
+        return suggestions;
     };
 
     onUpdateFilterDropdown = (event: React.FormEvent<HTMLDivElement>, option?: IDropdownOption | undefined) => {

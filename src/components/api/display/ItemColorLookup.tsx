@@ -45,8 +45,22 @@ class Colors extends APIDisplay {
         await api.requireWorlds();
     };
 
-    onCardClick = () => {
-        return;
+    onCardClick = (
+        world: Components.Schemas.SimpleWorld | undefined | null,
+        item: Components.Schemas.SimpleItem | undefined,
+        color: Components.Schemas.Color | undefined,
+    ) => {
+        if (color !== undefined) {
+            const colorID = color.game_id.toString();
+            if (
+                this.state.filters.extraFilters === undefined ||
+                this.state.filters.extraFilters["color__game_id"] !== colorID
+            ) {
+                this.resetState(this.updateQueryParam({ color__game_id: colorID }));
+            } else if (world !== undefined && world !== null) {
+                this.props.history.push(`/worlds/${world.id}/`);
+            }
+        }
     };
 
     onUpdateColor = (color: Components.Schemas.Color | null) => {
@@ -103,7 +117,7 @@ class Colors extends APIDisplay {
             theItem = api.getItem(parseInt(filters["item__game_id"]));
         }
 
-        return <WBCCard world={world} item={theItem} color={color} />;
+        return <WBCCard world={world} item={theItem} color={color} onCardClick={this.onCardClick} />;
     };
 }
 

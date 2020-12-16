@@ -6,6 +6,7 @@ import msgpack from "msgpack-lite";
 import { AxiosRequestConfig } from "axios";
 import { store } from "store";
 import { changeAPIDefinition } from "api/def";
+import { NumberDict } from "types";
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 const mapMsgpack = (root: any, key_map: string[]) => {
@@ -111,11 +112,23 @@ export const getColor = (id: number): Components.Schemas.Color | undefined => {
     return store.getState().colors.items[id];
 };
 
+export const getWorlds = (): NumberDict<Components.Schemas.SimpleWorld> => {
+    return store.getState().worlds.items;
+};
+
+export const getItems = (): NumberDict<Components.Schemas.SimpleItem> => {
+    return store.getState().items.items;
+};
+
+export const getColors = (): NumberDict<Components.Schemas.Color> => {
+    return store.getState().colors.items;
+};
+
 export const requireWorlds = async (): Promise<void> => {
     let loaded = false;
     while (!loaded) {
         const state = store.getState();
-        loaded = state.worlds.count !== null && Reflect.ownKeys(state.worlds.items).length === state.worlds.count;
+        loaded = state.worlds.count !== null && Reflect.ownKeys(state.worlds.items).length >= state.worlds.count;
 
         if (!loaded) {
             await throttle();
@@ -127,7 +140,7 @@ export const requireItems = async (): Promise<void> => {
     let loaded = false;
     while (!loaded) {
         const state = store.getState();
-        loaded = state.items.count !== null && Reflect.ownKeys(state.items.items).length === state.items.count;
+        loaded = state.items.count !== null && Reflect.ownKeys(state.items.items).length >= state.items.count;
 
         if (!loaded) {
             await throttle();
@@ -139,7 +152,7 @@ export const requireColors = async (): Promise<void> => {
     let loaded = false;
     while (!loaded) {
         const state = store.getState();
-        loaded = state.colors.count !== null && Reflect.ownKeys(state.colors.items).length === state.colors.count;
+        loaded = state.colors.count !== null && Reflect.ownKeys(state.colors.items).length >= state.colors.count;
 
         if (!loaded) {
             await throttle();
@@ -151,7 +164,7 @@ export const requireSkills = async (): Promise<void> => {
     let loaded = false;
     while (!loaded) {
         const state = store.getState();
-        loaded = state.skills.count !== null && Reflect.ownKeys(state.skills.items).length === state.skills.count;
+        loaded = state.skills.count !== null && Reflect.ownKeys(state.skills.items).length >= state.skills.count;
 
         if (!loaded) {
             await throttle();
@@ -165,7 +178,7 @@ export const requireRecipeGroups = async (): Promise<void> => {
         const state = store.getState();
         loaded =
             state.recipeGroups.count !== null &&
-            Reflect.ownKeys(state.recipeGroups.items).length === state.recipeGroups.count;
+            Reflect.ownKeys(state.recipeGroups.items).length >= state.recipeGroups.count;
 
         if (!loaded) {
             await throttle();
@@ -177,7 +190,7 @@ export const requireEmojis = async (): Promise<void> => {
     let loaded = false;
     while (!loaded) {
         const state = store.getState();
-        loaded = state.emojis.count !== null && Reflect.ownKeys(state.emojis.items).length === state.emojis.count;
+        loaded = state.emojis.count !== null && Reflect.ownKeys(state.emojis.items).length >= state.emojis.count;
 
         if (!loaded) {
             await throttle();

@@ -60,7 +60,7 @@ const links: MenuLink[] = [
     { key: "emojis", text: "Emoji_plural", icon: "Emoji2", href: "/emojis/" },
     {
         key: "tool",
-        text: "Tools",
+        text: "Tool_plural",
         icon: "Toolbox",
         base: "/tools/",
         children: [
@@ -149,7 +149,6 @@ const links: MenuLink[] = [
                 key: "boundless-crafting",
                 text: "Boundless Crafting",
                 skipTranslate: true,
-                secondaryText: "(NOT SECURE)",
                 external: true,
                 href: "http://boundlesscrafting.com/",
             },

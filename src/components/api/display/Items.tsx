@@ -11,6 +11,8 @@ import { StringDict } from "types";
 import { changeShowGroups } from "prefs/actions";
 import { ItemCard, ItemListTypeSelector, ItemSubtitleSelector } from "components";
 import { withRouter } from "react-router-dom";
+import { ItemInline } from "components";
+import { ISuggestionItem } from "components/core/AutocompleteSearch";
 
 const mapState = (state: RootState) => ({
     theme: getTheme(state.prefs.theme),
@@ -78,6 +80,43 @@ class Items extends APIDisplay {
 
     waitForRequiredData = async (): Promise<void> => {
         await api.requireItems();
+    };
+
+    onSearchSuggestionSelect = (item: ISuggestionItem): void => {
+        const theItem = item.data as Components.Schemas.SimpleItem;
+
+        this.props.history.push(`/items/${theItem.game_id}/`);
+    };
+
+    getSearchSuggestions = (): ISuggestionItem[] => {
+        const suggestions: ISuggestionItem[] = [];
+        const items = api.getItems();
+
+        Reflect.ownKeys(items).forEach((key) => {
+            let numKey: number | null = null;
+
+            switch (typeof key) {
+                case "number":
+                    numKey = key;
+                    break;
+                case "string":
+                    numKey = parseInt(key);
+                    break;
+            }
+
+            if (numKey !== null) {
+                const item = items[numKey];
+
+                suggestions.push({
+                    key: item.game_id,
+                    displayValue: <ItemInline item={item} noLink={true} />,
+                    searchValue: `${item.localization[0].name} ${item.game_id}`,
+                    data: item,
+                });
+            }
+        });
+
+        return suggestions;
     };
 
     onUpdateFilter = (event: React.FormEvent<HTMLDivElement>, option?: IDropdownOption | undefined) => {

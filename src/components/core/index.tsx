@@ -7,3 +7,4 @@ export { NotFound } from "./NotFound";
 export { Time } from "./Time";
 export { UpdateModal } from "./UpdateModal";
 export { ErrorBoundary } from "./ErrorBoundary";
+export { AutocompleteSearch } from "./AutocompleteSearch";

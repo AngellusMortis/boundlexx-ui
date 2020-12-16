@@ -24,6 +24,7 @@ const mapState = (state: RootState) => ({
     loadAll: true,
     allowSearch: false,
     extraFilterKeys: [{ name: "item__game_id", type: "number", required: true }],
+    noPlaceholders: true,
 });
 
 const mapDispatchToProps = { changeShowGroups };
@@ -289,7 +290,7 @@ class Resources extends APIListDisplay {
             },
             {
                 key: "average",
-                name: this.props.t("Average Per Chunk"),
+                name: this.props.t("Average per Chunk"),
                 fieldName: "average_per_chunk",
                 minWidth: 50,
                 maxWidth: 100,

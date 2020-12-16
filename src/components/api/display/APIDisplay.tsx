@@ -1,7 +1,6 @@
 import React from "react";
 import {
     List,
-    SearchBox,
     Stack,
     Text,
     IPage,
@@ -21,6 +20,8 @@ import {
     SpinnerSize,
     AnimationClassNames,
     Image,
+    IPageSpecification,
+    IList,
 } from "@fluentui/react";
 import "./APIDisplay.css";
 import { WithTranslation } from "react-i18next";
@@ -30,6 +31,9 @@ import { StringAPIItems, NumericAPIItems, BaseItemsAsArray, BaseItems, StringDic
 import { AxiosResponse } from "axios";
 import { RouteComponentProps } from "react-router-dom";
 import { Mutex } from "async-mutex";
+import { CARD_HEIGHT, CARD_WIDTH } from "utils";
+import { AutocompleteSearch } from "components";
+import { ISuggestionItem } from "components/core/AutocompleteSearch";
 
 export interface FilterValidator {
     name: string;
@@ -82,6 +86,7 @@ interface BaseProps {
     maxWidth?: number;
     collapsible?: boolean;
     extra?: unknown;
+    noPlaceholders?: boolean;
 
     changeShowGroups: (showGroups: boolean) => unknown;
     updateItems?: api.updateGeneric;
@@ -105,7 +110,11 @@ const generatePlaceholders = (targetCount: number | null, items?: unknown[]): un
     return items;
 };
 
-const mapToItems = (store: BaseItems, mapFunc: () => unknown[]): BaseItemsAsArray | undefined => {
+const mapToItems = (
+    store: BaseItems,
+    mapFunc: () => unknown[],
+    noPlaceholders?: boolean,
+): BaseItemsAsArray | undefined => {
     if (store.items === undefined) {
         return;
     }
@@ -121,7 +130,10 @@ const mapToItems = (store: BaseItems, mapFunc: () => unknown[]): BaseItemsAsArra
     }
 
     results.items = mapFunc();
-    results.items = generatePlaceholders(results.count, results.items);
+
+    if (!noPlaceholders) {
+        results.items = generatePlaceholders(results.count, results.items);
+    }
     return results;
 };
 
@@ -175,14 +187,12 @@ export const mapStringStoreToItems = (store: StringAPIItems): BaseItemsAsArray |
 
 export type APIDisplayProps = WithTranslation & BaseProps & RouteComponentProps;
 
-const SEARCH_TIMEOUT = 1000;
 const lock = new Mutex();
 
 export abstract class APIDisplay extends React.Component<APIDisplayProps> {
     mounted = false;
     listGroups: IGroup[] | null = null;
     client: BoundlexxClient | null = null;
-    searchTimer: NodeJS.Timeout | null = null;
     state: State = {
         initialLoad: false,
         loadedFromStore: false,
@@ -203,12 +213,20 @@ export abstract class APIDisplay extends React.Component<APIDisplayProps> {
             nextUrl: null,
         },
     };
+    listRef: React.RefObject<IList>;
+
     constructor(props: APIDisplayProps) {
         super(props);
 
-        this.state.columnCount = Math.floor(window.innerWidth / 304);
+        this.state.columnCount = Math.floor(window.innerWidth / CARD_WIDTH);
         this.state.hasRequiredFilters = this.getHasRequiredFilters();
         window.addEventListener("resize", this.calculateColumns);
+
+        if (props.noPlaceholders) {
+            this.state.results.items = [];
+        }
+
+        this.listRef = React.createRef<IList>();
     }
 
     getHasRequiredFilters = (): boolean => {
@@ -237,11 +255,14 @@ export abstract class APIDisplay extends React.Component<APIDisplayProps> {
             width = Math.min(width, this.props.maxWidth);
         }
 
-        const newColumns = Math.floor(width / 304);
+        const newColumns = Math.floor(width / CARD_WIDTH);
 
         if (newColumns !== this.state.columnCount) {
             this.setState({ columnCount: newColumns });
             this.forceUpdate();
+            if (this.listRef.current !== null) {
+                this.listRef.current.forceUpdate();
+            }
         }
     };
 
@@ -281,7 +302,10 @@ export abstract class APIDisplay extends React.Component<APIDisplayProps> {
         const filters = this.updateQueryParam(this.getParamsDict(window.location.search), true);
         let allLocal = true;
         if (filters !== null) {
-            newState.filtersVisible = true;
+            allLocal = filters.search === null;
+
+            newState.filtersVisible =
+                filters.extraFilters !== undefined && Reflect.ownKeys(filters.extraFilters).length > 0;
             newState.filters = filters;
 
             if (filters.extraFilters !== undefined) {
@@ -405,8 +429,12 @@ export abstract class APIDisplay extends React.Component<APIDisplayProps> {
         return value.toString();
     };
 
-    groupResults = (results: unknown[]): unknown[] => {
-        if (this.props.groupBy === undefined || this.state.filters.search !== null || !this.props.showGroups) {
+    groupResults = (results: unknown[], ignoreSearch?: boolean): unknown[] => {
+        if (
+            this.props.groupBy === undefined ||
+            (!ignoreSearch && this.state.filters.search !== null) ||
+            !this.props.showGroups
+        ) {
             this.listGroups = null;
             return results;
         }
@@ -478,6 +506,7 @@ export abstract class APIDisplay extends React.Component<APIDisplayProps> {
             };
         }
 
+        let getData = true;
         // reload items from props if that is where they came from
         if (
             (newState.filters === undefined || newState.filters.queryParams === "") &&
@@ -485,7 +514,8 @@ export abstract class APIDisplay extends React.Component<APIDisplayProps> {
             this.props.results !== undefined
         ) {
             newState.results = this.props.results;
-            newState.results.items = this.groupResults(newState.results.items);
+            newState.results.items = this.groupResults(newState.results.items, true);
+            getData = false;
         } else {
             newState.initialLoad = false;
             newState.results = {
@@ -494,12 +524,16 @@ export abstract class APIDisplay extends React.Component<APIDisplayProps> {
                 nextUrl: null,
             };
 
+            this.listGroups = null;
+
             if (this.props.locale !== null) {
                 newState.results.lang = this.props.locale.toString();
             }
         }
         this.setState(newState, () => {
-            this.getData();
+            if (getData) {
+                this.getData();
+            }
         });
     };
 
@@ -709,51 +743,18 @@ export abstract class APIDisplay extends React.Component<APIDisplayProps> {
         return await operation(params);
     };
 
-    clearSearchTimer = (): void => {
-        if (this.searchTimer !== null) {
-            window.clearTimeout(this.searchTimer);
-            this.searchTimer = null;
+    search = (searchText: string): void => {
+        let newSearch: string | null = searchText;
+
+        if (newSearch.trim() === "") {
+            newSearch = null;
         }
-    };
 
-    search = (newSearch: string): void => {
         this.resetState(this.updateQueryParam({ search: newSearch }));
-    };
-
-    clearSearch = (): void => {
-        // clear timeout that will be set by onSearchChange
-        this.searchTimer = setTimeout(() => {
-            this.clearSearchTimer();
-        }, 100);
-
-        this.resetState(this.updateQueryParam({ search: null }));
-    };
-
-    onSearchChange = (event: React.ChangeEvent<HTMLInputElement> | undefined, newValue?: string): void => {
-        this.clearSearchTimer();
-
-        this.searchTimer = setTimeout(() => {
-            this.onSearch(event, newValue);
-        }, SEARCH_TIMEOUT);
     };
 
     onClearFilters = (): void => {
         this.resetState(this.updateQueryParam({}, true));
-    };
-
-    onSearch = (event: React.ChangeEvent<HTMLInputElement> | undefined, newValue?: string): void => {
-        let newSearch: string | null = null;
-        if (newValue !== undefined && newValue.trim().length > 0) {
-            newSearch = newValue;
-        }
-
-        if (newSearch !== this.state.filters.search) {
-            if (newSearch == null) {
-                this.clearSearch();
-            } else {
-                this.search(newSearch);
-            }
-        }
     };
 
     abstract onRenderCell(item: unknown, index: number | undefined): string | JSX.Element;
@@ -856,7 +857,9 @@ export abstract class APIDisplay extends React.Component<APIDisplayProps> {
                     params.push({ name: "lang", value: this.props.locale, in: "query" });
                 }
 
+                let addedFilter = false;
                 if (this.state.filters.search !== null) {
+                    addedFilter = true;
                     params.push({
                         name: "search",
                         value: this.state.filters.search,
@@ -867,7 +870,6 @@ export abstract class APIDisplay extends React.Component<APIDisplayProps> {
                 }
 
                 let operationID = undefined;
-                let addedFilter = false;
                 if (this.props.extraFilterKeys !== undefined && this.state.filters.extraFilters !== undefined) {
                     const filters = this.getFiltersFromProps();
                     for (const key in this.state.filters.extraFilters) {
@@ -916,12 +918,10 @@ export abstract class APIDisplay extends React.Component<APIDisplayProps> {
         let newCount: number | null;
         let newNext: string | null;
         if (response !== null) {
-            if (this.props.updateItems !== undefined) {
-                // do not change count/locale/nextURL on search/filter
-                if (this.state.filters.queryParams !== "") {
-                    this.props.updateItems(response.data.results);
-                    // do not change locale if view does not support it
-                } else if (this.props.locale === null) {
+            // do not change count/locale/nextURL on search/filter
+            if (this.props.updateItems !== undefined && this.state.filters.queryParams === "") {
+                // do not change locale if view does not support it
+                if (this.props.locale === null) {
                     this.props.updateItems(response.data.results, response.data.count, response.data.next);
                 } else {
                     this.props.updateItems(
@@ -958,7 +958,9 @@ export abstract class APIDisplay extends React.Component<APIDisplayProps> {
 
         newCount = newItems.count || newCount || 0;
         newItems.items = this.groupResults(newItems.items);
-        newItems.items = newItems.items.concat(generatePlaceholders(newCount - newItems.items.length));
+        if (!this.props.noPlaceholders) {
+            newItems.items = newItems.items.concat(generatePlaceholders(newCount - newItems.items.length));
+        }
 
         if (this.props.locale !== null) {
             newItems.lang = this.props.locale.toString();
@@ -1014,7 +1016,7 @@ export abstract class APIDisplay extends React.Component<APIDisplayProps> {
 
             // add placeholder cards
             let items = this.state.results.items;
-            if (items.length < api.config.pageSize) {
+            if (items.length < api.config.pageSize && !this.props.noPlaceholders) {
                 items = generatePlaceholders(api.config.pageSize, items);
             }
             this.setState({ loading: true, error: null, results: { ...this.state.results, items: items } });
@@ -1028,6 +1030,15 @@ export abstract class APIDisplay extends React.Component<APIDisplayProps> {
     };
 
     abstract renderFilters(): string | JSX.Element;
+
+    getSearchSuggestions = (): ISuggestionItem[] => {
+        return [];
+    };
+
+    // eslint-disable-next-line
+    onSearchSuggestionSelect = (item: ISuggestionItem): void => {
+        return;
+    };
 
     onFiltersHelpDismiss = (): void => {
         this.setState({ filtersHelp: false });
@@ -1125,10 +1136,6 @@ export abstract class APIDisplay extends React.Component<APIDisplayProps> {
     };
 
     renderItems = (): string | JSX.Element => {
-        const getItemCountForPage = () => {
-            return this.state.columnCount;
-        };
-
         const onPageAdded = (page: IPage) => {
             if (this.state.loading) {
                 return;
@@ -1141,10 +1148,17 @@ export abstract class APIDisplay extends React.Component<APIDisplayProps> {
 
         const getGroupHeight = (group: IGroup): number => {
             if (group.isCollapsed) {
-                return 0;
+                return 40;
             }
 
-            return (group.count / this.state.columnCount) * 76;
+            return (group.count / this.state.columnCount) * CARD_HEIGHT + 40;
+        };
+
+        const getPageSpec = (): IPageSpecification => {
+            return {
+                height: CARD_HEIGHT,
+                itemCount: this.state.columnCount,
+            };
         };
 
         if (this.listGroups !== null) {
@@ -1159,15 +1173,13 @@ export abstract class APIDisplay extends React.Component<APIDisplayProps> {
                     getGroupHeight={getGroupHeight}
                     listProps={{
                         style: { position: "relative" },
-                        getItemCountForPage: getItemCountForPage,
-                        getPageHeight: () => {
-                            return 78;
-                        },
-                        usePageCache: true,
+                        getPageSpecification: getPageSpec,
                         onPageAdded: onPageAdded,
                     }}
                     groupProps={{ onRenderHeader: this.onRenderHeader }}
-                    usePageCache={true}
+                    onShouldVirtualize={() => {
+                        return false;
+                    }}
                 />
             );
         }
@@ -1179,13 +1191,14 @@ export abstract class APIDisplay extends React.Component<APIDisplayProps> {
                     items={this.state.results.items}
                     onRenderCell={this.onRenderCell}
                     style={{ position: "relative" }}
-                    getItemCountForPage={getItemCountForPage}
-                    getPageHeight={() => {
-                        return 76;
-                    }}
+                    getPageSpecification={getPageSpec}
+                    onPageAdded={onPageAdded}
                     usePageCache={true}
                     renderCount={this.state.results.count || api.config.pageSize}
-                    onPageAdded={onPageAdded}
+                    componentRef={this.listRef}
+                    onShouldVirtualize={() => {
+                        return false;
+                    }}
                 />
             </FocusZone>
         );
@@ -1252,12 +1265,12 @@ export abstract class APIDisplay extends React.Component<APIDisplayProps> {
     renderSearchBox = (): string | JSX.Element => {
         if (this.props.allowSearch === undefined || this.props.allowSearch) {
             return (
-                <SearchBox
+                <AutocompleteSearch
                     placeholder={this.props.t(`Search ${this.getName("", false)}`)}
-                    onChange={this.onSearchChange}
-                    onSearch={this.onSearch}
-                    onClear={this.clearSearch}
-                    value={this.state.filters.search || ""}
+                    searchText={this.state.filters.search || ""}
+                    searchCallback={this.search}
+                    items={this.getSearchSuggestions()}
+                    suggestionCallback={this.onSearchSuggestionSelect}
                 />
             );
         }

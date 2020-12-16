@@ -10,6 +10,11 @@ interface BaseProps {
     world: Components.Schemas.SimpleWorld | undefined | null;
     item: Components.Schemas.SimpleItem | undefined;
     color: Components.Schemas.Color | undefined;
+    onCardClick?: (
+        world: Components.Schemas.SimpleWorld | undefined | null,
+        item: Components.Schemas.SimpleItem | undefined,
+        color: Components.Schemas.Color | undefined,
+    ) => void;
 }
 
 type Props = BaseProps & RouteComponentProps & WithTranslation;
@@ -35,6 +40,12 @@ const Component: React.FunctionComponent<Props> = (props) => {
         }
     };
 
+    const onCardClick = (event: React.MouseEvent<HTMLElement, MouseEvent> | undefined) => {
+        if (props.onCardClick !== undefined) {
+            props.onCardClick(props.world, props.item, props.color);
+        }
+    };
+
     return (
         <Card
             className="api-card"
@@ -42,6 +53,7 @@ const Component: React.FunctionComponent<Props> = (props) => {
             horizontal
             tokens={{ childrenMargin: 5 }}
             style={{ borderColor: theme.palette.themePrimary }}
+            onClick={onCardClick}
             styles={{
                 root: {
                     backgroundColor: theme.palette.neutralLighter,
