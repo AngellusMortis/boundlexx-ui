@@ -1,5 +1,7 @@
 export { ColorItemLookup } from "./ColorItemLookup";
 export { ColorDisplay } from "./Colors";
+export { ColorVariations } from "./ColorVariations";
+export { MetalVariations } from "./MetalVariations";
 export { SovereignBlocksLookup } from "./SovereignBlocks";
 export { EmojisDisplay } from "./Emojis";
 export { ItemColorLookup } from "./ItemColorLookup";

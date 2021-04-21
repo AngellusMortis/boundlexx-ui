@@ -17,6 +17,7 @@ import { RootState } from "store";
 import { connect, ConnectedProps } from "react-redux";
 import "./WorldDetails.css";
 import { withRouter, RouteComponentProps } from "react-router-dom";
+import { getOptionalSmallImage, replaceLargeImages } from "utils";
 
 interface BaseProps {
     id: number;
@@ -238,7 +239,9 @@ class Page extends React.Component<Props> {
         }
 
         const theme = getTheme();
-        const assignmentWorld = this.props.worlds.items[this.state.world.assignment.id];
+        const assignmentWorld = this.props.worlds.items[
+            this.state.world.assignment.id
+        ] as Components.Schemas.SimpleWorld;
         const specialType = api.getSpecialType(assignmentWorld);
 
         return (
@@ -256,7 +259,7 @@ class Page extends React.Component<Props> {
                 horizontal
             >
                 <Image
-                    src={assignmentWorld.image_url || "https://cdn.boundlexx.app/worlds/unknown.png"}
+                    src={getOptionalSmallImage(assignmentWorld)}
                     width={100}
                     styles={{ root: { margin: "auto 5px" } }}
                     alt={assignmentWorld.text_name || assignmentWorld.display_name}
@@ -273,7 +276,7 @@ class Page extends React.Component<Props> {
                         <span
                             style={{ display: "block" }}
                             dangerouslySetInnerHTML={{
-                                __html: assignmentWorld.html_name || assignmentWorld.display_name,
+                                __html: replaceLargeImages(assignmentWorld.html_name || assignmentWorld.display_name),
                             }}
                         ></span>
                     </Text>
@@ -326,7 +329,7 @@ class Page extends React.Component<Props> {
                     >
                         <div>
                             <Image
-                                src={this.state.world.image_url || "https://cdn.boundlexx.app/worlds/unknown.png"}
+                                src={getOptionalSmallImage(this.state.world, false)}
                                 style={{ padding: 50, width: "80%", minWidth: "80%" }}
                                 alt={this.state.world.text_name || this.state.world.display_name}
                             />
@@ -343,7 +346,9 @@ class Page extends React.Component<Props> {
                                     className="world-name"
                                     style={{ display: "block" }}
                                     dangerouslySetInnerHTML={{
-                                        __html: this.state.world.html_name || this.state.world.display_name,
+                                        __html: replaceLargeImages(
+                                            this.state.world.html_name || this.state.world.display_name,
+                                        ),
                                     }}
                                 ></span>
                                 <Text variant="large" style={{ display: "block" }}>

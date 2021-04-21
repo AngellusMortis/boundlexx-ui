@@ -5,6 +5,7 @@ import { Card } from "@uifabric/react-cards";
 import { getTheme } from "themes";
 import { Shimmer, Text, Image, ImageFit, Link, LinkBase } from "@fluentui/react";
 import { withRouter, RouteComponentProps } from "react-router-dom";
+import { getOptionalSmallImage, getOptionalSmallItemWithColor, replaceLargeImages } from "utils";
 
 interface BaseProps {
     world: Components.Schemas.SimpleWorld | undefined | null;
@@ -40,7 +41,7 @@ const Component: React.FunctionComponent<Props> = (props) => {
         }
     };
 
-    const onCardClick = (event: React.MouseEvent<HTMLElement, MouseEvent> | undefined) => {
+    const onCardClick = () => {
         if (props.onCardClick !== undefined) {
             props.onCardClick(props.world, props.item, props.color);
         }
@@ -94,16 +95,52 @@ const Component: React.FunctionComponent<Props> = (props) => {
                     }}
                 >
                     {props.color !== undefined && (
-                        <div style={{ backgroundColor: props.color.base_color, width: "100%", height: "100%" }}>
+                        <div style={{ width: "100%", height: "100%" }}>
                             {props.world !== undefined && props.world !== null && (
-                                <Image
-                                    imageFit={ImageFit.centerContain}
-                                    maximizeFrame={true}
-                                    shouldFadeIn={true}
-                                    src={props.world.image_url || "https://cdn.boundlexx.app/worlds/unknown.png"}
-                                    className="card-preview"
-                                    alt={props.world.text_name || props.world.display_name}
-                                ></Image>
+                                <div style={{ width: "100%", height: "100%" }}>
+                                    <div style={{ width: "100%", height: "100%" }}>
+                                        <Image
+                                            imageFit={ImageFit.centerContain}
+                                            maximizeFrame={true}
+                                            shouldFadeIn={true}
+                                            src={getOptionalSmallImage(props.world)}
+                                            className="card-preview"
+                                            alt={props.world.text_name || props.world.display_name}
+                                        ></Image>
+                                    </div>
+                                    {props.item !== undefined && (
+                                        <div
+                                            style={{
+                                                width: "50%",
+                                                height: "50%",
+                                                position: "absolute",
+                                                left: 0,
+                                                top: 0,
+                                            }}
+                                        >
+                                            <Image
+                                                imageFit={ImageFit.centerContain}
+                                                maximizeFrame={true}
+                                                shouldFadeIn={true}
+                                                src={getOptionalSmallItemWithColor(props.item, props.color)}
+                                                className="card-preview"
+                                                alt={props.item.localization[0].name}
+                                            ></Image>
+                                        </div>
+                                    )}
+                                </div>
+                            )}
+                            {props.item !== undefined && (props.world === undefined || props.world === null) && (
+                                <div style={{ width: "100%", height: "100%" }}>
+                                    <Image
+                                        imageFit={ImageFit.centerContain}
+                                        maximizeFrame={true}
+                                        shouldFadeIn={true}
+                                        src={getOptionalSmallItemWithColor(props.item, props.color)}
+                                        className="card-preview"
+                                        alt={props.item.localization[0].name}
+                                    ></Image>
+                                </div>
                             )}
                         </div>
                     )}
@@ -129,7 +166,7 @@ const Component: React.FunctionComponent<Props> = (props) => {
                                 {props.t("World")}:{" "}
                                 <span
                                     dangerouslySetInnerHTML={{
-                                        __html: props.world.html_name || props.world.display_name,
+                                        __html: replaceLargeImages(props.world.html_name || props.world.display_name),
                                     }}
                                 ></span>
                             </Link>

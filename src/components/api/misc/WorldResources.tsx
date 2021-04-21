@@ -12,6 +12,7 @@ import {
     IconButton,
     Stack,
     AnimationClassNames,
+    Image,
 } from "@fluentui/react";
 import "react-toastify/dist/ReactToastify.css";
 import { withTranslation, WithTranslation } from "react-i18next";
@@ -23,6 +24,7 @@ import * as api from "api";
 import { getTheme } from "themes";
 import { Link } from "components";
 import "components/api/display/APIDisplay.css";
+import { getOptionalSmallImage } from "utils";
 
 interface BaseProps {
     worldID: number;
@@ -154,12 +156,14 @@ class Component extends React.Component<Props> {
             return (
                 <DetailsRow
                     columns={[
+                        { fieldName: "itemImage", key: "item-image", name: "item-image", minWidth: 30 },
                         { fieldName: "item", key: "item", name: "item", minWidth: 135 },
                         { fieldName: "count", key: "count", name: "count", minWidth: 80 },
                         { fieldName: "percentage", key: "percentage", name: "percentage", minWidth: 50 },
                         { fieldName: "average", key: "average", name: "average", minWidth: 75 },
                     ]}
                     item={{
+                        itemImage: "",
                         item: (
                             <Text block={true} style={{ fontWeight: "bold", width: 135 }}>
                                 {this.props.t("Item")}
@@ -193,12 +197,22 @@ class Component extends React.Component<Props> {
         return (
             <DetailsRow
                 columns={[
+                    { fieldName: "itemImage", key: "item-image", name: "item-image", minWidth: 30 },
                     { fieldName: "item", key: "item", name: "item", minWidth: 135 },
                     { fieldName: "count", key: "count", name: "count", minWidth: 80 },
                     { fieldName: "percentage", key: "percentage", name: "percentage", minWidth: 50 },
                     { fieldName: "average", key: "average", name: "average", minWidth: 150 },
                 ]}
                 item={{
+                    itemImage: (
+                        <Image
+                            src={getOptionalSmallImage(actualItem)}
+                            styles={{
+                                image: { width: 27, height: 27 },
+                                root: { display: "inline-block", marginRight: 10 },
+                            }}
+                        />
+                    ),
                     item: (
                         <Link
                             style={{ display: "block", fontWeight: "bold", width: 135 }}

@@ -17,6 +17,7 @@ export interface BaseItems {
     nextUrl: string | null;
     count: number | null;
     lang?: string;
+    lastUpdated?: string | null;
 }
 
 export interface BaseItemsAsArray {
@@ -24,6 +25,7 @@ export interface BaseItemsAsArray {
     nextUrl: string | null;
     count: number | null;
     lang?: string;
+    lastUpdated?: Date | null;
 }
 
 export type Version = {

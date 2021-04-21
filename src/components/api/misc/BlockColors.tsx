@@ -27,6 +27,7 @@ import { NumberDict, StringDict } from "types";
 import { withRouter, RouteComponentProps } from "react-router-dom";
 import { Link } from "components";
 import "components/api/display/APIDisplay.css";
+import { getOptionalSmallImage, getOptionalSmallItemWithColor } from "utils";
 
 interface BaseProps {
     worldID: number;
@@ -239,7 +240,7 @@ class Component extends React.Component<Props> {
                         styles={{ root: { display: "inline-block", margin: "0 2px" } }}
                     >
                         <Image
-                            src={firstWorld.image_url || "https://cdn.boundlexx.app/worlds/unknown.png"}
+                            src={getOptionalSmallImage(firstWorld)}
                             width={20}
                             data-world-id={firstWorld.id}
                             onClick={this.onClickWorldIcon}
@@ -357,20 +358,18 @@ class Component extends React.Component<Props> {
                 ]}
                 item={{
                     colorColor: (
-                        <span
-                            style={{
-                                display: "inline-block",
-                                width: 27,
-                                height: 27,
-                                backgroundColor: color.base_color,
-                                marginRight: 10,
+                        <Image
+                            src={getOptionalSmallItemWithColor(actualItem, color)}
+                            styles={{
+                                image: { width: 27, height: 27 },
+                                root: { display: "inline-block", marginRight: 10 },
                             }}
                         />
                     ),
                     item: (
                         <Link
                             style={{ display: "block", fontWeight: "bold", width: 135 }}
-                            href={`/items/${actualItem.game_id}/`}
+                            href={`/items/${actualItem.game_id}/?color=${color.game_id}`}
                         >
                             {actualItem.localization[0].name}
                         </Link>

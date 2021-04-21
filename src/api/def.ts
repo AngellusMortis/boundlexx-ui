@@ -12,10 +12,10 @@ export const CHANGE_DEFINITION = "CHANGE_DEFINITION";
 
 interface ChangeDefinitionAction {
     type: typeof CHANGE_DEFINITION;
-    payload: OpenAPIV3.Document;
+    payload: OpenAPIV3.Document | null;
 }
 
-export function changeAPIDefinition(definition: OpenAPIV3.Document): ChangeDefinitionAction {
+export function changeAPIDefinition(definition: OpenAPIV3.Document | null): ChangeDefinitionAction {
     return {
         type: CHANGE_DEFINITION,
         payload: definition,

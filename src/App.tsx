@@ -21,7 +21,9 @@ const mapState = (state: RootState) => ({
     items: state.items,
     recipeGroups: state.recipeGroups,
     skills: state.skills,
+    emojis: state.emojis,
     locale: state.prefs.language,
+    metals: state.metals,
     theme: getTheme(state.prefs.theme),
     hasUpdate: state.prefs.newChanges !== undefined && state.prefs.newChanges.length > 0,
 });
@@ -34,9 +36,12 @@ const mapDispatchToProps = {
     updateRecipeGroups: api.updateRecipeGroups,
     updateSkills: api.updateSkills,
     updateEmojis: api.updateEmojis,
+    updateMetals: api.updateMetals,
 };
 
 const connector = connect(mapState, mapDispatchToProps);
+
+const UPDATE_INTERVAL = 300000; // 5 minutes
 
 type Props = ConnectedProps<typeof connector>;
 
@@ -51,8 +56,11 @@ class App extends React.Component<Props> {
 
         this.client = await api.getClient();
 
-        this.loadInterval = setInterval(() => {
+        this.loadInterval = setTimeout(() => {
             this.loadData();
+            this.loadInterval = setInterval(() => {
+                this.loadData();
+            }, 10000);
         }, 1000);
     };
 
@@ -64,14 +72,20 @@ class App extends React.Component<Props> {
 
         // load "essential data"
         await Promise.all([
-            this.loadAll(this.props.worlds, "listWorlds", this.props.updateWorlds, undefined, [
-                { name: "show_inactive", value: true, in: "query" },
-            ]),
+            this.loadAll(
+                this.props.worlds,
+                "listWorlds",
+                this.props.updateWorlds,
+                undefined,
+                [{ name: "show_inactive", value: true, in: "query" }],
+                true,
+            ),
             this.loadAll(this.props.colors, "listColors", this.props.updateColors, this.props.locale),
             this.loadAll(this.props.items, "listItems", this.props.updateItems, this.props.locale),
             this.loadAll(this.props.recipeGroups, "listRecipeGroups", this.props.updateRecipeGroups, this.props.locale),
             this.loadAll(this.props.skills, "listSkills", this.props.updateSkills, this.props.locale),
-            this.loadAll(this.props.skills, "listEmojis", this.props.updateEmojis),
+            this.loadAll(this.props.emojis, "listEmojis", this.props.updateEmojis),
+            this.loadAll(this.props.metals, "listMetals", this.props.updateMetals, this.props.locale),
         ]);
 
         this.loading = false;
@@ -85,22 +99,17 @@ class App extends React.Component<Props> {
         }
     };
 
-    loadAll = async (
-        results: BaseItems,
-        operationID: string,
-        updateMethod: api.updateGeneric,
-        locale?: string,
-        params?: APIParams[],
-    ): Promise<void> => {
-        if (this.client === null || !this.mounted) {
-            return;
-        }
+    needsUpdated = (date: undefined | boolean, now: Date, lastUpdated?: null | string) => {
+        return (
+            date !== undefined &&
+            date &&
+            (lastUpdated === undefined ||
+                lastUpdated === null ||
+                now.getTime() - new Date(lastUpdated).getTime() > UPDATE_INTERVAL)
+        );
+    };
 
-        // already pre-loaded, skip
-        if (results.count !== null && Reflect.ownKeys(results.items).length >= results.count) {
-            return;
-        }
-
+    getParams = (needsUpdated: boolean, now?: Date, params?: APIParams[], locale?: string): APIParams[] => {
         if (params === undefined) {
             params = [];
         }
@@ -111,7 +120,51 @@ class App extends React.Component<Props> {
             params.push({ name: "lang", value: locale, in: "query" });
         }
 
-        console.log(`Preloading ${operationID}...`);
+        if (needsUpdated && now !== undefined) {
+            params.push({ name: "last_updated_after", value: now.toISOString(), in: "query" });
+        }
+
+        return params;
+    };
+
+    logLoad = (needsUpdated: boolean, operationID: string) => {
+        if (needsUpdated) {
+            console.log(`Updating ${operationID}...`);
+        } else {
+            console.log(`Preloading ${operationID}...`);
+        }
+    };
+
+    loadAll = async (
+        results: BaseItems,
+        operationID: string,
+        updateMethod: api.updateGeneric,
+        locale?: string,
+        params?: APIParams[],
+        date?: boolean,
+    ): Promise<void> => {
+        if (this.client === null || !this.mounted) {
+            return;
+        }
+
+        let now: Date | undefined = new Date();
+        let needsUpdated = this.needsUpdated(date, now, results.lastUpdated);
+        // already pre-loaded, skip
+        if (results.count !== null && Reflect.ownKeys(results.items).length >= results.count && !needsUpdated) {
+            return;
+        }
+
+        if (results.lastUpdated === undefined || results.lastUpdated === null) {
+            needsUpdated = false;
+        }
+
+        if (date === undefined) {
+            now = undefined;
+        }
+
+        params = this.getParams(needsUpdated, now, params, locale);
+        this.logLoad(needsUpdated, operationID);
+
         // eslint-disable-next-line
         // @ts-ignore
         const operation = this.client[operationID];
@@ -123,14 +176,14 @@ class App extends React.Component<Props> {
         }
 
         let response = await operation(params);
-        let nextURL = this.setDataFromResponse(response, updateMethod, locale);
+        let nextURL = this.setDataFromResponse(response, updateMethod, locale, now);
 
         while (nextURL !== null) {
             await api.throttle();
 
             if (this.mounted && this.client !== null && nextURL !== null) {
                 response = await this.client.get(nextURL, { paramsSerializer: () => "" });
-                nextURL = this.setDataFromResponse(response, updateMethod, locale);
+                nextURL = this.setDataFromResponse(response, updateMethod, locale, now);
             }
         }
     };
@@ -139,14 +192,17 @@ class App extends React.Component<Props> {
         response: AxiosResponse,
         updateMethod: api.updateGeneric,
         locale?: string,
+        now?: Date,
     ): string | null => {
         let nextURL: string | null = null;
 
         if (this.mounted) {
-            if (locale === undefined) {
-                updateMethod(response.data.results, response.data.count, response.data.next);
-            } else {
+            if (now !== undefined) {
+                updateMethod(response.data.results, response.data.count, response.data.next, undefined, now);
+            } else if (locale !== undefined) {
                 updateMethod(response.data.results, response.data.count, response.data.next, locale);
+            } else {
+                updateMethod(response.data.results, response.data.count, response.data.next);
             }
             nextURL = response.data.next;
         }

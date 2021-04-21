@@ -2,6 +2,7 @@ import {
     CHANGE_LANGUAGE,
     CHANGE_THEME,
     CHANGE_VERSION,
+    CHANGE_UNIVERSE,
     ON_UPDATE,
     CHANGE_SHOW_VERSION,
     CHANGE_SHOW_GROUPS,
@@ -27,6 +28,13 @@ export function changeVersion(newVersion: string | null): PerfsActionsType {
     return {
         type: CHANGE_VERSION,
         payload: newVersion,
+    };
+}
+
+export function changeUniverse(newUniverse: string | null): PerfsActionsType {
+    return {
+        type: CHANGE_UNIVERSE,
+        payload: newUniverse,
     };
 }
 

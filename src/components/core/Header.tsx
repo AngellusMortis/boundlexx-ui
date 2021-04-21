@@ -14,6 +14,7 @@ import {
 } from "@fluentui/react";
 import { ThemeSelector } from "./ThemeSelector";
 import { LanguageSelector } from "./LanguageSelector";
+import { UniverseSelector } from "./UniverseSelector";
 import { CollapsibleInput } from "./CollapsibleInput";
 import { Link } from "./Link";
 import { purgeData, RootState } from "store";
@@ -80,15 +81,16 @@ const links: MenuLink[] = [
                 key: "color-mixer",
                 text: "Color Mixer",
                 external: true,
-                href: "https://boundlessinfo.com/colour-mixer",
+                href: "https://boundlessinfo.com/colours/colour-mixer",
+            },
+            { key: "farming", text: "Farming Guide", external: true, href: "https://boundlessinfo.com/farming" },
+            {
+                key: "forge-reference",
+                text: "Forging Reference",
+                external: true,
+                href: "https://boundlessinfo.com/forging",
             },
             { key: "goo", text: "Goo Helper", external: true, href: "https://boundlessinfo.com/goo-mutator" },
-            {
-                key: "forge-traits",
-                text: "Forge Traits",
-                external: true,
-                href: "https://boundlessinfo.com/forging/forge-traits",
-            },
             {
                 key: "creature-drops",
                 text: "Creature Drops",
@@ -151,13 +153,6 @@ const links: MenuLink[] = [
                 skipTranslate: true,
                 external: true,
                 href: "http://boundlesscrafting.com/",
-            },
-            {
-                key: "damage-calculator",
-                text: "Damage Calculator",
-                secondaryText: "(NOT SECURE)",
-                external: true,
-                href: "http://www.pfiffel.com/bl/dmg/",
             },
             {
                 key: "skill-planner",
@@ -258,6 +253,7 @@ class Component extends React.Component<Props> {
                         >
                             <PrimaryButton onClick={this.onClickReset}>{this.props.t("Reset Data")}</PrimaryButton>
                         </CollapsibleInput>
+                        <UniverseSelector />
                         <ThemeSelector />
                         <LanguageSelector />
                         <Link href="https://forum.playboundless.com/t/boundlexx-ui/51833" target="_blank">

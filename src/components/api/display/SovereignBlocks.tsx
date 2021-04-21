@@ -54,6 +54,18 @@ class Colors extends APIDisplay {
         }
     };
 
+    getColor = () => {
+        const filters: StringDict<string> = this.state.filters.extraFilters || {};
+        const colorID = filters["game_id"] === undefined ? null : parseInt(filters["game_id"]);
+
+        let color: null | Components.Schemas.Color = null;
+        if (colorID !== null && !isNaN(colorID)) {
+            color = api.getColor(colorID) || null;
+        }
+
+        return color;
+    };
+
     renderFilters = (): string | JSX.Element => {
         const filters: StringDict<string> = this.state.filters.extraFilters || {};
         const colorID = filters["game_id"] === undefined ? null : parseInt(filters["game_id"]);
@@ -74,7 +86,7 @@ class Colors extends APIDisplay {
             theItem = getItem(item.item.game_id);
         }
 
-        return <ItemCard item={theItem} />;
+        return <ItemCard item={theItem} color={this.getColor() || undefined} />;
     };
 }
 

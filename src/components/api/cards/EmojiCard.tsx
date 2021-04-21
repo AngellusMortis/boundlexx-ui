@@ -6,6 +6,7 @@ import { getTheme } from "themes";
 import { Shimmer, Text, Image, ImageFit } from "@fluentui/react";
 import toast from "toast";
 import { Mutex } from "async-mutex";
+import { getOptionalSmallImage } from "utils";
 
 interface BaseProps {
     emoji: Components.Schemas.Emoji | undefined;
@@ -116,10 +117,11 @@ const Component: React.FunctionComponent<Props> = (props) => {
                             imageFit={ImageFit.centerContain}
                             maximizeFrame={true}
                             shouldFadeIn={true}
-                            src={props.emoji.image_url}
+                            src={getOptionalSmallImage(props.emoji)}
                             className="card-preview"
                             alt={`emoji ${props.emoji.names[0]}`}
                             onClick={onCardClick}
+                            loading="lazy"
                         ></Image>
                     )}
                 </Shimmer>

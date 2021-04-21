@@ -2,7 +2,7 @@ import React from "react";
 import { withTranslation, WithTranslation } from "react-i18next";
 import * as api from "api";
 import { Client as BoundlexxClient, Components } from "api/client";
-import { Spinner, SpinnerSize, Text, ProgressIndicator } from "@fluentui/react";
+import { Spinner, SpinnerSize, Text, ProgressIndicator, Image, ImageFit } from "@fluentui/react";
 import { NotFound, Time } from "components";
 import { RootState } from "store";
 import { connect, ConnectedProps } from "react-redux";
@@ -32,7 +32,7 @@ import "leaflet/dist/leaflet.css";
 import "react-leaflet-markercluster/dist/styles.min.css";
 import MarkerClusterGroup from "react-leaflet-markercluster";
 import { getTheme, setTheme, isDark } from "themes";
-import { getGameCoords } from "utils";
+import { getGameCoords, replaceLargeImages, getOptionalSmallImage } from "utils";
 import * as turf from "@turf/turf";
 
 /* get all of the Leaflet markers to load correctly */
@@ -642,7 +642,7 @@ class Page extends React.Component<Props> {
                 <span style={{ color: "#60baff" }}>{guildTag}</span>{" "}
                 <span
                     dangerouslySetInnerHTML={{
-                        __html: beaconName,
+                        __html: replaceLargeImages(beaconName),
                     }}
                 ></span>
             </span>
@@ -841,7 +841,20 @@ class Page extends React.Component<Props> {
             >
                 <Popup>
                     <Text block>
-                        <strong>{item.localization[0].name}</strong>
+                        <strong style={{ display: "flex", alignItems: "center" }}>
+                            <div style={{ height: 20, width: 20, marginRight: 5 }}>
+                                <Image
+                                    imageFit={ImageFit.centerContain}
+                                    maximizeFrame={true}
+                                    shouldFadeIn={true}
+                                    src={getOptionalSmallImage(item)}
+                                    className="card-preview"
+                                    alt={`${item.localization[0].name}`}
+                                    loading="lazy"
+                                ></Image>
+                            </div>
+                            <Link href={`/items/${item.game_id}/`}>{item.localization[0].name}</Link>
+                        </strong>
                     </Text>
                     <Text block>{this.props.t(type)}</Text>
                     <Text block>
@@ -1063,7 +1076,9 @@ class Page extends React.Component<Props> {
                                             <span
                                                 key="world-link"
                                                 dangerouslySetInnerHTML={{
-                                                    __html: this.state.world.html_name || this.state.world.display_name,
+                                                    __html: replaceLargeImages(
+                                                        this.state.world.html_name || this.state.world.display_name,
+                                                    ),
                                                 }}
                                             ></span>,
                                         ]}

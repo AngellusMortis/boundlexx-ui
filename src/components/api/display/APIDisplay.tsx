@@ -188,6 +188,7 @@ export const mapStringStoreToItems = (store: StringAPIItems): BaseItemsAsArray |
 export type APIDisplayProps = WithTranslation & BaseProps & RouteComponentProps;
 
 const lock = new Mutex();
+const MAX_WIDTH = 1800;
 
 export abstract class APIDisplay extends React.Component<APIDisplayProps> {
     mounted = false;
@@ -218,7 +219,7 @@ export abstract class APIDisplay extends React.Component<APIDisplayProps> {
     constructor(props: APIDisplayProps) {
         super(props);
 
-        this.state.columnCount = Math.floor(window.innerWidth / CARD_WIDTH);
+        this.state.columnCount = Math.floor(Math.min(window.innerWidth, MAX_WIDTH) / CARD_WIDTH);
         this.state.hasRequiredFilters = this.getHasRequiredFilters();
         window.addEventListener("resize", this.calculateColumns);
 
@@ -255,6 +256,8 @@ export abstract class APIDisplay extends React.Component<APIDisplayProps> {
             width = Math.min(width, this.props.maxWidth);
         }
 
+        // enforce global max width for permformance
+        width = Math.min(MAX_WIDTH, width);
         const newColumns = Math.floor(width / CARD_WIDTH);
 
         if (newColumns !== this.state.columnCount) {
@@ -1045,7 +1048,7 @@ export abstract class APIDisplay extends React.Component<APIDisplayProps> {
     };
 
     renderShowGroups = (): string | JSX.Element => {
-        if (this.props.groupBy !== undefined) {
+        if (this.props.groupBy !== undefined && !this.state.collapsed) {
             return (
                 <TooltipHost
                     content={this.props.t(this.props.showGroups ? "Hide Groups" : "Show Groups")}
@@ -1127,7 +1130,7 @@ export abstract class APIDisplay extends React.Component<APIDisplayProps> {
 
         return (
             <GroupHeader
-                styles={{ check: { display: "none" }, headerCount: { display: "none" } }}
+                styles={{ check: { display: "none" }, headerCount: { display: "none" }, root: { maxWidth: MAX_WIDTH } }}
                 onRenderTitle={onRenderTitle}
                 onGroupHeaderClick={onGroupHeaderClick}
                 {...props}
@@ -1372,6 +1375,7 @@ export abstract class APIDisplay extends React.Component<APIDisplayProps> {
                             position: "relative",
                             height: "100%",
                             width: "100%",
+                            maxWidth: MAX_WIDTH,
                         },
                     }}
                 >

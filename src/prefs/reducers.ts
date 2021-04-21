@@ -3,6 +3,7 @@ import {
     CHANGE_LANGUAGE,
     CHANGE_THEME,
     CHANGE_VERSION,
+    CHANGE_UNIVERSE,
     ON_UPDATE,
     CHANGE_SHOW_VERSION,
     CHANGE_SHOW_GROUPS,
@@ -13,6 +14,7 @@ const initialState: UserPreferences = {
     language: "english",
     theme: "",
     version: null,
+    universe: null,
     showUpdates: false,
     showGroups: true,
 };
@@ -25,6 +27,8 @@ export function prefsReducer(state = initialState, action: PerfsActionsType): Us
             return { ...state, theme: action.payload };
         case CHANGE_VERSION:
             return { ...state, version: action.payload };
+        case CHANGE_UNIVERSE:
+            return { ...state, universe: action.payload };
         case ON_UPDATE:
             let version: string | null = state.version;
             if (action.payload.newChanges[0] !== undefined) {

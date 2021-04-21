@@ -10,7 +10,7 @@ import { getTheme } from "themes";
 import { changeShowGroups } from "prefs/actions";
 import { IColumn, Link, LinkBase, Text } from "@fluentui/react";
 import { withRouter } from "react-router-dom";
-import { getGameCoords } from "utils";
+import { getGameCoords, replaceLargeImages } from "utils";
 import { Time } from "components";
 
 const mapState = (state: RootState) => ({
@@ -117,7 +117,7 @@ class WorldShopStands extends APIListDisplay {
                     }
 
                     return (
-                        <Link href={`/item/${theItem.game_id}/`} onClick={this.onLinkClick}>
+                        <Link href={`/items/${theItem.game_id}/`} onClick={this.onLinkClick}>
                             {theItem.localization[0].name}
                         </Link>
                     );
@@ -155,7 +155,7 @@ class WorldShopStands extends APIListDisplay {
                             <span style={{ color: "#60baff" }}>{item.guild_tag}</span>{" "}
                             <span
                                 dangerouslySetInnerHTML={{
-                                    __html: item.beacon_html_name || item.beacon_name,
+                                    __html: replaceLargeImages(item.beacon_html_name || item.beacon_name),
                                 }}
                             ></span>
                         </Text>

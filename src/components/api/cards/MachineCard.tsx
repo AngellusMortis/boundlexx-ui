@@ -3,12 +3,13 @@ import { withTranslation, WithTranslation } from "react-i18next";
 import { Components } from "api/client";
 import { Card } from "@uifabric/react-cards";
 import { getTheme } from "themes";
-import { Text, TooltipHost } from "@fluentui/react";
+import { Text, TooltipHost, Image, ImageFit, Shimmer } from "@fluentui/react";
 import { useId } from "@uifabric/react-hooks";
 import { getItem } from "api";
 import { RecipeLevel } from "types";
 import { makeDurationString } from "utils";
 import { Link } from "components";
+import { getOptionalSmallImage } from "utils";
 
 interface BaseProps {
     machine: string | Components.Schemas.SimpleItem;
@@ -90,7 +91,33 @@ const Component: React.FunctionComponent<Props> = (props) => {
                         },
                     }}
                 >
-                    <div style={{ height: "100%", width: "100%" }}></div>
+                    <Shimmer
+                        className="card-preview"
+                        isDataLoaded={item !== undefined}
+                        styles={{
+                            root: {
+                                width: 57,
+                                height: 57,
+                                display: "inline-flex",
+                                marginTop: 4,
+                            },
+                            dataWrapper: {
+                                height: "100%",
+                                width: "100%",
+                            },
+                        }}
+                    >
+                        {item !== undefined && item !== null && (
+                            <Image
+                                imageFit={ImageFit.centerContain}
+                                maximizeFrame={true}
+                                shouldFadeIn={true}
+                                src={getOptionalSmallImage(item)}
+                                className="card-preview"
+                                alt={item.localization[0].name}
+                            ></Image>
+                        )}
+                    </Shimmer>
                 </Card.Item>
                 <Card.Section styles={{ root: { width: 212 } }}>
                     {renderTextName(hasItem && item !== null ? item.localization[0].name : props.machine.toString())}

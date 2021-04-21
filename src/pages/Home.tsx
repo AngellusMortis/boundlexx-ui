@@ -24,7 +24,7 @@ class Home extends React.Component<WithTranslation> {
                 <h1>{boundlexx}</h1>
                 <h2>{page}</h2>
                 <Text variant="large">
-                    <Link href={config.apiBase} target="_blank">
+                    <Link href={config.apiBase.live} target="_blank">
                         {this.props.t("API Documentation")}
                     </Link>
                 </Text>

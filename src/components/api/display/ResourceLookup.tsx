@@ -12,6 +12,7 @@ import { StringDict } from "types";
 import { ResourceItemSelector } from "components";
 import { IColumn, Stack, Image, ImageFit, FontIcon, Link, LinkBase } from "@fluentui/react";
 import { withRouter } from "react-router-dom";
+import { getOptionalSmallImage, replaceLargeImages } from "utils";
 
 const mapState = (state: RootState) => ({
     theme: getTheme(state.prefs.theme),
@@ -125,7 +126,7 @@ class Resources extends APIListDisplay {
                             imageFit={ImageFit.centerContain}
                             maximizeFrame={true}
                             shouldFadeIn={true}
-                            src={world.image_url || "https://cdn.boundlexx.app/worlds/unknown.png"}
+                            src={getOptionalSmallImage(world)}
                             className="card-preview"
                             alt={world.text_name || world.display_name}
                         ></Image>
@@ -154,7 +155,7 @@ class Resources extends APIListDisplay {
                         <Link href={`/worlds/${world.id}/`} onClick={this.onWorldClick}>
                             <span
                                 dangerouslySetInnerHTML={{
-                                    __html: world.html_name || world.display_name,
+                                    __html: replaceLargeImages(world.html_name || world.display_name),
                                 }}
                             ></span>
                         </Link>

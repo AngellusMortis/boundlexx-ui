@@ -68,7 +68,7 @@ class Component extends React.Component<Props> {
 
             const item = this.props.items[key];
 
-            if (item.has_colors) {
+            if (item.has_world_colors) {
                 options.push({
                     key: key,
                     text: item.localization[0].name,

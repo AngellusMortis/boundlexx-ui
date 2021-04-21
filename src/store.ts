@@ -1,5 +1,6 @@
+import { PerfsActionsType } from "prefs/types";
 import { prefsReducer } from "prefs/reducers";
-import { onUpdate, changeVersion, changeLanuage, changeTheme } from "prefs/actions";
+import { changeVersion, changeLanuage, changeTheme, changeUniverse } from "prefs/actions";
 import * as api from "api";
 import { combineReducers, createStore } from "redux";
 import { persistStore, persistReducer } from "redux-persist";
@@ -8,16 +9,47 @@ import storage from "redux-persist/lib/storage";
 // @ts-ignore
 import expireReducer from "redux-persist-expire";
 
-const rootReducer = combineReducers({
+const appReducer = combineReducers({
     prefs: prefsReducer,
     api: api.defReducer,
     colors: api.colorsReducer,
     emojis: api.emojisReducer,
     worlds: api.worldsReducer,
     items: api.itemsReducer,
+    metals: api.metalsReducer,
     skills: api.skillsReducer,
     recipeGroups: api.recipeGroupsReducer,
 });
+
+export const RESET_DATA = "RESET_DATA";
+
+interface ResetDataAction {
+    type: typeof RESET_DATA;
+    payload: null;
+}
+
+export function resetData(): ResetDataAction {
+    return {
+        type: RESET_DATA,
+        payload: null,
+    };
+}
+
+type AppActionsType = api.ApiActionsType | PerfsActionsType;
+
+export type RootActionsType = AppActionsType | ResetDataAction;
+
+export type RootState = ReturnType<typeof appReducer>;
+
+const rootReducer = (state: RootState | undefined, action: RootActionsType): RootState => {
+    if (action.type === RESET_DATA) {
+        storage.removeItem("persist:root");
+
+        state = undefined;
+    }
+
+    return appReducer(state, action as AppActionsType);
+};
 
 const persistConfig = {
     key: "root",
@@ -46,6 +78,20 @@ const persistConfig = {
             expireSeconds: 2592000, // 30 days
             // (Optional) State to be used for resetting e.g. provide initial reducer state
             expiredState: api.colorsInitialState,
+            // (Optional) Use it if you don't want to manually set the time in the reducer i.e. at `persistedAtKey`
+            // and want the store to  be automatically expired if the record is not updated in the `expireSeconds` time
+            autoExpire: true,
+        }),
+
+        // Create a transformer by passing the reducer key and configuration. Values
+        // shown below are the available configurations with default values
+        expireReducer("metals", {
+            // (Optional) Key to be used for the time relative to which store is to be expired
+            persistedAtKey: "__persisted_at",
+            // (Required) Seconds after which store will be expired
+            expireSeconds: 2592000, // 30 days
+            // (Optional) State to be used for resetting e.g. provide initial reducer state
+            expiredState: api.metalsInitialState,
             // (Optional) Use it if you don't want to manually set the time in the reducer i.e. at `persistedAtKey`
             // and want the store to  be automatically expired if the record is not updated in the `expireSeconds` time
             autoExpire: true,
@@ -113,7 +159,7 @@ const persistConfig = {
             // (Optional) Key to be used for the time relative to which store is to be expired
             persistedAtKey: "__persisted_at",
             // (Required) Seconds after which store will be expired
-            expireSeconds: 3600, // 1 hour
+            expireSeconds: 2592000, // 1 hour
             // (Optional) State to be used for resetting e.g. provide initial reducer state
             expiredState: api.worldsInitialState,
             // (Optional) Use it if you don't want to manually set the time in the reducer i.e. at `persistedAtKey`
@@ -122,8 +168,6 @@ const persistConfig = {
         }),
     ],
 };
-
-export type RootState = ReturnType<typeof rootReducer>;
 
 // eslint-disable-next-line
 // @ts-ignore
@@ -134,6 +178,7 @@ export const persistor = persistStore(store);
 
 export const purgeData = (version?: string | null, skipReload?: boolean): void => {
     const state = store.getState();
+    const universe = state.prefs.universe;
     const lang = state.prefs.language;
     const theme = state.prefs.theme;
 
@@ -141,22 +186,13 @@ export const purgeData = (version?: string | null, skipReload?: boolean): void =
         version = state.prefs.version;
     }
 
-    store.dispatch(onUpdate([]));
-    store.dispatch(changeVersion(version));
-
-    // wipe all API data
-    store.dispatch(api.updateColors([], null, null, lang));
-    store.dispatch(api.updateRecipeGroups([], null, null, lang));
-    store.dispatch(api.updateSkills([], null, null, lang));
-    store.dispatch(api.updateItems([], null, null, lang));
-    store.dispatch(api.updateEmojis([], null, null));
-    store.dispatch(api.updateWorlds([], null, null));
-
-    localStorage.clear();
-
+    // wipe all data
+    store.dispatch(resetData());
     store.dispatch(changeVersion(version));
     store.dispatch(changeTheme(theme));
     store.dispatch(changeLanuage(lang));
+    store.dispatch(changeUniverse(universe));
+    persistor.flush();
 
     if (!skipReload) {
         window.location.reload();

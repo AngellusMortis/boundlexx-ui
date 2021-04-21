@@ -4,6 +4,7 @@ export interface UserPreferences {
     theme: string;
     language: string;
     version: string | null;
+    universe: string | null;
     showUpdates: boolean;
     newChanges?: Version[];
     serviceWorker?: ServiceWorkerRegistration;
@@ -36,6 +37,13 @@ interface ChangeVersionAction {
     payload: string | null;
 }
 
+export const CHANGE_UNIVERSE = "CHANGE_UNIVERSE";
+
+interface ChangeUniverseAction {
+    type: typeof CHANGE_UNIVERSE;
+    payload: string | null;
+}
+
 export const CHANGE_SHOW_VERSION = "CHANGE_SHOW_VERSION";
 
 interface ChangeShowUpdatesAction {
@@ -61,6 +69,7 @@ export type PerfsActionsType =
     | ChangeThemeAction
     | ChangeLanguageAction
     | ChangeVersionAction
+    | ChangeUniverseAction
     | OnUpdateAction
     | ChangeShowUpdatesAction
     | ChangeShowGroupsAction;

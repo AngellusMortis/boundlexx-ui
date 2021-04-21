@@ -50,8 +50,14 @@ const clientConfig: AxiosRequestConfig = {
 };
 
 export const config = {
-    apiBase: process.env.REACT_APP_API_BASE_URL,
-    server: process.env.REACT_APP_API_SERVER,
+    apiBase: {
+        live: process.env.REACT_APP_API_BASE_URL,
+        testing: "https://testing.boundlexx.app/api/v2",
+    },
+    server: {
+        live: process.env.REACT_APP_API_SERVER,
+        testing: "Testing Universe",
+    },
     pageSize: 200,
     throttle: 200,
     clientConfig: clientConfig,
@@ -65,9 +71,22 @@ export const throttle = (ms?: number): Promise<void> => {
 let client: BoundlexxClient | null = null;
 const lock = new Mutex();
 
-const getDefinition = (state: RootState, force?: boolean): string | OpenAPIV3.Document => {
+const getBaseUrl = (): string => {
+    const state = store.getState() as RootState;
+
+    let base = config.apiBase.live;
+    if (state.prefs.universe === "testing") {
+        base = config.apiBase.testing;
+    }
+
+    return base || "";
+};
+
+const getDefinition = (force?: boolean): string | OpenAPIV3.Document => {
+    const state = store.getState() as RootState;
+
     if (state.api.def === null || force) {
-        return `${config.apiBase}/schema/?format=openapi-json`;
+        return `${getBaseUrl()}/schema/?format=openapi-json`;
     }
     return state.api.def;
 };
@@ -82,11 +101,17 @@ export const getClient = async (force?: boolean): Promise<BoundlexxClient> => {
         console.warn("Could not find operation. Force reloading OpenAPI Client...");
     }
 
-    const def = getDefinition(store.getState() as RootState, force);
+    const state = store.getState() as RootState;
+    const def = getDefinition(force);
     const api = new OpenAPIClientAxios({ definition: def, axiosConfigDefaults: config.clientConfig });
 
-    if (config.server !== undefined) {
-        api.withServer(config.server);
+    let server = config.server.live;
+    if (state.prefs.universe === "testing") {
+        server = config.server.testing;
+    }
+
+    if (server !== undefined) {
+        api.withServer(server);
     }
 
     return await lock.runExclusive(async () => {
@@ -112,6 +137,10 @@ export const getColor = (id: number): Components.Schemas.Color | undefined => {
     return store.getState().colors.items[id];
 };
 
+export const getMetal = (id: number): Components.Schemas.Metal | undefined => {
+    return store.getState().metals.items[id];
+};
+
 export const getWorlds = (): NumberDict<Components.Schemas.SimpleWorld> => {
     return store.getState().worlds.items;
 };
@@ -122,6 +151,10 @@ export const getItems = (): NumberDict<Components.Schemas.SimpleItem> => {
 
 export const getColors = (): NumberDict<Components.Schemas.Color> => {
     return store.getState().colors.items;
+};
+
+export const getMetals = (): NumberDict<Components.Schemas.Metal> => {
+    return store.getState().metals.items;
 };
 
 export const requireWorlds = async (): Promise<void> => {
@@ -153,6 +186,18 @@ export const requireColors = async (): Promise<void> => {
     while (!loaded) {
         const state = store.getState();
         loaded = state.colors.count !== null && Reflect.ownKeys(state.colors.items).length >= state.colors.count;
+
+        if (!loaded) {
+            await throttle();
+        }
+    }
+};
+
+export const requireMetals = async (): Promise<void> => {
+    let loaded = false;
+    while (!loaded) {
+        const state = store.getState();
+        loaded = state.metals.count !== null && Reflect.ownKeys(state.metals.items).length >= state.metals.count;
 
         if (!loaded) {
             await throttle();

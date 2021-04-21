@@ -1,6 +1,7 @@
 export { CollapsibleInput } from "./CollapsibleInput";
 export { LanguageSelector } from "./LanguageSelector";
 export { ThemeSelector } from "./ThemeSelector";
+export { UniverseSelector } from "./UniverseSelector";
 export { Header } from "./Header";
 export { Link } from "./Link";
 export { NotFound } from "./NotFound";

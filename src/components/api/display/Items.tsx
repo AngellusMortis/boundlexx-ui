@@ -35,6 +35,16 @@ const mapState = (state: RootState) => ({
             },
         },
         {
+            name: "has_world_colors",
+            type: "boolean",
+            filter: (value: string, items: unknown[]) => {
+                const worlds = items as Components.Schemas.SimpleItem[];
+                return worlds.filter((item: Components.Schemas.SimpleItem) =>
+                    value === "true" ? item.has_world_colors : !item.has_world_colors,
+                );
+            },
+        },
+        {
             name: "is_resource",
             type: "boolean",
             filter: (value: string, items: unknown[]) => {
@@ -124,7 +134,7 @@ class Items extends APIDisplay {
             const dropdown = event.target as HTMLDivElement;
             const key = dropdown.getAttribute("data-filter-name");
 
-            if (key !== null && ["has_colors", "is_resource"].indexOf(key) > -1) {
+            if (key !== null && ["has_colors", "has_world_colors", "is_resource"].indexOf(key) > -1) {
                 const params: StringDict<string | null> = {};
                 params[key] = option.key.toString();
                 params[key] = params[key] === "" ? null : params[key];
@@ -170,6 +180,22 @@ class Items extends APIDisplay {
                             { key: "false", text: this.props.t("No") },
                         ]}
                         defaultSelectedKey={filters["has_colors"] === undefined ? "" : filters["has_colors"]}
+                        onChange={this.onUpdateFilter}
+                    ></Dropdown>
+                </Stack.Item>
+                <Stack.Item styles={{ root: { margin: "5px 20px" } }}>
+                    <Dropdown
+                        styles={{ dropdown: { width: 100 } }}
+                        label={this.props.t("Is World Color?")}
+                        data-filter-name="has_world_colors"
+                        options={[
+                            { key: "", text: this.props.t("No Value") },
+                            { key: "true", text: this.props.t("Yes") },
+                            { key: "false", text: this.props.t("No") },
+                        ]}
+                        defaultSelectedKey={
+                            filters["has_world_colors"] === undefined ? "" : filters["has_world_colors"]
+                        }
                         onChange={this.onUpdateFilter}
                     ></Dropdown>
                 </Stack.Item>

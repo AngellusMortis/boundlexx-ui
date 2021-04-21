@@ -3,10 +3,11 @@ import { withTranslation, WithTranslation } from "react-i18next";
 import { Components } from "api/client";
 import { Card } from "@uifabric/react-cards";
 import { getTheme } from "themes";
-import { Shimmer, Text, TooltipHost } from "@fluentui/react";
+import { Shimmer, Text, TooltipHost, Image, ImageFit } from "@fluentui/react";
 import { useId } from "@uifabric/react-hooks";
 import { ItemCard } from "./ItemCard";
 import { getItem } from "api";
+import { getOptionalSmallImage } from "utils";
 
 interface BaseProps {
     group: Components.Schemas.RecipeGroup | undefined;
@@ -63,6 +64,11 @@ const Component: React.FunctionComponent<Props> = (props) => {
         );
     };
 
+    const getImageUrl = (group: Components.Schemas.RecipeGroup) => {
+        const firstItem = getItem(group.members[0].game_id);
+        return getOptionalSmallImage(firstItem);
+    };
+
     return (
         <TooltipHost
             content={renderMembers()}
@@ -115,7 +121,18 @@ const Component: React.FunctionComponent<Props> = (props) => {
                                 width: "100%",
                             },
                         }}
-                    ></Shimmer>
+                    >
+                        {props.group !== undefined && (
+                            <Image
+                                imageFit={ImageFit.centerContain}
+                                maximizeFrame={true}
+                                shouldFadeIn={true}
+                                src={getImageUrl(props.group)}
+                                className="card-preview"
+                                alt={props.group.display_name.strings[0].plain_text}
+                            ></Image>
+                        )}
+                    </Shimmer>
                 </Card.Item>
                 <Card.Section styles={{ root: { width: 212 } }}>
                     <Shimmer isDataLoaded={props.group !== undefined} width={100}>

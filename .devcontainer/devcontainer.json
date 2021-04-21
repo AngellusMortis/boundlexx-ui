@@ -4,7 +4,7 @@
     "name": "Boundlexx UI",
     // Update the 'dockerComposeFile' list if you have more compose files or use different names.
     // The .devcontainer/docker-compose.yml file contains any overrides you need/want to make.
-    "dockerComposeFile": ["../docker-compose.yml", "../docker-compose.override.yml"],
+    "dockerComposeFile": ["../docker-compose.yml", "./docker-compose.vscode.yml", "../docker-compose.override.yml"],
     // The 'service' property is the name of the service for the container that VS Code should
     // use. Update this value and .devcontainer/docker-compose.yml to the real service name.
     "service": "web",
@@ -17,9 +17,9 @@
         "tslint.configFile": "${workspaceFolder}/tsconfig.json",
         "tslint.jsEnable": true,
         "typescript.updateImportsOnFileMove.enabled": "always",
-        "typescript.preferences.importModuleSpecifier": "auto",
+        "typescript.preferences.importModuleSpecifier": "project-relative",
         "javascript.updateImportsOnFileMove.enabled": "always",
-        "javascript.preferences.importModuleSpecifier": "auto",
+        "javascript.preferences.importModuleSpecifier": "project-relative",
         "eslint.validate": ["javascript", "javascriptreact", "typescript", "typescriptreact"],
         "[javascriptreact]": {
             "editor.codeActionsOnSave": {

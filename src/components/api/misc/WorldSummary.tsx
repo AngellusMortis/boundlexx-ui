@@ -4,6 +4,7 @@ import { Text, Image } from "@fluentui/react";
 import { Components } from "api/client";
 import { Link } from "components";
 import * as api from "api";
+import { getOptionalSmallImage, replaceLargeImages } from "utils";
 
 interface BaseProps {
     world: Components.Schemas.SimpleWorld;
@@ -17,7 +18,7 @@ const Component: React.FunctionComponent<Props> = (props) => {
     return (
         <div style={{ minWidth: 200, width: "100%", display: "inline-block", marginBottom: 40, textAlign: "center" }}>
             <Image
-                src={props.world.image_url || "https://cdn.boundlexx.app/worlds/unknown.png"}
+                src={getOptionalSmallImage(props.world)}
                 styles={{ image: { width: "100%" }, root: { margin: "50px 100px 10px 100px" } }}
                 alt={props.world.text_name || props.world.display_name}
             />
@@ -25,7 +26,7 @@ const Component: React.FunctionComponent<Props> = (props) => {
                 <Link href={`/worlds/${props.world.id}/`}>
                     <span
                         dangerouslySetInnerHTML={{
-                            __html: props.world.html_name || props.world.display_name,
+                            __html: replaceLargeImages(props.world.html_name || props.world.display_name),
                         }}
                     ></span>
                 </Link>

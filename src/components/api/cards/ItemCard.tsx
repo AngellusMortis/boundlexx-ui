@@ -3,17 +3,22 @@ import { withTranslation, WithTranslation } from "react-i18next";
 import { Components } from "api/client";
 import { Card } from "@uifabric/react-cards";
 import { getTheme } from "themes";
-import { Shimmer, Text, TooltipHost } from "@fluentui/react";
+import { Shimmer, Text, TooltipHost, Image, ImageFit } from "@fluentui/react";
 import { useId } from "@uifabric/react-hooks";
 import { Link } from "components";
+import { getOptionalSmallItemWithColor } from "utils";
 
 interface BaseProps {
     item: Components.Schemas.SimpleItem | undefined;
+    color?: Components.Schemas.Color | undefined;
+    metal?: Components.Schemas.Metal | undefined;
     extra?: string;
 }
 
 type Props = BaseProps & WithTranslation;
 
+// TODO:
+// eslint-disable-next-line
 const Component: React.FunctionComponent<Props> = (props) => {
     const theme = getTheme();
     let width = 300;
@@ -48,10 +53,21 @@ const Component: React.FunctionComponent<Props> = (props) => {
         );
     };
 
+    const getItemUrl = (item: Components.Schemas.SimpleItem): string => {
+        let itemUrl = `/items/${item.game_id}/`;
+        if (item.has_colors && props.color !== undefined) {
+            itemUrl += `?color=${props.color.game_id}`;
+        } else if (item.has_metal_variants && props.metal !== undefined) {
+            itemUrl += `?metal=${props.metal.game_id}`;
+        }
+
+        return itemUrl;
+    };
+
     return (
         <Link
             className="card-link"
-            href={`/items/${props.item === undefined ? "" : props.item.game_id}/`}
+            href={(props.item !== undefined && getItemUrl(props.item)) || ""}
             style={{ color: theme.palette.black }}
         >
             <Card
@@ -99,7 +115,18 @@ const Component: React.FunctionComponent<Props> = (props) => {
                                 width: "100%",
                             },
                         }}
-                    ></Shimmer>
+                    >
+                        {props.item !== undefined && (
+                            <Image
+                                imageFit={ImageFit.centerContain}
+                                maximizeFrame={true}
+                                shouldFadeIn={true}
+                                src={getOptionalSmallItemWithColor(props.item, props.color, props.metal)}
+                                className="card-preview"
+                                alt={props.item.localization[0].name}
+                            ></Image>
+                        )}
+                    </Shimmer>
                 </Card.Item>
                 <Card.Section styles={{ root: { width: 212 } }}>
                     <Shimmer isDataLoaded={props.item !== undefined} width={100}>
@@ -110,13 +137,33 @@ const Component: React.FunctionComponent<Props> = (props) => {
                             <Text variant="small">{props.item.item_subtitle.localization[0].name}</Text>
                         )}
                     </Shimmer>
-                    <Shimmer isDataLoaded={props.item !== undefined} width={60}>
-                        {props.item !== undefined && (
-                            <Text variant="xSmall">
-                                {props.t("ID")}: {props.item.game_id}
-                            </Text>
-                        )}
-                    </Shimmer>
+                    {props.color === undefined && props.metal === undefined && (
+                        <Shimmer isDataLoaded={props.item !== undefined} width={60}>
+                            {props.item !== undefined && (
+                                <Text variant="xSmall">
+                                    {props.t("ID")}: {props.item.game_id}
+                                </Text>
+                            )}
+                        </Shimmer>
+                    )}
+                    {props.color !== undefined && (
+                        <Shimmer isDataLoaded={props.item !== undefined} width={60}>
+                            {props.item !== undefined && (
+                                <Text variant="xSmall">
+                                    {props.t("Color")}: {`${props.color.localization[0].name} (${props.color.game_id})`}
+                                </Text>
+                            )}
+                        </Shimmer>
+                    )}
+                    {props.metal !== undefined && (
+                        <Shimmer isDataLoaded={props.item !== undefined} width={60}>
+                            {props.item !== undefined && (
+                                <Text variant="xSmall">
+                                    {props.t("Metal")}: {`${props.metal.localization[0].name}`}
+                                </Text>
+                            )}
+                        </Shimmer>
+                    )}
                 </Card.Section>
                 {props.extra !== undefined && (
                     <Card.Section

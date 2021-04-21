@@ -8,6 +8,7 @@ import {
     ContextualMenuItemType,
 } from "@fluentui/react";
 import i18n from "./i18n";
+import { Components } from "api/client";
 
 export const CARD_WIDTH = 304;
 export const CARD_HEIGHT = 72;
@@ -131,4 +132,46 @@ export const makeMenuLinks = (
     });
 
     return items;
+};
+
+export const getOptionalSmallItemWithColor = (
+    item?: Components.Schemas.SimpleItem,
+    color?: Components.Schemas.Color | null,
+    metal?: Components.Schemas.Metal | null,
+    small?: boolean,
+): string => {
+    let imageUrl = getOptionalSmallImage(item, small);
+
+    if (item !== undefined && item.has_colors && color !== undefined && color !== null) {
+        imageUrl = imageUrl.replace(item.game_id.toString(), `${item.game_id}_${color.game_id}`);
+    } else if (item !== undefined && item.has_metal_variants && metal !== undefined && metal !== null) {
+        imageUrl = imageUrl.replace(item.game_id.toString(), `${item.game_id}_${metal.game_id}`);
+    }
+
+    return imageUrl;
+};
+
+export const getOptionalSmallImage = (
+    item?:
+        | Components.Schemas.SimpleItem
+        | Components.Schemas.SimpleWorld
+        | Components.Schemas.Emoji
+        | Components.Schemas.World
+        | null,
+    small?: boolean,
+): string => {
+    let imageUrl = "https://cdn.boundlexx.app/worlds/unknown.png";
+
+    if (item !== undefined && item !== null && item.image_url !== null) {
+        imageUrl = item.image_url;
+    }
+
+    if (small === undefined || small) {
+        return replaceLargeImages(imageUrl);
+    }
+    return imageUrl;
+};
+
+export const replaceLargeImages = (stringWithUrl: string): string => {
+    return stringWithUrl.replace(new RegExp(".png", "g"), "_small.png");
 };

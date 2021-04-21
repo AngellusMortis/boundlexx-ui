@@ -12,6 +12,7 @@ import { IColumn, Link, LinkBase, Text, Image, ImageFit } from "@fluentui/react"
 import { withRouter } from "react-router-dom";
 import { getGameCoords } from "utils";
 import { Time } from "components";
+import { getOptionalSmallImage, replaceLargeImages } from "utils";
 
 const mapState = (state: RootState) => ({
     theme: getTheme(state.prefs.theme),
@@ -115,7 +116,7 @@ class WorldShopStands extends APIListDisplay {
                             imageFit={ImageFit.centerContain}
                             maximizeFrame={true}
                             shouldFadeIn={true}
-                            src={world.image_url || "https://cdn.boundlexx.app/worlds/unknown.png"}
+                            src={getOptionalSmallImage(world)}
                             className="card-preview"
                             alt={world.text_name || world.display_name}
                         />
@@ -144,7 +145,7 @@ class WorldShopStands extends APIListDisplay {
                         <Link href={`/worlds/${world.id}/`} onClick={this.onLinkClick}>
                             <span
                                 dangerouslySetInnerHTML={{
-                                    __html: world.html_name || world.display_name,
+                                    __html: replaceLargeImages(world.html_name || world.display_name),
                                 }}
                             ></span>
                         </Link>
@@ -183,7 +184,7 @@ class WorldShopStands extends APIListDisplay {
                             <span style={{ color: "#60baff" }}>{item.guild_tag}</span>{" "}
                             <span
                                 dangerouslySetInnerHTML={{
-                                    __html: item.beacon_html_name || item.beacon_name,
+                                    __html: replaceLargeImages(item.beacon_html_name || item.beacon_name),
                                 }}
                             ></span>
                         </Text>

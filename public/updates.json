@@ -1,35 +1,86 @@
 [
     {
+        "date": "2021-04-18T02:05:00.000Z",
+        "changelogs": [
+            "Updates links to external tools"
+        ]
+    },
+    {
+        "date": "2021-04-18T01:45:00.000Z",
+        "changelogs": [
+            "Adds thumbnails for HTML names",
+            "Adds item images to shop mark popups",
+            "Fixes cached worlds being wiped"
+        ]
+    },
+    {
+        "date": "2021-04-18T00:40:00.000Z",
+        "changelogs": [
+            "Use thumbnails everywhere instead of full size images",
+            "Adds item images to Block Colors and Resources section on world detail pages",
+            "Adds metal variation section on item details",
+            "Updates worlds now cache for 30 days like everything else",
+            "Peroidic calls are made every 5 minutes to fetch new worlds since last update"
+        ]
+    },
+    {
+        "date": "2021-04-15T18:00:00.000Z",
+        "changelogs": [
+            "Fixes some links to items",
+            "Adds item images everywhere",
+            "Adds max width for API display for larger (>1080p) screens to help performance",
+            "Adds color variation section on item details",
+            "Fixes reset data to be more reliable",
+            "Adds ability to switch between Live Universe and Testing Universe of the game"
+        ]
+    },
+    {
         "date": "2020-12-16T12:00:00.000Z",
-        "changelogs": ["Removes not secure for BoundlessCrafting since it has HTTPS now"]
+        "changelogs": [
+            "Removes not secure for BoundlessCrafting since it has HTTPS now"
+        ]
     },
     {
         "date": "2020-11-15T05:40:00.000Z",
-        "changelogs": ["Adds improvements to List Displays"]
+        "changelogs": [
+            "Adds improvements to List Displays"
+        ]
     },
     {
         "date": "2020-11-15T04:05:00.000Z",
-        "changelogs": ["Adds improvements to maintain focus on searchbox"]
+        "changelogs": [
+            "Adds improvements to maintain focus on searchbox"
+        ]
     },
     {
         "date": "2020-11-15T03:50:00.000Z",
-        "changelogs": ["Adds auto-complete to search box"]
+        "changelogs": [
+            "Adds auto-complete to search box"
+        ]
     },
     {
         "date": "2020-11-15T00:55:00.000Z",
-        "changelogs": ["Adds improvements to search and list page rendering"]
+        "changelogs": [
+            "Adds improvements to search and list page rendering"
+        ]
     },
     {
         "date": "2020-11-10T05:12:00.000Z",
-        "changelogs": ["Adjusts z-index of markers so settlements/beacons are on top"]
+        "changelogs": [
+            "Adjusts z-index of markers so settlements/beacons are on top"
+        ]
     },
     {
         "date": "2020-11-05T15:30:00.000Z",
-        "changelogs": ["Adds links to various other community tools"]
+        "changelogs": [
+            "Adds links to various other community tools"
+        ]
     },
     {
         "date": "2020-11-05T13:35:00.000Z",
-        "changelogs": ["Adds max length on portal directions"]
+        "changelogs": [
+            "Adds max length on portal directions"
+        ]
     },
     {
         "date": "2020-11-05T13:05:00.000Z",
@@ -49,31 +100,48 @@
     },
     {
         "date": "2020-11-03T17:58:00.000Z",
-        "changelogs": ["Fixes Atlas map pages with Campfires", "Adds campfire marker image"]
+        "changelogs": [
+            "Fixes Atlas map pages with Campfires",
+            "Adds campfire marker image"
+        ]
     },
     {
         "date": "2020-11-03T15:52:00.000Z",
-        "changelogs": ["Fixes performance on Beacon Boundaries"]
+        "changelogs": [
+            "Fixes performance on Beacon Boundaries"
+        ]
     },
     {
         "date": "2020-11-03T04:35:00.000Z",
-        "changelogs": ["Adds HTML name to Beacons on Atlas Map"]
+        "changelogs": [
+            "Adds HTML name to Beacons on Atlas Map"
+        ]
     },
     {
         "date": "2020-11-03T03:40:00.000Z",
-        "changelogs": ["Adds beacons to Atlas Map", "Adds loading progress bars for Atlas Map"]
+        "changelogs": [
+            "Adds beacons to Atlas Map",
+            "Adds loading progress bars for Atlas Map"
+        ]
     },
     {
         "date": "2020-11-02T13:00:00.000Z",
-        "changelogs": ["Adds prestige, place/mine XP, type data and resource data to Item Details", "Adds help link"]
+        "changelogs": [
+            "Adds prestige, place/mine XP, type data and resource data to Item Details",
+            "Adds help link"
+        ]
     },
     {
         "date": "2020-11-01T12:20:00.000Z",
-        "changelogs": ["More Italian translations"]
+        "changelogs": [
+            "More Italian translations"
+        ]
     },
     {
         "date": "2020-11-01T13:32:00.000Z",
-        "changelogs": ["Adds disclaimers for Boundlexx not being affiliated with Wonderstruck"]
+        "changelogs": [
+            "Adds disclaimers for Boundlexx not being affiliated with Wonderstruck"
+        ]
     },
     {
         "date": "2020-10-31T07:32:00.000Z",
@@ -84,11 +152,15 @@
     },
     {
         "date": "2020-10-31T04:37:00.000Z",
-        "changelogs": ["Adds missing recipe data for tints, required event and required backer tier"]
+        "changelogs": [
+            "Adds missing recipe data for tints, required event and required backer tier"
+        ]
     },
     {
         "date": "2020-10-31T01:20:00.000Z",
-        "changelogs": ["Fixes order of coords in bottom corner"]
+        "changelogs": [
+            "Fixes order of coords in bottom corner"
+        ]
     },
     {
         "date": "2020-10-31T01:15:00.000Z",
@@ -100,47 +172,72 @@
     },
     {
         "date": "2020-10-30T16:05:00.000Z",
-        "changelogs": ["Adds toast notifications and update modal to Atlas page"]
+        "changelogs": [
+            "Adds toast notifications and update modal to Atlas page"
+        ]
     },
     {
         "date": "2020-10-30T15:50:00.000Z",
-        "changelogs": ["Adds shops to Atlas map", "Makes Atlas map not blurry at high zoom levels"]
+        "changelogs": [
+            "Adds shops to Atlas map",
+            "Makes Atlas map not blurry at high zoom levels"
+        ]
     },
     {
         "date": "2020-10-29T22:30:00.000Z",
-        "changelogs": ["Adds Atlas images as interactive map", "Adds more Italian translations"]
+        "changelogs": [
+            "Adds Atlas images as interactive map",
+            "Adds more Italian translations"
+        ]
     },
     {
         "date": "2020-10-26T17:20:00.000Z",
-        "changelogs": ["Attempts to fix media query event for Safari <14"]
+        "changelogs": [
+            "Attempts to fix media query event for Safari <14"
+        ]
     },
     {
         "date": "2020-10-26T16:50:00.000Z",
-        "changelogs": ["Adds world class to Resource Lookup table"]
+        "changelogs": [
+            "Adds world class to Resource Lookup table"
+        ]
     },
     {
         "date": "2020-10-26T14:48:00.000Z",
-        "changelogs": ["Adds global error handler"]
+        "changelogs": [
+            "Adds global error handler"
+        ]
     },
     {
         "date": "2020-10-26T14:25:00.000Z",
-        "changelogs": ["Fixes update modal when content overflows", "Adds 'Reset Data' button"]
+        "changelogs": [
+            "Fixes update modal when content overflows",
+            "Adds 'Reset Data' button"
+        ]
     },
     {
         "date": "2020-10-26T04:40:00.000Z",
-        "changelogs": ["Adds links to Item details to Resource/Color lookups"]
+        "changelogs": [
+            "Adds links to Item details to Resource/Color lookups"
+        ]
     },
     {
         "date": "2020-10-26T04:23:00.000Z",
-        "changelogs": ["Adds links to items on World Details page"]
+        "changelogs": [
+            "Adds links to items on World Details page"
+        ]
     },
     {
         "date": "2020-10-26T04:10:00.000Z",
-        "changelogs": ["Minor styling fixes"]
+        "changelogs": [
+            "Minor styling fixes"
+        ]
     },
     {
         "date": "2020-10-26T03:57:00.000Z",
-        "changelogs": ["Fixes Color hex colors"]
+        "changelogs": [
+            "Fixes Color hex colors"
+        ]
     },
     {
         "date": "2020-10-26T03:55:00.000Z",
@@ -152,19 +249,28 @@
     },
     {
         "date": "2020-10-26T03:30:00.000Z",
-        "changelogs": ["Adds item details page.", "Adds custom scrollbars."]
+        "changelogs": [
+            "Adds item details page.",
+            "Adds custom scrollbars."
+        ]
     },
     {
         "date": "2020-10-25T18:00:00.000Z",
-        "changelogs": ["All pages should now wait for required data is loaded"]
+        "changelogs": [
+            "All pages should now wait for required data is loaded"
+        ]
     },
     {
         "date": "2020-10-20T03:40:00.000Z",
-        "changelogs": ["Changes boolean icons on 'By Resource' to be colored"]
+        "changelogs": [
+            "Changes boolean icons on 'By Resource' to be colored"
+        ]
     },
     {
         "date": "2020-10-20T03:35:00.000Z",
-        "changelogs": ["Changes worlds on 'By Resource' view to be clickable"]
+        "changelogs": [
+            "Changes worlds on 'By Resource' view to be clickable"
+        ]
     },
     {
         "date": "2020-10-20T03:20:00.000Z",
@@ -178,19 +284,29 @@
     },
     {
         "date": "2020-10-19T14:00:00.000Z",
-        "changelogs": ["Fixes going to world details page", "Changes World cards so they be used as links as well"]
+        "changelogs": [
+            "Fixes going to world details page",
+            "Changes World cards so they be used as links as well"
+        ]
     },
     {
         "date": "2020-10-19T13:30:00.000Z",
-        "changelogs": ["Fixes minor styling issues."]
+        "changelogs": [
+            "Fixes minor styling issues."
+        ]
     },
     {
         "date": "2020-10-11T22:05:00.000Z",
-        "changelogs": ["Centered cards on grouped Display pages when there is only a single column"]
+        "changelogs": [
+            "Centered cards on grouped Display pages when there is only a single column"
+        ]
     },
     {
         "date": "2020-10-11T18:00:00.000Z",
-        "changelogs": ["Fixes rendering issues with Show Groups.", "Adds groups for Worlds Display page"]
+        "changelogs": [
+            "Fixes rendering issues with Show Groups.",
+            "Adds groups for Worlds Display page"
+        ]
     },
     {
         "date": "2020-10-11T16:35:00.000Z",
@@ -209,22 +325,33 @@
     },
     {
         "date": "2020-10-11T00:45:00.000Z",
-        "changelogs": ["Fixes auto trailing slash logic"]
+        "changelogs": [
+            "Fixes auto trailing slash logic"
+        ]
     },
     {
         "date": "2020-10-11T00:30:00.000Z",
-        "changelogs": ["Adds detail page for Worlds"]
+        "changelogs": [
+            "Adds detail page for Worlds"
+        ]
     },
     {
         "date": "2020-10-10T04:16:00.000Z",
-        "changelogs": ["Text update. Orbiting -> Orbited"]
+        "changelogs": [
+            "Text update. Orbiting -> Orbited"
+        ]
     },
     {
         "date": "2020-10-10T04:00:00.000Z",
-        "changelogs": ["Fixes for patch note updates"]
+        "changelogs": [
+            "Fixes for patch note updates"
+        ]
     },
     {
         "date": "2020-10-10T02:00:00.000Z",
-        "changelogs": ["Adds patch notes to updates", "Adds filtering to pages"]
+        "changelogs": [
+            "Adds patch notes to updates",
+            "Adds filtering to pages"
+        ]
     }
 ]

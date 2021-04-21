@@ -8,6 +8,8 @@ import {
     Recipe,
     ItemInputsDisplay,
     SovereignColors,
+    ColorVariations,
+    MetalVariations,
     Link,
     ItemShopStandDisplay,
     ItemRequestBasketDisplay,
@@ -16,6 +18,7 @@ import {
 import { getTheme } from "themes";
 import { RootState } from "store";
 import { connect, ConnectedProps } from "react-redux";
+import { getOptionalSmallItemWithColor } from "utils";
 
 interface BaseProps {
     id: number;
@@ -24,6 +27,8 @@ interface BaseProps {
 interface State {
     loaded: boolean;
     item: null | Components.Schemas.Item;
+    color: null | Components.Schemas.Color;
+    metal: null | Components.Schemas.Metal;
 }
 
 const mapState = (state: RootState) => ({
@@ -42,8 +47,11 @@ class Page extends React.Component<Props> {
     state: State = {
         loaded: false,
         item: null,
+        color: null,
+        metal: null,
     };
     mounted = false;
+    variantUpdateInterval: NodeJS.Timeout | null = null;
     client: BoundlexxClient | null = null;
 
     componentDidMount = async () => {
@@ -56,11 +64,18 @@ class Page extends React.Component<Props> {
 
         await api.requireRecipeGroups();
         await api.requireSkills();
-
+        await api.requireColors();
+        await api.requireMetals();
+        this.setVariantFromUrl();
+        this.variantUpdateInterval = setInterval(this.setVariantFromUrl, 100);
         await this.getItem();
     };
 
     componentWillUnmount = () => {
+        if (this.variantUpdateInterval !== null) {
+            clearInterval(this.variantUpdateInterval);
+            this.variantUpdateInterval = null;
+        }
         this.mounted = false;
     };
 
@@ -69,6 +84,35 @@ class Page extends React.Component<Props> {
             this.setState({ item: null, loaded: false }, () => {
                 this.getItem();
             });
+        }
+
+        this.setVariantFromUrl();
+    };
+
+    // TODO:
+    // eslint-disable-next-line
+    setVariantFromUrl = () => {
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.has("color")) {
+            const stringColorId = urlParams.get("color");
+            if (stringColorId) {
+                const colorId = parseInt(stringColorId);
+
+                if (!isNaN(colorId) && (this.state.color === null || this.state.color.game_id !== colorId)) {
+                    this.setState({ color: api.getColor(colorId) });
+                }
+            }
+        }
+
+        if (urlParams.has("metal")) {
+            const stringMetalId = urlParams.get("metal");
+            if (stringMetalId) {
+                const metalId = parseInt(stringMetalId);
+
+                if (!isNaN(metalId) && (this.state.metal === null || this.state.metal.game_id !== metalId)) {
+                    this.setState({ metal: api.getMetal(metalId) });
+                }
+            }
         }
     };
 
@@ -191,7 +235,12 @@ class Page extends React.Component<Props> {
                     >
                         <div>
                             <Image
-                                src={"https://cdn.boundlexx.app/worlds/unknown.png"}
+                                src={getOptionalSmallItemWithColor(
+                                    this.state.item,
+                                    this.state.color,
+                                    this.state.metal,
+                                    false,
+                                )}
                                 style={{ padding: 50, width: "80%", minWidth: "80%" }}
                                 alt="Item"
                             />
@@ -213,6 +262,16 @@ class Page extends React.Component<Props> {
                                 <Text variant="large" style={{ display: "block" }}>
                                     {this.state.item.item_subtitle.localization[0].name}
                                 </Text>
+                                {this.state.color !== null && (
+                                    <Text variant="medium" style={{ display: "block" }}>
+                                        {`${this.state.color.localization[0].name} (${this.state.color.game_id})`}
+                                    </Text>
+                                )}
+                                {this.state.metal !== null && (
+                                    <Text variant="medium" style={{ display: "block" }}>
+                                        {`${this.state.metal.localization[0].name}`}
+                                    </Text>
+                                )}
                                 <Text variant="medium"> {this.state.item.description.strings[0].plain_text} </Text>
                             </h2>
                             <div style={{ textAlign: "center" }}>
@@ -224,7 +283,7 @@ class Page extends React.Component<Props> {
                                         {this.props.t("Find Worlds with Resource")}
                                     </Link>
                                 )}
-                                {this.state.item.has_colors && (
+                                {this.state.item.has_world_colors && (
                                     <Link
                                         href={`/items/color-lookup/?item__game_id=${this.state.item.game_id}`}
                                         style={{ margin: "0 20px" }}
@@ -370,6 +429,12 @@ class Page extends React.Component<Props> {
                     </div>
                 </Stack>
                 {this.state.item !== undefined && this.state.item.has_colors && (
+                    <ColorVariations collapsible={true} extra={this.state.item} />
+                )}
+                {this.state.item !== undefined && this.state.item.has_metal_variants && (
+                    <MetalVariations collapsible={true} extra={this.state.item} />
+                )}
+                {this.state.item !== undefined && this.state.item.has_world_colors && (
                     <SovereignColors
                         collapsible={true}
                         extraDefaultFilters={[
@@ -424,7 +489,7 @@ class Page extends React.Component<Props> {
             return (
                 <Spinner
                     size={SpinnerSize.large}
-                    style={{ height: "50vh" }}
+                    style={{ height: "50vh", margin: "0 auto" }}
                     label={this.props.t("Loading Item...")}
                     ariaLive="assertive"
                 />

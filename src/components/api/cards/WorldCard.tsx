@@ -6,6 +6,7 @@ import { getTheme } from "themes";
 import { Shimmer, Text, Image, ImageFit } from "@fluentui/react";
 import * as api from "api";
 import { Link } from "components";
+import { getOptionalSmallImage, replaceLargeImages } from "utils";
 
 interface BaseProps {
     world: Components.Schemas.SimpleWorld | undefined;
@@ -85,7 +86,7 @@ const Component: React.FunctionComponent<Props> = (props) => {
                                 imageFit={ImageFit.centerContain}
                                 maximizeFrame={true}
                                 shouldFadeIn={true}
-                                src={props.world.image_url || "https://cdn.boundlexx.app/worlds/unknown.png"}
+                                src={getOptionalSmallImage(props.world)}
                                 className="card-preview"
                                 alt={props.world.text_name || props.world.display_name}
                             ></Image>
@@ -98,7 +99,7 @@ const Component: React.FunctionComponent<Props> = (props) => {
                             <Text>
                                 <span
                                     dangerouslySetInnerHTML={{
-                                        __html: props.world.html_name || props.world.display_name,
+                                        __html: replaceLargeImages(props.world.html_name || props.world.display_name),
                                     }}
                                 ></span>
                             </Text>
