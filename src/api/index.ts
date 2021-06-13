@@ -26,6 +26,9 @@ export {
     EventNameMap,
     BackerTierMap,
     SettlementRankMap,
+    ColorBaseMap,
+    ColorGroupMap,
+    ColorShadeMap,
 } from "api/data";
 export {
     config,

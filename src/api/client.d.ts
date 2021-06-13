@@ -117,6 +117,62 @@ declare namespace Components {
                 lang: string;
                 name: string;
             }[];
+            shade:
+                | "BLACK"
+                | "SHADOW"
+                | "NIGHT"
+                | "STRONG"
+                | "DARK"
+                | "DEEP"
+                | "HOT"
+                | "SILK"
+                | "OXIDE"
+                | "PURE"
+                | "WARM"
+                | "SLATE"
+                | "RUST"
+                | "VIVID"
+                | "LIGHT"
+                | "PALE"
+                | "ASHEN"
+                | "BRIGHT"
+                | "STARK"
+                | "COOL"
+                | "WEARY"
+                | "LUMINOUS"
+                | "CRISP"
+                | "COLD"
+                | "WHITE";
+            base:
+                | "AZURE"
+                | "CERULEAN"
+                | "COBALT"
+                | "BLUE"
+                | "LAVENDER"
+                | "LILAC"
+                | "MAGENTA"
+                | "VIOLET"
+                | "BERRY"
+                | "FUCHSIA"
+                | "CHERRY"
+                | "RED"
+                | "ROSE"
+                | "ORANGE"
+                | "SEPIA"
+                | "TAUPE"
+                | "MUSTARD"
+                | "TAN"
+                | "YELLOW"
+                | "LIME"
+                | "MOSS"
+                | "GREEN"
+                | "MINT"
+                | "TEAL"
+                | "VIRIDIAN"
+                | "TURQUOISE"
+                | "SLATE"
+                | "BLACK";
+            group: "BLUE" | "VIOLET" | "RED" | "ORANGE" | "YELLOW" | "GREEN" | "BLACK";
         }
         export interface Emoji {
             names: string[];
@@ -133,25 +189,30 @@ declare namespace Components {
                 | "FLAGS"
                 | "BOUNDLESS"
                 | "UNCATEGORIZED";
-            image_url: string | null; // binary
+            image_url: string | null; // uri
         }
-        export interface ForumFormatPostSerialzier {
+        export interface ExportedFile {
+            name: string;
+            description: string;
+            url: string; // uri
+        }
+        export interface ForumFormatPost {
+            /**
+             * World ID of given world. You can get your World ID from the <a href="https://forum.playboundless.com/uploads/default/original/3X/3/f/3fef2e21cedc3d4594971d6143d40110bd489686.jpeg" target="_blank">Debug Menu</a> if you are on PC
+             */
+            world_id: number;
             /**
              * Your Boundless Username. Required for Sovereign worlds.
              */
             username?: string;
             /**
-             * The ID of your world if 'World Name' is not working. You can get your World ID from the <a href="https://forum.playboundless.com/uploads/default/original/3X/3/f/3fef2e21cedc3d4594971d6143d40110bd489686.jpeg" target="_blank">Debug Menu</a> if you are on PC
-             */
-            world_id: number;
-            /**
              * Do you plan to renew this world? Required for Sovereign worlds.
              */
-            will_renew?: string | null;
+            will_renew?: boolean | null;
             /**
              * Is Beacon compactness enabled?
              */
-            compactness?: string | null;
+            compactness?: boolean | null;
             /**
              * Can Everyone warp/use portals to your world? Required for Sovereign worlds.
              */
@@ -181,7 +242,7 @@ declare namespace Components {
             game_id: number;
             name: string;
             string_id: string;
-            image_url: string | null; // binary
+            image_url: string | null; // uri
             has_colors: boolean;
             has_metal_variants: boolean;
             has_world_colors: boolean;
@@ -511,7 +572,7 @@ declare namespace Components {
             game_id: number;
             name: string;
             string_id: string;
-            image_url: string | null; // binary
+            image_url: string | null; // uri
             has_colors: boolean;
             has_metal_variants: boolean;
             has_world_colors: boolean;
@@ -545,7 +606,7 @@ declare namespace Components {
              * Does this world still exist (returned by game API)?
              */
             active: boolean;
-            image_url: string | null; // binary
+            image_url: string | null; // uri
             name?: string | null;
             display_name: string;
             text_name: string | null;
@@ -578,6 +639,7 @@ declare namespace Components {
              * `1` = Color-Cycling
              */
             special_type: null | number;
+            readonly last_updated?: string; // date-time
             is_sovereign: boolean;
             is_perm: boolean;
             is_exo: boolean;
@@ -586,7 +648,7 @@ declare namespace Components {
             is_public: boolean;
             is_public_edit: boolean;
             is_public_claim: boolean;
-            atlas_image_url: string | null; // binary
+            atlas_image_url: string | null; // uri
         }
         export interface Skill {
             id: number;
@@ -599,7 +661,7 @@ declare namespace Components {
                     plain_text: string;
                 }[];
             };
-            icon_url: string | null; // binary
+            icon_url: string | null; // uri
             description: {
                 string_id: string;
                 strings: {
@@ -648,8 +710,8 @@ declare namespace Components {
             html_name: string | null;
             world_class: "Homeworld" | "Exoworld" | "Sovereign World" | "Creative World";
             address: string;
-            image_url: string | null; // binary
-            forum_url: string | null; // uri ^(?:[a-z0-9.+-]*)://(?:[^\s:@/]+(?::[^\s:@/]*)?@)?(?:(?:25[0-5]|2[0-4]\d|[0-1]?\d?\d)(?:\.(?:25[0-5]|2[0-4]\d|[0-1]?\d?\d)){3}|\[[0-9a-f:.]+\]|([a-z¡-￿0-9](?:[a-z¡-￿0-9-]{0,61}[a-z¡-￿0-9])?(?:\.(?!-)[a-z¡-￿0-9-]{1,63}(?<!-))*\.(?!-)(?:[a-z¡-￿-]{2,63}|xn--[a-z0-9]{1,59})(?<!-)\.?|localhost))(?::\d{2,5})?(?:[/?#][^\s]*)?\z
+            image_url: string | null; // uri
+            forum_url: string | null; // uri ^(?:[a-z0-9.+-]*)://(?:[^\s:@/]+(?::[^\s:@/]*)?@)?(?:(?:0|25[0-5]|2[0-4]\d|1\d?\d?|[1-9]\d?)(?:\.(?:0|25[0-5]|2[0-4]\d|1\d?\d?|[1-9]\d?)){3}|\[[0-9a-f:.]+\]|([a-z¡-￿0-9](?:[a-z¡-￿0-9-]{0,61}[a-z¡-￿0-9])?(?:\.(?!-)[a-z¡-￿0-9-]{1,63}(?<!-))*\.(?!-)(?:[a-z¡-￿-]{2,63}|xn--[a-z0-9]{1,59})(?<!-)\.?|localhost))(?::\d{2,5})?(?:[/?#][^\s]*)?\z
             assignment: {
                 id: number;
             } | null;
@@ -687,6 +749,7 @@ declare namespace Components {
                 id: number;
             };
             time_offset: string | null; // date-time
+            readonly last_updated?: string; // date-time
             is_sovereign: boolean;
             is_perm: boolean;
             is_exo: boolean;
@@ -710,7 +773,7 @@ declare namespace Components {
             } | null;
             next_request_basket_update: string | null; // date-time
             next_shop_stand_update: string | null; // date-time
-            atlas_image_url: string | null; // binary
+            atlas_image_url: string | null; // uri
         }
         export interface WorldBlockColor {
             item: {
@@ -975,9 +1038,9 @@ declare namespace Components {
 }
 declare namespace Paths {
     namespace CreateForumTemplate {
-        export type RequestBody = Components.Schemas.ForumFormatPostSerialzier;
+        export type RequestBody = Components.Schemas.ForumFormatPost;
         namespace Responses {
-            export type $201 = Components.Schemas.ForumFormatPostSerialzier;
+            export type $201 = Components.Schemas.ForumFormatPost;
         }
     }
     namespace ListBlocks {
@@ -1101,15 +1164,74 @@ declare namespace Paths {
     }
     namespace ListColors {
         namespace Parameters {
+            export type Base =
+                | "AZURE"
+                | "CERULEAN"
+                | "COBALT"
+                | "BLUE"
+                | "LAVENDER"
+                | "LILAC"
+                | "MAGENTA"
+                | "VIOLET"
+                | "BERRY"
+                | "FUCHSIA"
+                | "CHERRY"
+                | "RED"
+                | "ROSE"
+                | "ORANGE"
+                | "SEPIA"
+                | "TAUPE"
+                | "MUSTARD"
+                | "TAN"
+                | "YELLOW"
+                | "LIME"
+                | "MOSS"
+                | "GREEN"
+                | "MINT"
+                | "TEAL"
+                | "VIRIDIAN"
+                | "TURQUOISE"
+                | "SLATE"
+                | "BLACK";
+            export type Group = "BLUE" | "VIOLET" | "RED" | "ORANGE" | "YELLOW" | "GREEN" | "BLACK";
             export type Lang = "english" | "french" | "german" | "italian" | "spanish" | "none" | "all";
             export type Limit = number;
             export type Offset = number;
             export type Ordering = string;
             export type Search = string;
+            export type Shade =
+                | "BLACK"
+                | "SHADOW"
+                | "NIGHT"
+                | "STRONG"
+                | "DARK"
+                | "DEEP"
+                | "HOT"
+                | "SILK"
+                | "OXIDE"
+                | "PURE"
+                | "WARM"
+                | "SLATE"
+                | "RUST"
+                | "VIVID"
+                | "LIGHT"
+                | "PALE"
+                | "ASHEN"
+                | "BRIGHT"
+                | "STARK"
+                | "COOL"
+                | "WEARY"
+                | "LUMINOUS"
+                | "CRISP"
+                | "COLD"
+                | "WHITE";
         }
         export interface QueryParameters {
             limit?: Parameters.Limit;
             offset?: Parameters.Offset;
+            shade?: Parameters.Shade;
+            base?: Parameters.Base;
+            group?: Parameters.Group;
             lang?: Parameters.Lang;
             search?: Parameters.Search;
             ordering?: Parameters.Ordering;
@@ -1180,6 +1302,36 @@ declare namespace Paths {
                  */
                 previous?: string | null; // uri
                 results?: Components.Schemas.Emoji[];
+            }
+        }
+    }
+    namespace ListExportedFiles {
+        namespace Parameters {
+            export type Limit = number;
+            export type Offset = number;
+        }
+        export interface QueryParameters {
+            limit?: Parameters.Limit;
+            offset?: Parameters.Offset;
+        }
+        namespace Responses {
+            export interface $200 {
+                /**
+                 * example:
+                 * 123
+                 */
+                count?: number;
+                /**
+                 * example:
+                 * http://api.example.org/accounts/?offset=400&limit=100
+                 */
+                next?: string | null; // uri
+                /**
+                 * example:
+                 * http://api.example.org/accounts/?offset=200&limit=100
+                 */
+                previous?: string | null; // uri
+                results?: Components.Schemas.ExportedFile[];
             }
         }
     }
@@ -1762,6 +1914,7 @@ declare namespace Paths {
             export type IsLocked = string;
             export type IsPublic = string;
             export type IsSovereign = string;
+            export type LastUpdated = string;
             export type Limit = number;
             export type Offset = number;
             export type Ordering = string;
@@ -1805,6 +1958,7 @@ declare namespace Paths {
             is_default?: Parameters.IsDefault;
             show_inactive?: Parameters.ShowInactive;
             show_inactive_colors?: Parameters.ShowInactiveColors;
+            last_updated?: Parameters.LastUpdated;
             search?: Parameters.Search;
             ordering?: Parameters.Ordering;
         }
@@ -1842,15 +1996,74 @@ declare namespace Paths {
     }
     namespace RetrieveColor {
         namespace Parameters {
+            export type Base =
+                | "AZURE"
+                | "CERULEAN"
+                | "COBALT"
+                | "BLUE"
+                | "LAVENDER"
+                | "LILAC"
+                | "MAGENTA"
+                | "VIOLET"
+                | "BERRY"
+                | "FUCHSIA"
+                | "CHERRY"
+                | "RED"
+                | "ROSE"
+                | "ORANGE"
+                | "SEPIA"
+                | "TAUPE"
+                | "MUSTARD"
+                | "TAN"
+                | "YELLOW"
+                | "LIME"
+                | "MOSS"
+                | "GREEN"
+                | "MINT"
+                | "TEAL"
+                | "VIRIDIAN"
+                | "TURQUOISE"
+                | "SLATE"
+                | "BLACK";
             export type GameId = string;
+            export type Group = "BLUE" | "VIOLET" | "RED" | "ORANGE" | "YELLOW" | "GREEN" | "BLACK";
             export type Lang = "english" | "french" | "german" | "italian" | "spanish" | "none" | "all";
             export type Ordering = string;
             export type Search = string;
+            export type Shade =
+                | "BLACK"
+                | "SHADOW"
+                | "NIGHT"
+                | "STRONG"
+                | "DARK"
+                | "DEEP"
+                | "HOT"
+                | "SILK"
+                | "OXIDE"
+                | "PURE"
+                | "WARM"
+                | "SLATE"
+                | "RUST"
+                | "VIVID"
+                | "LIGHT"
+                | "PALE"
+                | "ASHEN"
+                | "BRIGHT"
+                | "STARK"
+                | "COOL"
+                | "WEARY"
+                | "LUMINOUS"
+                | "CRISP"
+                | "COLD"
+                | "WHITE";
         }
         export interface PathParameters {
             game_id: Parameters.GameId;
         }
         export interface QueryParameters {
+            shade?: Parameters.Shade;
+            base?: Parameters.Base;
+            group?: Parameters.Group;
             lang?: Parameters.Lang;
             search?: Parameters.Search;
             ordering?: Parameters.Ordering;
@@ -2201,6 +2414,7 @@ declare namespace Paths {
             export type IsLocked = string;
             export type IsPublic = string;
             export type IsSovereign = string;
+            export type LastUpdated = string;
             export type Ordering = string;
             export type Region = "use" | "usw" | "euc" | "aus" | "sandbox";
             export type Search = string;
@@ -2243,6 +2457,7 @@ declare namespace Paths {
             is_default?: Parameters.IsDefault;
             show_inactive?: Parameters.ShowInactive;
             show_inactive_colors?: Parameters.ShowInactiveColors;
+            last_updated?: Parameters.LastUpdated;
             search?: Parameters.Search;
             ordering?: Parameters.Ordering;
         }
@@ -2386,6 +2601,18 @@ export interface OperationMethods {
         data?: any,
         config?: AxiosRequestConfig,
     ): OperationResponse<Paths.RetrieveEmoji.Responses.$200>;
+    /**
+     * listExportedFiles - List Exported Files
+     *
+     * Retrieves the list of game files from the game Boundless.
+     *
+     * Requires authentication. Provide `Authorization: Token <token>` header.
+     */
+    "listExportedFiles"(
+        parameters?: Parameters<Paths.ListExportedFiles.QueryParameters>,
+        data?: any,
+        config?: AxiosRequestConfig,
+    ): OperationResponse<Paths.ListExportedFiles.Responses.$200>;
     /**
      * listItems - List Items
      *
@@ -2742,6 +2969,9 @@ export interface OperationMethods {
     ): OperationResponse<Paths.ListWorldPollResources.Responses.$200>;
     /**
      * createForumTemplate - Create Forum Template
+     *
+     * Generates a Discourse markdown template ready to be posted on the
+     * Boundless forums for a world.
      */
     "createForumTemplate"(
         parameters?: Parameters<UnknownParamsObject>,
@@ -2858,6 +3088,20 @@ export interface PathsDictionary {
             data?: any,
             config?: AxiosRequestConfig,
         ): OperationResponse<Paths.RetrieveEmoji.Responses.$200>;
+    };
+    ["/exports/"]: {
+        /**
+         * listExportedFiles - List Exported Files
+         *
+         * Retrieves the list of game files from the game Boundless.
+         *
+         * Requires authentication. Provide `Authorization: Token <token>` header.
+         */
+        "get"(
+            parameters?: Parameters<Paths.ListExportedFiles.QueryParameters>,
+            data?: any,
+            config?: AxiosRequestConfig,
+        ): OperationResponse<Paths.ListExportedFiles.Responses.$200>;
     };
     ["/items/"]: {
         /**
@@ -3284,6 +3528,9 @@ export interface PathsDictionary {
     ["/forum/"]: {
         /**
          * createForumTemplate - Create Forum Template
+         *
+         * Generates a Discourse markdown template ready to be posted on the
+         * Boundless forums for a world.
          */
         "post"(
             parameters?: Parameters<UnknownParamsObject>,
