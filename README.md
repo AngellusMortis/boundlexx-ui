@@ -1,5 +1,7 @@
 # Boundlexx UI
 
+Achieved to prevent notifications about outdated packages. Message me on Boundless forums if you want to contribute.
+
 ## Requirements
 
 This project is configured to work with Docker inside of VS Code using the
