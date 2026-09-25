@@ -1,6 +1,7 @@
 # Boundlexx UI
 
-Achieved to prevent notifications about outdated packages. Message me on Boundless forums if you want to contribute.
+> [!IMPORTANT]  
+> Achieved to prevent notifications about outdated packages. Message me on Boundless forums if you want to contribute.
 
 ## Requirements
 
